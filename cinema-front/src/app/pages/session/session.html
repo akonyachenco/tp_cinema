@@ -1,0 +1,96 @@
+<!-- pages/session/session.component.html -->
+<div class="session-container">
+  <main class="container">
+    @if (isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Загружаем информацию о сеансе...</p>
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="error-message">
+        <h3>{{ errorMessage }}</h3>
+        <button class="btn" (click)="goBack()">Вернуться</button>
+      </div>
+    }
+
+    @if (!isLoading && session && hall && movie) {
+      <h1>
+        <button class="back-btn" (click)="goBack()">←</button>
+        {{ movie.title }} — {{ session.dateTime | date:'dd.MM.yyyy HH:mm' }}
+      </h1>
+
+      <section class="hall">
+        <aside class="hall-info">
+          <h3>Информация</h3>
+          <p><strong>Зал:</strong> {{ hall.hallName }}</p>
+          <p><strong>Тип:</strong> {{ hall.hallType }}</p>
+          <p><strong>Рядов:</strong> {{ hall.rows_count }}</p>
+          <p><strong>Мест в ряду:</strong> {{ hall.seatsPerRow }}</p>
+          <p><strong>Базовая цена:</strong> {{ hall.basePrice }} ₽</p>
+          
+          <div class="selected-info" *ngIf="selectedSeats.length > 0">
+            <h4>Выбранные места ({{ selectedSeats.length }})</h4>
+            <p>{{ getSelectedSeatsText() }}</p>
+            <p><strong>Итого: {{ getTotalPrice() }} ₽</strong></p>
+            
+            <div class="action-buttons">
+              <button class="btn btn-confirm" (click)="bookSeats()">
+                Забронировать
+              </button>
+              <button class="btn btn-outline" (click)="clearSelection()">
+                Очистить
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <div class="seats-area">
+          <div class="screen">ЭКРАН</div>
+
+          <div class="seat-map">
+            @for (row of getRows(); track row) {
+              <div class="row">
+                <div class="row-number">{{ row }}</div>
+                @for (seatUI of getSeatsByRow(row); track seatUI.seat.seatId) {
+                  <div 
+                    class="seat"
+                    [class]="getSeatStatus(seatUI)"
+                    (click)="selectSeat(seatUI)"
+                    [title]="'Ряд ' + seatUI.seat.rowNumber + ', Место ' + seatUI.seat.seatNumber + ' - ' + getSeatPrice(seatUI.seat) + ' ₽'">
+                    {{ seatUI.seat.seatNumber }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="legend">
+            <span class="legend-item">
+              <span class="box available"></span>Доступно
+            </span>
+            <span class="legend-item">
+              <span class="box vip"></span>VIP (+50%)
+            </span>
+            <span class="legend-item">
+              <span class="box selected"></span>Выбрано
+            </span>
+            <span class="legend-item">
+              <span class="box taken"></span>Занято
+            </span>
+          </div>
+
+          <div class="next-step">
+            <button class="btn" (click)="bookSeats()" [disabled]="selectedSeats.length === 0">
+              Оформить бронь
+            </button>
+            <button class="btn btn-outline" (click)="goBack()">
+              Отмена
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+</div>

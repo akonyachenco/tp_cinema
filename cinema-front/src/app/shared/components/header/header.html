@@ -1,0 +1,22 @@
+<!-- shared/header/header.component.html -->
+<header class="site-header">
+  <div class="brand">{{ appName }}</div>
+  <nav class="top-nav">
+    <a routerLink="/" routerLinkActive="active">Афиша</a>
+@if (isAuthenticated) {
+  <a routerLink="/account" routerLinkActive="active">Личный кабинет</a>
+}
+@if (isAdmin) {
+  <a routerLink="/admin" routerLinkActive="active">Панель администратора</a>
+}
+@if (!isAuthenticated) {
+  <a routerLink="/login" routerLinkActive="active">Вход</a>
+}
+@if (!isAuthenticated) {
+  <a routerLink="/register" routerLinkActive="active">Регистрация</a>
+}
+@if (isAuthenticated) {
+  <button class="logout-btn" (click)="logout()">Выйти</button>
+}
+  </nav>
+</header>

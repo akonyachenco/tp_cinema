@@ -1,0 +1,20 @@
+/* Дополнительные стили для формы регистрации */
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+input.error {
+  border-color: #e74c3c !important;
+  background: #ffeaea;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+}

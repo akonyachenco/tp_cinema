@@ -1,0 +1,194 @@
+<div class="account-page">
+  <div class="container">
+    <h1>Личный кабинет</h1>
+    
+    @if (!user) {
+      <div class="not-authorized">
+        <p>Для доступа к личному кабинету необходимо войти в систему.</p>
+        <a class="btn" routerLink="/login">Войти</a>
+      </div>
+    } @else {
+      <div class="account-layout">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+          <div class="user-info">
+            <div class="avatar">{{ user.name?.charAt(0) }}{{ user.surname?.charAt(0) }}</div>
+            <h3>{{ user.name }} {{ user.surname }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <p class="user-meta">
+              Возраст: {{ getUserAge(user.birthDate) }} лет<br>
+              Пользователь с {{ user.registrationDate | date:'dd.MM.yyyy' }}
+            </p>
+          </div>
+          
+          <nav class="sidebar-nav">
+            <button 
+              class="nav-btn" 
+              [class.active]="activeTab === 'bookings'"
+              (click)="setActiveTab('bookings')">
+              📅 Мои бронирования
+            </button>
+            <button 
+              class="nav-btn" 
+              [class.active]="activeTab === 'profile'"
+              (click)="setActiveTab('profile')">
+              👤 Профиль
+            </button>
+            <button 
+              class="nav-btn" 
+              [class.active]="activeTab === 'settings'"
+              (click)="setActiveTab('settings')">
+              ⚙️ Настройки
+            </button>
+          </nav>
+        </aside>
+        
+        <!-- Основное содержимое -->
+        <main class="content">
+          @if (activeTab === 'bookings') {
+            <section class="bookings-section">
+              <h2>Мои бронирования</h2>
+              
+              @if (isLoading) {
+                <div class="loading">
+                  <div class="spinner"></div>
+                  <p>Загрузка бронирований...</p>
+                </div>
+              } @else if (bookings.length === 0) {
+                <div class="empty-state">
+                  <h3>🎭 У вас ещё нет бронирований</h3>
+                  <p>Выберите фильм и забронируйте места, чтобы они появились здесь</p>
+                  <a class="btn" routerLink="/">Посмотреть афишу</a>
+                </div>
+              } @else {
+                <div class="bookings-list">
+                  @for (booking of bookings; track booking.bookingId) {
+                    <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                      <div class="booking-header">
+                        <h3>Бронирование #{{ booking.bookingId }}</h3>
+                        <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                          {{ getBookingStatusText(booking.status) }}
+                        </span>
+                      </div>
+                      
+                      <div class="booking-info">
+                        <p class="booking-time">
+                          <strong>Дата бронирования:</strong> 
+                          {{ formatDate(booking.bookingTime) }}
+                        </p>
+                        <p class="booking-cost">
+                          <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                        </p>
+                        <p class="booking-seats">
+                          <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                        </p>
+                        
+                        @if (booking.ticketList && booking.ticketList.length > 0) {
+                          <div class="tickets-list">
+                            <strong>Билеты:</strong>
+                            @for (ticket of booking.ticketList; track ticket.ticketId) {
+                              <div class="ticket-item">
+                                Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                      
+                      <div class="booking-actions">
+                        @if (booking.status === 'active') {
+                          <a class="btn btn-sm" [routerLink]="['/ticket', booking.bookingId]">
+                            Посмотреть билет
+                          </a>
+                          @if (canCancelBooking(booking)) {
+                            <button 
+                              class="btn btn-sm btn-outline" 
+                              (click)="cancelBooking(booking.bookingId)">
+                              Отменить
+                            </button>
+                          } @else {
+                            <span class="cancel-disabled">
+                              Отмена недоступна
+                            </span>
+                          }
+                        } @else if (booking.status === 'cancelled') {
+                          <span class="cancelled-text">
+                            ❌ Бронирование отменено
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          }
+          
+          @if (activeTab === 'profile') {
+            <section class="profile-section">
+              <h2>Мой профиль</h2>
+              
+              <div class="profile-info">
+                <div class="info-row">
+                  <strong>Имя:</strong> {{ user.name }}
+                </div>
+                <div class="info-row">
+                  <strong>Фамилия:</strong> {{ user.surname }}
+                </div>
+                <div class="info-row">
+                  <strong>Email:</strong> {{ user.email }}
+                </div>
+                <div class="info-row">
+                  <strong>Дата рождения:</strong> {{ user.birthDate | date:'dd.MM.yyyy' }}
+                </div>
+                <div class="info-row">
+                  <strong>Возраст:</strong> {{ getUserAge(user.birthDate) }} лет
+                </div>
+                <div class="info-row">
+                  <strong>Дата регистрации:</strong> {{ user.registrationDate | date:'dd.MM.yyyy' }}
+                </div>
+                <div class="info-row">
+                  <strong>Статус:</strong> 
+                  <span class="user-role">{{ user.role === 'admin' ? 'Администратор' : 'Пользователь' }}</span>
+                </div>
+              </div>
+              
+              <div class="profile-actions">
+                <button class="btn">Редактировать профиль</button>
+                <button class="btn btn-outline">Сменить пароль</button>
+              </div>
+            </section>
+          }
+          
+          @if (activeTab === 'settings') {
+            <section class="settings-section">
+              <h2>Настройки</h2>
+              
+              <div class="settings-group">
+                <h3>Уведомления</h3>
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" checked>
+                    Уведомления о новых сеансах
+                  </label>
+                </div>
+                <div class="setting-item">
+                  <label>
+                    <input type="checkbox" checked>
+                    Напоминание о бронировании
+                  </label>
+                </div>
+              </div>
+              
+              <div class="settings-group">
+                <h3>Безопасность</h3>
+                <button class="btn btn-outline">Сменить пароль</button>
+                <button class="btn btn-outline">Выйти из всех устройств</button>
+              </div>
+            </section>
+          }
+        </main>
+      </div>
+    }
+  </div>
+</div>

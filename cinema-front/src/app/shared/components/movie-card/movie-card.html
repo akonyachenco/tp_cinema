@@ -1,0 +1,44 @@
+<article class="poster">
+  <div class="poster-img">
+    @if (movie.posterUrl) {
+      <img [src]="movie.posterUrl" [alt]="movie.title" (error)="onImageError($event)">
+    } @else {
+      <div class="poster-placeholder">
+        🎬
+      </div>
+    }
+    <div class="age-badge">{{ movie.ageRating }}</div>
+  </div>
+  
+  <div class="poster-content">
+    <h3 class="movie-title">{{ movie.title }}</h3>
+    
+    <div class="movie-meta">
+      <span class="duration">{{ movie.duration }} мин</span>
+      <span class="year">{{ getYear(movie.releaseDate) }}</span>
+    </div>
+    
+    <div class="genres">
+      @for (genre of movie.genres?.slice(0, 3); track genre) {
+        <span class="genre-tag">{{ genre }}</span>
+      }
+    </div>
+    
+    @if (movie.description && movie.description.length > 0) {
+      <p class="movie-description">
+        {{ truncateDescription(movie.description) }}
+      </p>
+    }
+    
+    <div class="actions">
+    <a class="btn" [routerLink]="['/movie', movie.filmId]">
+      Подробнее и сеансы
+    </a>
+      @if (movie.trailerUrl) {
+        <a class="btn btn-outline" [href]="movie.trailerUrl" target="_blank" rel="noopener">
+          Трейлер
+        </a>
+      }
+    </div>
+  </div>
+</article>

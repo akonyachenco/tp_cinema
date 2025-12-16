@@ -1,0 +1,24 @@
+<!-- shared/footer/footer.component.html -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4>Кинотеатр</h4>
+      <p>© {{ currentYear }} — онлайн бронирование билетов</p>
+    </div>
+    <div class="footer-section">
+      <h4>Контакты</h4>
+      <p>г. Москва, ул. Кинотеатральная, 1</p>
+      <p>+7 (495) 123-45-67</p>
+    </div>
+    <div class="footer-section">
+      <h4>Навигация</h4>
+      <a routerLink="/">Афиша</a>
+      @if (isAuthenticated) {
+        <a routerLink="/account" routerLinkActive="active">Личный кабинет</a>
+        }
+        @if (!isAuthenticated) {
+            <a routerLink="/login" routerLinkActive="active">Вход</a>
+        }
+    </div>
+  </div>
+</footer>

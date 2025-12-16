@@ -1,0 +1,376 @@
+/* pages/session/session.component.css */
+.session-container {
+  min-height: 100vh;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* Заголовок */
+.site-header {
+  background: #111;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.top-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.top-nav a {
+  color: #ccc;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.top-nav a:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* Основной контент */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid #555;
+  color: #ccc;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: #333;
+  border-color: #666;
+}
+
+/* Схема зала */
+.hall {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.hall-info {
+  flex: 0 0 300px;
+  background: #222;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.hall-info h3 {
+  margin-top: 0;
+  color: #fff;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.hall-info p {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.selected-info {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #444;
+}
+
+.selected-info h4 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.selected-info p {
+  color: #ddd;
+  line-height: 1.4;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.seats-area {
+  flex: 1;
+  background: #222;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.screen {
+  background: linear-gradient(180deg, #555 0%, #333 100%);
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid #666;
+}
+
+.seat-map {
+  margin-bottom: 2rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.row-number {
+  width: 30px;
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.seat {
+  width: 45px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  user-select: none;
+  border: 2px solid transparent;
+}
+
+.seat:hover:not(.taken) {
+  transform: scale(1.05);
+}
+
+/* Состояния мест */
+.seat.available {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #fff;
+}
+
+.seat.available:hover {
+  background-color: #3a3a3a;
+  border-color: #555;
+}
+
+.seat.vip {
+  background-color: #5a3d8a;
+  border-color: #7a5dba;
+  color: #fff;
+}
+
+.seat.vip:hover {
+  background-color: #6a4d9a;
+  border-color: #8a6dca;
+}
+
+.seat.selected {
+  background-color: #4CAF50;
+  border-color: #6ecf70;
+  color: white;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
+.seat.selected:hover {
+  background-color: #5cbf60;
+}
+
+.seat.taken {
+  background-color: #444;
+  color: #777;
+  cursor: not-allowed;
+  border-color: #555;
+}
+
+/* Легенда */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ccc;
+}
+
+.box {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 2px solid transparent;
+}
+
+.box.available {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+.box.vip {
+  background-color: #5a3d8a;
+  border-color: #7a5dba;
+}
+
+.box.selected {
+  background-color: #4CAF50;
+  border-color: #6ecf70;
+}
+
+.box.taken {
+  background-color: #444;
+  border-color: #555;
+}
+
+/* Кнопки */
+.next-step {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.8rem 2rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #666;
+  color: #ccc;
+}
+
+.btn-outline:hover {
+  background: #333;
+  border-color: #777;
+}
+
+.btn-confirm {
+  background: #28a745;
+}
+
+.btn-confirm:hover {
+  background: #218838;
+}
+
+/* Загрузка и ошибки */
+.loading, .error-message {
+  text-align: center;
+  padding: 3rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #333;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message h3 {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+/* Подвал */
+.footer {
+  background: #111;
+  color: #888;
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 3rem;
+  border-top: 1px solid #333;
+  font-size: 0.9rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .hall {
+    flex-direction: column;
+  }
+  
+  .hall-info {
+    flex: none;
+    width: 100%;
+  }
+  
+  .seat {
+    width: 35px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+}

@@ -1,0 +1,179 @@
+<div class="movie-detail-page">
+  <div class="container">
+    <!-- Кнопка назад -->
+    <button class="back-btn" (click)="goBack()">
+      ← Назад к афише
+    </button>
+    
+    @if (isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Загружаем информацию о фильме...</p>
+      </div>
+    }
+    
+    @if (errorMessage) {
+      <div class="error-message">
+        <h3>{{ errorMessage }}</h3>
+        <a class="btn" routerLink="/">Вернуться на главную</a>
+      </div>
+    }
+    
+    @if (movie && !isLoading) {
+      <!-- Заголовок и основная информация -->
+      <div class="movie-header">
+        <div class="movie-poster-large">
+          @if (movie.posterUrl) {
+            <img [src]="movie.posterUrl" [alt]="movie.title">
+          } @else {
+            <div class="poster-placeholder-large">🎬</div>
+          }
+        </div>
+        
+        <div class="movie-info">
+          <div class="movie-meta-top">
+            <span class="age-badge">{{ movie.ageRating }}</span>
+            <span class="duration">{{ movie.duration }} мин</span>
+            <span class="release-date">
+              {{ movie.releaseDate | date:'yyyy' }} год
+            </span>
+          </div>
+          
+          <h1 class="movie-title">{{ movie.title }}</h1>
+          
+          <div class="genres">
+            @for (genre of movie.genres; track genre) {
+              <span class="genre-badge">{{ genre }}</span>
+            }
+          </div>
+          
+          <div class="movie-actions">
+            @if (movie.trailerUrl) {
+              <a class="btn btn-trailer" [href]="movie.trailerUrl" target="_blank" rel="noopener">
+                <span class="icon">🎬</span> Смотреть трейлер
+              </a>
+            }
+            <button class="btn btn-outline">
+              <span class="icon">❤️</span> В избранное
+            </button>
+          </div>
+          
+          <div class="movie-description-full">
+            <h3>Описание</h3>
+            <p>{{ movie.description }}</p>
+          </div>
+          
+          <div class="movie-details">
+            <div class="detail-item">
+              <strong>Режиссер:</strong> Дени Вильнёв
+            </div>
+            <div class="detail-item">
+              <strong>Страна:</strong> США, Канада
+            </div>
+            <div class="detail-item">
+              <strong>В ролях:</strong> Тимоті Шаламе, Зендея, Ребекка Фергюсон
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Блок с сеансами -->
+      <div class="sessions-section">
+        <div class="section-header">
+          <h2>📅 Выберите сеанс</h2>
+          
+          <div class="date-filters">
+            <button 
+              class="filter-btn" 
+              [class.active]="activeDateFilter === 'today'"
+              (click)="setDateFilter('today')">
+              Сегодня
+            </button>
+            <button 
+              class="filter-btn" 
+              [class.active]="activeDateFilter === 'tomorrow'"
+              (click)="setDateFilter('tomorrow')">
+              Завтра
+            </button>
+            <button 
+              class="filter-btn" 
+              [class.active]="activeDateFilter === 'week'"
+              (click)="setDateFilter('week')">
+              На неделе
+            </button>
+          </div>
+        </div>
+        
+        @if (filteredSessions.length === 0) {
+          <div class="no-sessions">
+            <p>😔 На выбранную дату сеансов нет</p>
+            <p>Попробуйте выбрать другую дату или посмотрите другие фильмы</p>
+          </div>
+        } @else {
+          <div class="sessions-grid">
+            @for (session of filteredSessions; track session.sessionId) {
+              <div class="session-card" [class.soon]="isSessionSoon(session)">
+                <div class="session-time">
+                  <div class="time">{{ formatSessionTime(session.dateTime) }}</div>
+                  <div class="date">{{ formatSessionDate(session.dateTime) }}</div>
+                </div>
+                
+                <div class="session-info">
+                  <h3>{{ getHallName(session.hallId) }}</h3>
+                  <p class="hall-type">{{ getHallType(session.hallId) }}</p>
+                  <p class="session-status">
+                    @if (isSessionSoon(session)) {
+                      <span class="soon-badge">Скоро начинается</span>
+                    } @else {
+                      <span class="status-active">Доступно</span>
+                    }
+                  </p>
+                </div>
+                
+                <div class="session-price">
+                  <div class="price">{{ getTicketPrice(session.hallId) }} ₽</div>
+                  <small>от места</small>
+                </div>
+                
+                <div class="session-actions">
+                  <button 
+                    class="btn" 
+                    [disabled]="isSessionSoon(session)"
+                    (click)="navigateToBooking(session.sessionId)">
+                    Выбрать места
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      
+      <!-- Дополнительная информация -->
+      <div class="additional-info">
+        <h3>📌 Дополнительная информация</h3>
+        <div class="info-grid">
+          <div class="info-card">
+            <h4>🎟️ Возрастное ограничение</h4>
+            <p>Для лиц старше {{ movie.ageRating }}</p>
+          </div>
+          <div class="info-card">
+            <h4>⏱️ Продолжительность</h4>
+            <p>{{ movie.duration }} минут</p>
+            <small>С учетом титров</small>
+          </div>
+          <div class="info-card">
+            <h4>🎭 Форматы показа</h4>
+            <p>2D • IMAX • 4DX</p>
+            <small>Доступность зависит от зала</small>
+          </div>
+          <div class="info-card">
+            <h4>💺 Бронирование</h4>
+            <p>До 15 мест в одном бронировании</p>
+            <small>Отмена за 1 час до сеанса</small>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,93 @@
+<!-- pages/confirm/confirm.component.html -->
+<div class="confirm-container">
+  <main class="container">
+    @if (isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Загружаем детали брони...</p>
+      </div>
+    }
+
+    @if (!isLoading && booking) {
+      <div class="confirmation-wrapper">
+        <!-- Левая колонка: Детали -->
+        <div class="confirmation-details">
+          <div class="success-header">
+            <div class="success-icon">✓</div>
+            <h1>Бронирование подтверждено!</h1>
+            <p class="success-message">
+              Ваши билеты успешно забронированы. Номер бронирования:
+              <strong>#{{ booking.bookingId }}</strong>
+            </p>
+          </div>
+
+          <div class="booking-card">
+            <div class="booking-header">
+              <h2>🎬 {{ booking.movie.title }}</h2>
+              <div class="movie-meta">
+                <span class="meta-badge">{{ booking.movie.ageRating }}</span>
+                <span class="meta-badge">{{ booking.movie.duration }} мин</span>
+              </div>
+            </div>
+
+            <div class="booking-info">
+              <div class="info-row">
+                <span class="info-label">📅 Дата и время</span>
+                <span class="info-value">
+                  {{ getFormattedDate(booking.session.dateTime) }},
+                  {{ getFormattedTime(booking.session.dateTime) }}
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">📍 Зал</span>
+                <span class="info-value">
+                  {{ booking.session.hallName }} ({{ booking.session.hallType }})
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">💺 Места</span>
+                <span class="info-value seats-value">
+                  {{ getSeatsText() }}
+                  <small>({{ booking.seats.length }} мест)</small>
+                </span>
+              </div>
+            </div>
+
+            <div class="seats-details">
+              <h3>Выбранные места:</h3>
+              <div class="seats-grid">
+                @for (seat of booking.seats; track seat) {
+                  <div class="seat-item" [class.vip]="seat.type === 'vip'">
+                    <div class="seat-number">Ряд {{ seat.row }}, Место {{ seat.seat }}</div>
+                    <div class="seat-type">{{ seat.type === 'vip' ? 'VIP' : 'Стандарт' }}</div>
+                    <div class="seat-price">{{ seat.price }} ₽</div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" (click)="downloadTicket()">
+              📥 Скачать билеты (PDF)
+            </button>
+            <button class="btn btn-secondary" (click)="printTicket()">
+              🖨️ Распечатать
+            </button>
+            <button class="btn btn-outline" (click)="goToAccount()">
+              👤 В личный кабинет
+            </button>
+            <button class="btn btn-text" (click)="goHome()">
+              ← Вернуться на главную
+            </button>
+          </div>
+        </div>
+
+        <!-- Правая колонка: Чек -->
+
+      </div>
+    }
+  </main>
+</div>

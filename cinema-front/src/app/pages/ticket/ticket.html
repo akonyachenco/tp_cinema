@@ -1,0 +1,223 @@
+<div class="ticket-page" [class.print-mode]="isPrintMode">
+  <div class="container">
+    <!-- Навигация -->
+    @if (!isPrintMode) {
+      <div class="page-header">
+        <button class="back-btn" (click)="goToAccount()">
+          ← В личный кабинет
+        </button>
+        <h1>Электронный билет</h1>
+      </div>
+    }
+    
+    @if (isLoading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Загружаем билет...</p>
+      </div>
+    }
+    
+    @if (errorMessage) {
+      <div class="error-message">
+        <h3>{{ errorMessage }}</h3>
+        <a class="btn" routerLink="/account">Вернуться в кабинет</a>
+      </div>
+    }
+    
+    @if (ticket && booking && !isLoading && !errorMessage) {
+      <div class="ticket-container">
+        <!-- Основной билет -->
+        <div class="ticket-main">
+          <div class="ticket-header">
+            <div class="cinema-info">
+              <h2>Кинотеатр "Премиум"</h2>
+              <p class="cinema-address">г. Москва, ул. Кинотеатральная, 1</p>
+              <p class="cinema-phone">+7 (495) 123-45-67</p>
+            </div>
+            
+            <div class="ticket-status">
+              <div class="status-badge" [class.active]="booking.status === 'active'" 
+                                     [class.cancelled]="booking.status === 'cancelled'">
+                {{ booking.status === 'active' ? 'ПОДТВЕРЖДЕН' : 'ОТМЕНЕН' }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="ticket-content">
+            <!-- Левая часть: информация о фильме -->
+            <div class="ticket-left">
+              <div class="movie-info">
+                <h3 class="movie-title">{{ getSessionInfo(booking.sessionId).filmTitle }}</h3>
+                
+                <div class="session-details">
+                  <div class="detail-row">
+                    <span class="label">Дата и время:</span>
+                    <span class="value">{{ formatDateTime(getSessionInfo(booking.sessionId).dateTime) }}</span>
+                  </div>
+                  
+                  <div class="detail-row">
+                    <span class="label">Зал:</span>
+                    <span class="value">{{ getSessionInfo(booking.sessionId).hallName }}</span>
+                  </div>
+                  
+                  <div class="detail-row">
+                    <span class="label">Формат:</span>
+                    <span class="value">{{ getSessionInfo(booking.sessionId).format }}</span>
+                  </div>
+                  
+                  <div class="detail-row">
+                    <span class="label">Возрастное ограничение:</span>
+                    <span class="value age-rating">16+</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="user-info">
+                <h4>Информация о покупателе</h4>
+                <div class="detail-row">
+                  <span class="label">ФИО:</span>
+                  <span class="value">{{ getUserInfo(booking.userId).name }} {{ getUserInfo(booking.userId).surname }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Email:</span>
+                  <span class="value">{{ getUserInfo(booking.userId).email }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Правая часть: QR-код и данные билета -->
+            <div class="ticket-right">
+              <div class="qr-code">
+                <img [src]="getQrCodeUrl()" alt="QR-код билета">
+                <p class="qr-hint">Покажите QR-код на входе</p>
+              </div>
+              
+              <div class="ticket-data">
+                <div class="ticket-number">
+                  <span class="label">Номер билета:</span>
+                  <span class="value code">{{ ticket.ticketCode }}</span>
+                </div>
+                
+                <div class="seat-info">
+                  <span class="label">Место:</span>
+                  <span class="value seat">
+                    Ряд {{ getSeatInfo(ticket.seatId).row }}, 
+                    Место {{ getSeatInfo(ticket.seatId).number }}
+                    <span class="seat-type">({{ getSeatInfo(ticket.seatId).type }})</span>
+                  </span>
+                </div>
+                
+                <div class="price-info">
+                  <span class="label">Стоимость:</span>
+                  <span class="value price">{{ ticket.price }} ₽</span>
+                </div>
+                
+                <div class="booking-info">
+                  <span class="label">Бронирование №:</span>
+                  <span class="value">{{ booking.bookingId }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Все места бронирования (если несколько билетов) -->
+          @if (getAllTickets().length > 1) {
+            <div class="all-tickets">
+              <h4>Все места в бронировании:</h4>
+              <div class="tickets-list">
+                @for (t of getAllTickets(); track t.ticketId) {
+                  <div class="ticket-item" [class.current]="t.ticketId === ticket.ticketId">
+                    <span class="ticket-code">{{ t.ticketCode }}</span>
+                    <span class="ticket-seat">
+                      Ряд {{ getSeatInfo(t.seatId).row }}, Место {{ getSeatInfo(t.seatId).number }}
+                    </span>
+                    <span class="ticket-price">{{ t.price }} ₽</span>
+                  </div>
+                }
+              </div>
+              <p class="total-price">Итого: <strong>{{ booking.totalCost }} ₽</strong></p>
+            </div>
+          }
+        </div>
+        
+        <!-- Информация для печати -->
+        <div class="print-info">
+          <p><strong>Важная информация:</strong></p>
+          <ul>
+            <li>Приходите за 15 минут до начала сеанса</li>
+            <li>Иметь при себе документ, удостоверяющий личность</li>
+            <li>Дети до 12 лет только в сопровождении взрослых</li>
+            <li>Возврат билетов возможен за 3 часа до сеанса</li>
+            <li>QR-код должен быть хорошо виден при сканировании</li>
+          </ul>
+        </div>
+        
+        <!-- Действия с билетом -->
+        @if (!isPrintMode) {
+          <div class="ticket-actions">
+            <div class="actions-left">
+              <button class="btn" (click)="printTicket()">
+                🖨️ Распечатать билет
+              </button>
+              <button class="btn btn-outline" (click)="downloadPdf()">
+                📥 Скачать PDF
+              </button>
+            </div>
+            
+            <div class="actions-right">
+              @if (booking.status === 'active' && canCancel()) {
+                <button class="btn btn-danger" (click)="cancelBooking()">
+                  ❌ Отменить бронирование
+                </button>
+              }
+              <a class="btn btn-outline" routerLink="/">
+                🎬 На главную
+              </a>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    
+    <!-- Демо-сообщение -->
+    @if (!ticket && !isLoading && !errorMessage) {
+      <div class="demo-message">
+        <h2>Демонстрационный билет</h2>
+        <p>Здесь будет отображаться ваш электронный билет после покупки.</p>
+        <div class="demo-actions">
+          <button class="btn" (click)="showDemoTicket()">
+            Показать демо-билет
+          </button>
+          <a class="btn btn-outline" routerLink="/">
+            Выбрать фильм
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Стили для печати -->
+<style>
+@media print {
+  .ticket-page {
+    background: white !important;
+  }
+  
+  .page-header,
+  .ticket-actions,
+  .back-btn,
+  .demo-message {
+    display: none !important;
+  }
+  
+  .ticket-main {
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .print-info {
+    page-break-inside: avoid;
+  }
+}
+</style>

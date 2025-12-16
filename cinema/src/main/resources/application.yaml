@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: cinema
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tp_cinema
+    username: postgres
+    password:
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

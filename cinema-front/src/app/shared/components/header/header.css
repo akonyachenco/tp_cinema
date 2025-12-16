@@ -1,0 +1,45 @@
+/* shared/header/header.component.css */
+.site-header {
+  background: #2c3e50;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.top-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.top-nav a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.top-nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.top-nav a.active {
+  background: #3498db;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
