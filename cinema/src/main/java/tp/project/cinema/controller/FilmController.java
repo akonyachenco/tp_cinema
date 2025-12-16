@@ -9,6 +9,7 @@ import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.SessionDto;
 import tp.project.cinema.service.FilmService;
 
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -66,5 +67,38 @@ public class FilmController {
     public ResponseEntity<List<SessionDto>> getFilmSessions(@PathVariable Long filmId) {
         List<SessionDto> sessions = filmService.getFilmSessions(filmId);
         return ResponseEntity.ok(sessions);
+    }
+
+    @PostMapping
+    public ResponseEntity<FilmDto> createFilm(@Valid @RequestBody FilmDto filmDto) {
+        FilmDto createdFilm = filmService.createFilm(filmDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FilmDto> updateFilm(
+            @PathVariable Long id,
+            @Valid @RequestBody FilmDto filmDto) {
+        FilmDto updatedFilm = filmService.updateFilm(id, filmDto);
+        return ResponseEntity.ok(updatedFilm);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable Long id) {
+        filmService.deleteFilm(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<FilmDto>> getActiveFilms() {
+        List<FilmDto> films = filmService.getActiveFilms();
+        return ResponseEntity.ok(films);
+    }
+
+    @GetMapping("/search/keyword")
+    public ResponseEntity<List<FilmDto>> searchFilmsByKeyword(
+            @RequestParam String keyword) {
+        List<FilmDto> films = filmService.searchByKeyword(keyword);
+        return ResponseEntity.ok(films);
     }
 }

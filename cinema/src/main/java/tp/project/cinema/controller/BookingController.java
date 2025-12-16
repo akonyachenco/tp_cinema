@@ -1,12 +1,15 @@
 package tp.project.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tp.project.cinema.dto.BookingDto;
 import tp.project.cinema.service.BookingService;
 
+import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,7 +32,12 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<BookingDto> createBooking(@RequestBody BookingDto bookingDto) {
+    public ResponseEntity<BookingDto> createBooking(@Valid @RequestBody BookingDto bookingDto) {
+        // Устанавливаем статус по умолчанию, если не указан
+        if (bookingDto.getStatus() == null || bookingDto.getStatus().isEmpty()) {
+            bookingDto.setStatus("PENDING");
+        }
+
         BookingDto createdBooking = bookingService.createBooking(bookingDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBooking);
     }
@@ -37,7 +45,7 @@ public class BookingController {
     @PutMapping("/{id}")
     public ResponseEntity<BookingDto> updateBooking(
             @PathVariable Long id,
-            @RequestBody BookingDto bookingDto) {
+            @Valid @RequestBody BookingDto bookingDto) {
         BookingDto updatedBooking = bookingService.updateBooking(id, bookingDto);
         return ResponseEntity.ok(updatedBooking);
     }
@@ -62,7 +70,8 @@ public class BookingController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<BookingDto>> getBookingsByStatus(@PathVariable String status) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        List<BookingDto> bookings = bookingService.getBookingsByStatus(status);
+        return ResponseEntity.ok(bookings);
     }
 
     @PatchMapping("/{id}/confirm")
@@ -79,18 +88,27 @@ public class BookingController {
 
     @GetMapping("/user/{userId}/active")
     public ResponseEntity<List<BookingDto>> getActiveBookingsByUser(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        List<BookingDto> bookings = bookingService.getActiveBookingsByUser(userId);
+        return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/session/{sessionId}/active")
     public ResponseEntity<List<BookingDto>> getActiveBookingsBySession(@PathVariable Integer sessionId) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        List<BookingDto> bookings = bookingService.getActiveBookingsBySession(sessionId);
+        return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/revenue")
     public ResponseEntity<Double> getTotalRevenue(
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String endDate) {
+        Double revenue = bookingService.getTotalRevenue(startDate, endDate);
+        return ResponseEntity.ok(revenue);
+    }
+
+    @GetMapping("/user/{userId}/history")
+    public ResponseEntity<List<BookingDto>> getBookingHistory(@PathVariable Long userId) {
+        List<BookingDto> bookings = bookingService.getBookingsByUser(userId);
+        return ResponseEntity.ok(bookings);
     }
 }

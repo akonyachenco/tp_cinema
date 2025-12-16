@@ -1,9 +1,6 @@
 package tp.project.cinema.dto.Mapping;
 
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.model.Film;
 import tp.project.cinema.model.FilmGenre;
@@ -18,6 +15,9 @@ public interface FilmMapping {
     @Mapping(source = "director.director_id", target = "directorId")
     @Mapping(source = "country.country_id", target = "countryId")
     @Mapping(source = "age_rating.rating_value", target = "ageRating")
+    @Mapping(source = "release_date", target = "releaseDate")
+    @Mapping(source = "poster_url", target = "posterUrl")
+    @Mapping(source = "trailer_url", target = "trailerUrl")
     @Mapping(target = "genres", ignore = true)
     FilmDto toDto(Film entity);
 
@@ -27,17 +27,21 @@ public interface FilmMapping {
     @Mapping(target = "age_rating", ignore = true)
     @Mapping(target = "session_list", ignore = true)
     @Mapping(target = "film_genre_list", ignore = true)
+    @Mapping(source = "releaseDate", target = "release_date")
+    @Mapping(source = "posterUrl", target = "poster_url")
+    @Mapping(source = "trailerUrl", target = "trailer_url")
     Film toEntity(FilmDto dto);
-
-
 
     @AfterMapping
     default void fillGenres(@MappingTarget FilmDto dto, Film entity) {
-        List<String> genres = new ArrayList<String>();
-        for (FilmGenre filmGenre : entity.getFilm_genre_list()) {
-
-            genres.add(filmGenre.getGenre().getGenre_name());
+        if (entity.getFilm_genre_list() != null && !entity.getFilm_genre_list().isEmpty()) {
+            List<String> genres = new ArrayList<>();
+            for (FilmGenre filmGenre : entity.getFilm_genre_list()) {
+                if (filmGenre.getGenre() != null && filmGenre.getGenre().getGenre_name() != null) {
+                    genres.add(filmGenre.getGenre().getGenre_name());
+                }
+            }
+            dto.setGenres(genres);
         }
-        dto.setGenres(genres);
     }
 }

@@ -5,15 +5,26 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class SessionDto {
     private Integer sessionId;
     private String status;
     private LocalDateTime dateTime;
-    @NotNull
+
+    @NotNull(message = "ID фильма обязателен")
     private Long filmId;
-    @NotNull
+
+    @NotNull(message = "ID зала обязателен")
     private Short hallId;
+
     private List<BookingDto> bookingList;
+
+    // Дополнительные поля для фронтенда
+    private String filmTitle;
+    private String hallName;
+    private Integer duration;
+    private Double basePrice;
+    private Map<String, Object> seatInfo; // информация о местах
 }

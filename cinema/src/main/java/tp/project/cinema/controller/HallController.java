@@ -8,6 +8,7 @@ import tp.project.cinema.dto.HallDto;
 import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.service.HallService;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -54,7 +55,12 @@ public class HallController {
     }
 
     @PostMapping
-    public ResponseEntity<HallDto> createHall(@RequestBody HallDto hallDto) {
+    public ResponseEntity<HallDto> createHall(@Valid @RequestBody HallDto hallDto) {
+        // Устанавливаем статус по умолчанию, если не указан
+        if (hallDto.getStatus() == null || hallDto.getStatus().isEmpty()) {
+            hallDto.setStatus("AVAILABLE");
+        }
+
         HallDto createdHall = hallService.createHall(hallDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHall);
     }
@@ -62,7 +68,7 @@ public class HallController {
     @PutMapping("/{id}")
     public ResponseEntity<HallDto> updateHall(
             @PathVariable Short id,
-            @RequestBody HallDto hallDto) {
+            @Valid @RequestBody HallDto hallDto) {
         HallDto updatedHall = hallService.updateHall(id, hallDto);
         return ResponseEntity.ok(updatedHall);
     }
@@ -73,5 +79,18 @@ public class HallController {
             @RequestParam String status) {
         HallDto updatedHall = hallService.updateHallStatus(id, status);
         return ResponseEntity.ok(updatedHall);
+    }
+
+    @GetMapping("/capacity/available")
+    public ResponseEntity<List<HallDto>> getAvailableHallsWithCapacity(
+            @RequestParam(required = false, defaultValue = "1") Integer capacity) {
+        List<HallDto> halls = hallService.findAvailableHallsWithCapacity(capacity);
+        return ResponseEntity.ok(halls);
+    }
+
+    @GetMapping("/total-capacity")
+    public ResponseEntity<Integer> getTotalSeatingCapacity() {
+        Integer capacity = hallService.getTotalSeatingCapacity();
+        return ResponseEntity.ok(capacity);
     }
 }

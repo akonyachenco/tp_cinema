@@ -8,9 +8,13 @@ import tp.project.cinema.dto.Mapping.HallMapping;
 import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.exception.ResourceNotFoundException;
 import tp.project.cinema.model.Hall;
+import tp.project.cinema.model.HallType;
 import tp.project.cinema.repository.HallRepository;
+import tp.project.cinema.repository.HallTypeRepository;
 import tp.project.cinema.repository.SeatRepository;
+import tp.project.cinema.repository.SessionRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +24,9 @@ import java.util.stream.Collectors;
 public class HallService {
 
     private final HallRepository hallRepository;
+    private final HallTypeRepository hallTypeRepository;
     private final SeatRepository seatRepository;
+    private final SessionRepository sessionRepository;
     private final HallMapping hallMapping;
 
     public List<HallDto> getAllHalls() {
@@ -78,8 +84,30 @@ public class HallService {
     }
 
     public HallDto createHall(HallDto hallDto) {
+        // Проверяем существование типа зала
+        HallType hallType = hallTypeRepository.findByTypeName(hallDto.getHallType())
+                .orElseGet(() -> {
+                    // Создаем новый тип зала, если не существует
+                    HallType newType = new HallType();
+                    newType.setType_name(hallDto.getHallType());
+                    newType.setDescription("Автоматически созданный тип зала");
+                    return hallTypeRepository.save(newType);
+                });
+
         Hall hall = hallMapping.toEntity(hallDto);
+        hall.setHall_type(hallType);
         hall.setStatus("AVAILABLE");
+
+        // Проверяем обязательные поля
+        if (hall.getBase_price() == null) {
+            hall.setBase_price(new BigDecimal("300.00")); // цена по умолчанию
+        }
+        if (hall.getRows_count() <= 0) {
+            hall.setRows_count((short) 10); // рядов по умолчанию
+        }
+        if (hall.getSeats_per_row() <= 0) {
+            hall.setSeats_per_row((short) 15); // мест в ряду по умолчанию
+        }
 
         Hall savedHall = hallRepository.save(hall);
         return hallMapping.toDto(savedHall);
@@ -89,11 +117,34 @@ public class HallService {
         Hall existingHall = hallRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + id + " не найден"));
 
-        existingHall.setHall_name(hallDto.getHallName());
-        existingHall.setBase_price(hallDto.getBasePrice());
-        existingHall.setRows_count(hallDto.getRows_count());
-        existingHall.setSeats_per_row(hallDto.getSeatsPerRow());
-        existingHall.setStatus(hallDto.getStatus());
+        // Обновляем тип зала, если указан
+        if (hallDto.getHallType() != null && !hallDto.getHallType().isEmpty()) {
+            HallType hallType = hallTypeRepository.findByTypeName(hallDto.getHallType())
+                    .orElseGet(() -> {
+                        HallType newType = new HallType();
+                        newType.setType_name(hallDto.getHallType());
+                        newType.setDescription("Автоматически созданный тип зала");
+                        return hallTypeRepository.save(newType);
+                    });
+            existingHall.setHall_type(hallType);
+        }
+
+        // Обновляем остальные поля
+        if (hallDto.getHallName() != null && !hallDto.getHallName().isEmpty()) {
+            existingHall.setHall_name(hallDto.getHallName());
+        }
+        if (hallDto.getBasePrice() != null) {
+            existingHall.setBase_price(hallDto.getBasePrice());
+        }
+        if (hallDto.getRows_count() != null) {
+            existingHall.setRows_count(hallDto.getRows_count());
+        }
+        if (hallDto.getSeatsPerRow() != null) {
+            existingHall.setSeats_per_row(hallDto.getSeatsPerRow());
+        }
+        if (hallDto.getStatus() != null && !hallDto.getStatus().isEmpty()) {
+            existingHall.setStatus(hallDto.getStatus());
+        }
 
         Hall updatedHall = hallRepository.save(existingHall);
         return hallMapping.toDto(updatedHall);
@@ -103,8 +154,28 @@ public class HallService {
         Hall hall = hallRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + id + " не найден"));
 
-        hall.setStatus(status);
+        // Проверяем допустимые статусы
+        if (!List.of("AVAILABLE", "MAINTENANCE", "CLOSED", "RESERVED").contains(status.toUpperCase())) {
+            throw new IllegalArgumentException("Недопустимый статус зала: " + status);
+        }
+
+        hall.setStatus(status.toUpperCase());
         Hall updatedHall = hallRepository.save(hall);
         return hallMapping.toDto(updatedHall);
+    }
+
+    public List<HallDto> findAvailableHallsWithCapacity(Integer requiredCapacity) {
+        if (requiredCapacity == null || requiredCapacity <= 0) {
+            requiredCapacity = 1;
+        }
+
+        return hallRepository.findAvailableHallsWithCapacity(requiredCapacity).stream()
+                .map(hallMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public Integer getTotalSeatingCapacity() {
+        Integer capacity = hallRepository.getTotalSeatingCapacity();
+        return capacity != null ? capacity : 0;
     }
 }

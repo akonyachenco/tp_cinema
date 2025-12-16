@@ -15,8 +15,11 @@ import tp.project.cinema.repository.HallRepository;
 import tp.project.cinema.repository.SessionRepository;
 import tp.project.cinema.repository.SeatRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,6 +105,16 @@ public class SessionService {
         Hall hall = hallRepository.findById(sessionDto.getHallId())
                 .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + sessionDto.getHallId() + " не найден"));
 
+        // Проверяем, что hallId не null
+        if (sessionDto.getHallId() == null || sessionDto.getHallId() == 0) {
+            throw new IllegalArgumentException("ID зала обязателен");
+        }
+
+        // Проверяем, что filmId не null
+        if (sessionDto.getFilmId() == null || sessionDto.getFilmId() == 0) {
+            throw new IllegalArgumentException("ID фильма обязателен");
+        }
+
         // Проверяем конфликт времени
         List<Session> conflictingSessions = sessionRepository.findConflictingSessions(
                 sessionDto.getHallId(),
@@ -133,7 +146,12 @@ public class SessionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + sessionDto.getHallId() + " не найден"));
 
         existingSession.setDate_time(sessionDto.getDateTime());
-        existingSession.setStatus(sessionDto.getStatus());
+
+        // Обновляем статус, если указан
+        if (sessionDto.getStatus() != null && !sessionDto.getStatus().isEmpty()) {
+            existingSession.setStatus(sessionDto.getStatus());
+        }
+
         existingSession.setFilm(film);
         existingSession.setHall(hall);
 
@@ -155,5 +173,91 @@ public class SessionService {
         session.setStatus("CANCELLED");
         Session cancelledSession = sessionRepository.save(session);
         return sessionMapping.toDto(cancelledSession);
+    }
+
+    // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ ФРОНТЕНДА:
+
+    public List<SessionDto> getAvailableSessions() {
+        return sessionRepository.findByDateTimeAfter(LocalDateTime.now()).stream()
+                .filter(session -> !"CANCELLED".equals(session.getStatus()))
+                .map(sessionMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SessionDto> getSessionsByMovieAndDate(Long filmId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        return sessionRepository.findByFilmFilmId(filmId).stream()
+                .filter(session ->
+                        session.getDate_time().isAfter(startOfDay) &&
+                                session.getDate_time().isBefore(endOfDay) &&
+                                !"CANCELLED".equals(session.getStatus())
+                )
+                .map(sessionMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // Метод getHallLayout()
+    public Map<String, Object> getHallLayout(Short hallId) {
+        if (!hallRepository.existsById(hallId)) {
+            throw new ResourceNotFoundException("Зал с ID " + hallId + " не найден");
+        }
+
+        Hall hall = hallRepository.findById(hallId)
+                .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + hallId + " не найден"));
+
+        List<SeatDto> seats = getSeatsByHall(hallId);
+
+        // Создаем Map с правильными типами
+        Map<String, Object> layout = new HashMap<>();
+        layout.put("hallId", (int) hall.getHall_id()); // short -> int
+        layout.put("hallName", hall.getHall_name());
+        layout.put("rowsCount", (int) hall.getRows_count()); // short -> int
+        layout.put("seatsPerRow", (int) hall.getSeats_per_row()); // short -> int
+        layout.put("seats", seats);
+        layout.put("totalSeats", seats.size());
+
+        return layout;
+    }
+
+    // Метод getSeatsForBooking()
+    public Map<String, Object> getSeatsForBooking(Integer sessionId) {
+        if (!sessionRepository.existsById(sessionId)) {
+            throw new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден");
+        }
+
+        var session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
+
+        Short hallId = session.getHall().getHall_id();
+
+        List<SeatDto> allSeats = getSeatsByHall(hallId);
+        List<SeatDto> bookedSeats = getBookedSeatsForSession(sessionId);
+        List<SeatDto> availableSeats = getAvailableSeatsForSession(sessionId);
+
+        // Помечаем статус каждого места
+        allSeats.forEach(seat -> {
+            boolean isBooked = bookedSeats.stream()
+                    .anyMatch(booked -> booked.getSeatId().equals(seat.getSeatId()));
+            seat.setStatus(isBooked ? "BOOKED" : "AVAILABLE");
+        });
+
+        // Создаем Map с правильными типами
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", sessionId);
+        result.put("filmId", session.getFilm().getFilm_id());
+        result.put("filmTitle", session.getFilm().getTitle());
+        result.put("sessionDateTime", session.getDate_time());
+        result.put("hallId", (int) hallId); // short -> int
+        result.put("hallName", session.getHall().getHall_name());
+        result.put("allSeats", allSeats);
+        result.put("bookedSeats", bookedSeats);
+        result.put("availableSeats", availableSeats);
+        result.put("totalSeats", allSeats.size());
+        result.put("bookedCount", bookedSeats.size());
+        result.put("availableCount", availableSeats.size());
+
+        return result;
     }
 }
