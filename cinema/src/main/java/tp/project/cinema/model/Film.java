@@ -15,7 +15,7 @@ public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "film_id")
-    private Long film_id;
+    private Long filmId;
 
     @Getter
     @Column(name = "duration")
@@ -28,13 +28,13 @@ public class Film {
     private String title;
 
     @Column(name = "release_date")
-    private LocalDate release_date;
+    private LocalDate releaseDate;
 
     @Column(name = "poster_url")
-    private String poster_url;
+    private String posterUrl;
 
     @Column(name = "trailer_url")
-    private String trailer_url;
+    private String trailerUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id", nullable = false)
@@ -46,13 +46,13 @@ public class Film {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rating_id", nullable = false)
-    private AgeRating age_rating;
+    private AgeRating ageRating;
 
     @OneToMany(mappedBy = "film")
-    private List<FilmGenre> film_genre_list = new ArrayList<>();
+    private List<FilmGenre> filmGenreList = new ArrayList<>();
 
     @OneToMany(mappedBy = "film")
-    private List<Session> session_list = new ArrayList<>();
+    private List<Session> sessionList = new ArrayList<>();
 
     public void setDuration(short duration) {
         this.duration = duration;

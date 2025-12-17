@@ -22,39 +22,39 @@ public interface HallRepository extends JpaRepository<Hall, Short> {
 
     List<Hall> findByHallTypeTypeName(String typeName);
 
-    @Query("SELECT h FROM Hall h WHERE h.base_price <= :maxPrice")
+    @Query("SELECT h FROM Hall h WHERE h.basePrice <= :maxPrice")
     List<Hall> findByBasePriceLessThanEqual(@Param("maxPrice") BigDecimal maxPrice);
 
-    @Query("SELECT h FROM Hall h WHERE h.base_price >= :minPrice")
+    @Query("SELECT h FROM Hall h WHERE h.basePrice >= :minPrice")
     List<Hall> findByBasePriceGreaterThanEqual(@Param("minPrice") BigDecimal minPrice);
 
-    @Query("SELECT h FROM Hall h WHERE h.rows_count >= :minRows AND h.seats_per_row >= :minSeatsPerRow")
+    @Query("SELECT h FROM Hall h WHERE h.rowsCount >= :minRows AND h.seatsPerRow >= :minSeatsPerRow")
     List<Hall> findByMinCapacity(
             @Param("minRows") Short minRows,
             @Param("minSeatsPerRow") Short minSeatsPerRow);
 
-    @Query("SELECT h FROM Hall h WHERE (h.rows_count * h.seats_per_row) >= :minCapacity")
+    @Query("SELECT h FROM Hall h WHERE (h.rowsCount * h.seatsPerRow) >= :minCapacity")
     List<Hall> findByTotalCapacityGreaterThanEqual(@Param("minCapacity") Integer minCapacity);
 
-    @Query("SELECT h FROM Hall h WHERE h.hall_id IN " +
-            "(SELECT s.hall.hall_id FROM Session s WHERE s.session_id = :sessionId)")
+    @Query("SELECT h FROM Hall h WHERE h.hallId IN " +
+            "(SELECT s.hall.hallId FROM Session s WHERE s.sessionId = :sessionId)")
     Optional<Hall> findHallBySessionId(@Param("sessionId") Integer sessionId);
 
     @Query("SELECT h FROM Hall h WHERE h.status = 'AVAILABLE' " +
-            "AND (h.rows_count * h.seats_per_row) >= :requiredCapacity")
+            "AND (h.rowsCount * h.seatsPerRow) >= :requiredCapacity")
     List<Hall> findAvailableHallsWithCapacity(@Param("requiredCapacity") Integer requiredCapacity);
 
-    @Query("SELECT h FROM Hall h WHERE h.hall_id NOT IN " +
-            "(SELECT s.hall.hall_id FROM Session s WHERE s.date_time = :dateTime)")
+    @Query("SELECT h FROM Hall h WHERE h.hallId NOT IN " +
+            "(SELECT s.hall.hallId FROM Session s WHERE s.dateTime = :dateTime)")
     List<Hall> findAvailableHallsAtTime(@Param("dateTime") LocalDateTime dateTime);
 
-    @Query("SELECT h FROM Hall h WHERE h.hall_id IN " +
-            "(SELECT DISTINCT s.hall.hall_id FROM Session s WHERE s.film.film_id = :filmId)")
+    @Query("SELECT h FROM Hall h WHERE h.hallId IN " +
+            "(SELECT DISTINCT s.hall.hallId FROM Session s WHERE s.film.filmId = :filmId)")
     List<Hall> findHallsShowingFilm(@Param("filmId") Long filmId);
 
-    @Query("SELECT SUM(h.rows_count * h.seats_per_row) FROM Hall h")
+    @Query("SELECT SUM(h.rowsCount * h.seatsPerRow) FROM Hall h")
     Integer getTotalSeatingCapacity();
 
-    @Query("SELECT h.hall_type.type_name, COUNT(h) FROM Hall h GROUP BY h.hall_type.type_name")
+    @Query("SELECT h.hallType.typeName, COUNT(h) FROM Hall h GROUP BY h.hallType.typeName")
     List<Object[]> countHallsByType();
 }

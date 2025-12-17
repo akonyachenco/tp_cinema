@@ -14,7 +14,7 @@ public class Director {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "director_id")
-    private int director_id;
+    private int directorId;
 
     @Column(name = "name", length = 40)
     private String name;
@@ -23,12 +23,12 @@ public class Director {
     private String surname;
 
     @Column(name = "birth_date")
-    private Date birth_date;
+    private Date birthDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;
 
     @OneToMany(mappedBy = "director")
-    private List<Film> film_list = new ArrayList<>();
+    private List<Film> filmList = new ArrayList<>();
 }

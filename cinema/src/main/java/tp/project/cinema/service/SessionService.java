@@ -80,19 +80,19 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
-        Short hallId = session.getHall().getHall_id();
+        Short hallId = session.getHall().getHallId();
 
         return seatRepository.findAvailableSeatsForSession(hallId, sessionId).stream()
                 .map(seat -> {
                     SeatDto dto = new SeatDto();
-                    dto.setSeatId(seat.getSeat_id());
-                    dto.setRowNumber(seat.getRow_number());
-                    dto.setSeatNumber(seat.getSeat_number());
-                    dto.setSeatType(seat.getSeat_type().getType_name());
-                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
-                    dto.setHallId(seat.getHall().getHall_id());
-                    dto.setBasePrice(seat.getHall().getBase_price());
-                    dto.setHallName(seat.getHall().getHall_name());
+                    dto.setSeatId(seat.getSeatId());
+                    dto.setRowNumber(seat.getRowNumber());
+                    dto.setSeatNumber(seat.getSeatNumber());
+                    dto.setSeatType(seat.getSeatType().getTypeName());
+                    dto.setPriceMultiplier(seat.getSeatType().getPriceMultiplier());
+                    dto.setHallId(seat.getHall().getHallId());
+                    dto.setBasePrice(seat.getHall().getBasePrice());
+                    dto.setHallName(seat.getHall().getHallName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class SessionService {
         Hall hall = hallRepository.findById(sessionDto.getHallId())
                 .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + sessionDto.getHallId() + " не найден"));
 
-        existingSession.setDate_time(sessionDto.getDateTime());
+        existingSession.setDateTime(sessionDto.getDateTime());
 
         // Обновляем статус, если указан
         if (sessionDto.getStatus() != null && !sessionDto.getStatus().isEmpty()) {
@@ -192,8 +192,8 @@ public class SessionService {
 
         return sessionRepository.findByFilmFilmId(filmId).stream()
                 .filter(session ->
-                        session.getDate_time().isAfter(startOfDay) &&
-                                session.getDate_time().isBefore(endOfDay) &&
+                        session.getDateTime().isAfter(startOfDay) &&
+                                session.getDateTime().isBefore(endOfDay) &&
                                 !"CANCELLED".equals(session.getStatus())
                 )
                 .map(sessionMapping::toDto)
@@ -210,7 +210,7 @@ public class SessionService {
         details.put("film", session.getFilm());
         details.put("hall", session.getHall());
         details.put("availableSeats", getAvailableSeats(id).size());
-        details.put("totalSeats", seatRepository.countSeatsByHall(session.getHall().getHall_id()));
+        details.put("totalSeats", seatRepository.countSeatsByHall(session.getHall().getHallId()));
 
         return details;
     }
@@ -222,14 +222,14 @@ public class SessionService {
         return seatRepository.findByHallHallId(hallId).stream()
                 .map(seat -> {
                     SeatDto dto = new SeatDto();
-                    dto.setSeatId(seat.getSeat_id());
-                    dto.setRowNumber(seat.getRow_number());
-                    dto.setSeatNumber(seat.getSeat_number());
-                    dto.setSeatType(seat.getSeat_type().getType_name());
-                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
-                    dto.setHallId(seat.getHall().getHall_id());
-                    dto.setBasePrice(seat.getHall().getBase_price());
-                    dto.setHallName(seat.getHall().getHall_name());
+                    dto.setSeatId(seat.getSeatId());
+                    dto.setRowNumber(seat.getRowNumber());
+                    dto.setSeatNumber(seat.getSeatNumber());
+                    dto.setSeatType(seat.getSeatType().getTypeName());
+                    dto.setPriceMultiplier(seat.getSeatType().getPriceMultiplier());
+                    dto.setHallId(seat.getHall().getHallId());
+                    dto.setBasePrice(seat.getHall().getBasePrice());
+                    dto.setHallName(seat.getHall().getHallName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -240,19 +240,19 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
-        Short hallId = session.getHall().getHall_id();
+        Short hallId = session.getHall().getHallId();
 
         return seatRepository.findBookedSeatsForSession(hallId, sessionId).stream()
                 .map(seat -> {
                     SeatDto dto = new SeatDto();
-                    dto.setSeatId(seat.getSeat_id());
-                    dto.setRowNumber(seat.getRow_number());
-                    dto.setSeatNumber(seat.getSeat_number());
-                    dto.setSeatType(seat.getSeat_type().getType_name());
-                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
-                    dto.setHallId(seat.getHall().getHall_id());
-                    dto.setBasePrice(seat.getHall().getBase_price());
-                    dto.setHallName(seat.getHall().getHall_name());
+                    dto.setSeatId(seat.getSeatId());
+                    dto.setRowNumber(seat.getRowNumber());
+                    dto.setSeatNumber(seat.getSeatNumber());
+                    dto.setSeatType(seat.getSeatType().getTypeName());
+                    dto.setPriceMultiplier(seat.getSeatType().getPriceMultiplier());
+                    dto.setHallId(seat.getHall().getHallId());
+                    dto.setBasePrice(seat.getHall().getBasePrice());
+                    dto.setHallName(seat.getHall().getHallName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -263,19 +263,19 @@ public class SessionService {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
-        Short hallId = session.getHall().getHall_id();
+        Short hallId = session.getHall().getHallId();
 
         return seatRepository.findAvailableSeatsForSession(hallId, sessionId).stream()
                 .map(seat -> {
                     SeatDto dto = new SeatDto();
-                    dto.setSeatId(seat.getSeat_id());
-                    dto.setRowNumber(seat.getRow_number());
-                    dto.setSeatNumber(seat.getSeat_number());
-                    dto.setSeatType(seat.getSeat_type().getType_name());
-                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
-                    dto.setHallId(seat.getHall().getHall_id());
-                    dto.setBasePrice(seat.getHall().getBase_price());
-                    dto.setHallName(seat.getHall().getHall_name());
+                    dto.setSeatId(seat.getSeatId());
+                    dto.setRowNumber(seat.getRowNumber());
+                    dto.setSeatNumber(seat.getSeatNumber());
+                    dto.setSeatType(seat.getSeatType().getTypeName());
+                    dto.setPriceMultiplier(seat.getSeatType().getPriceMultiplier());
+                    dto.setHallId(seat.getHall().getHallId());
+                    dto.setBasePrice(seat.getHall().getBasePrice());
+                    dto.setHallName(seat.getHall().getHallName());
                     return dto;
                 })
                 .collect(Collectors.toList());

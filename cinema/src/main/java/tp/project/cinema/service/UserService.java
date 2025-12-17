@@ -43,8 +43,8 @@ public class UserService {
         }
 
         User user = userMapping.toEntity(userDto);
-        user.setPassword_hash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
-        user.setRegistration_date(LocalDate.now());
+        user.setPasswordHash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
+        user.setRegistrationDate(LocalDate.now());
         user.setRole("USER");
 
         User savedUser = userRepository.save(user);
@@ -63,10 +63,10 @@ public class UserService {
         existingUser.setName(userDto.getName());
         existingUser.setSurname(userDto.getSurname());
         existingUser.setEmail(userDto.getEmail());
-        existingUser.setBirth_date(userDto.getBirthDate());
+        existingUser.setBirthDate(userDto.getBirthDate());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            existingUser.setPassword_hash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
+            existingUser.setPasswordHash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
         }
 
         User updatedUser = userRepository.save(existingUser);
@@ -163,7 +163,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с ID " + id + " не найден"));
 
-        user.setPassword_hash(passwordEncoder.encode(newPassword));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
         User updatedUser = userRepository.save(user);
         return userMapping.toDto(updatedUser);
     }

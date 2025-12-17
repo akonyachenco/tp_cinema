@@ -24,5 +24,5 @@ public interface CountryRepository extends JpaRepository<Country, Short> {
             "GROUP BY c.countryId ORDER BY filmCount DESC")
     List<Object[]> findAllCountriesWithFilmCount();
 
-    Country findCountryByFilmId(long filmId);
+    //Country findCountryByFilmId(long filmId);
 }

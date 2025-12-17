@@ -14,30 +14,30 @@ public class Hall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "hall_id")
-    private short hall_id;
+    private short hallId;
 
     @Column(name = "status", length = 30)
     private String status;
 
     @Column(name = "base_price")
-    private BigDecimal base_price;
+    private BigDecimal basePrice;
 
     @Column(name = "rows_count")
-    private short rows_count;
+    private short rowsCount;
 
     @Column(name = "seats_per_row")
-    private short seats_per_row;
+    private short seatsPerRow;
 
     @Column(name = "hall_name", length = 50)
-    private String hall_name;
+    private String hallName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hall_type_id", nullable = false)
-    private HallType hall_type;
+    private HallType hallType;
 
     @OneToMany(mappedBy = "hall")
-    private List<Session> session_list = new ArrayList<>();
+    private List<Session> sessionList = new ArrayList<>();
 
     @OneToMany(mappedBy = "hall")
-    private List<Seat> seat_list = new ArrayList<>();
+    private List<Seat> seatList = new ArrayList<>();
 }

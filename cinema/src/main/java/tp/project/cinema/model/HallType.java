@@ -13,14 +13,14 @@ public class HallType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "hall_type_id")
-    private short hall_type_id;
+    private short hallTypeId;
 
     @Column(name = "type_name", length = 50)
-    private String type_name;
+    private String typeName;
 
     @Column(name = "description", columnDefinition = "text")
     private String description;
 
-    @OneToMany(mappedBy = "hall_type")
-    private List<Hall> hall_list = new ArrayList<>();
+    @OneToMany(mappedBy = "hallType")
+    private List<Hall> hallList = new ArrayList<>();
 }

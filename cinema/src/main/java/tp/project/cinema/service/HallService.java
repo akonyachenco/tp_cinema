@@ -64,14 +64,14 @@ public class HallService {
         return seatRepository.findByHallHallId(hallId).stream()
                 .map(seat -> {
                     SeatDto dto = new SeatDto();
-                    dto.setSeatId(seat.getSeat_id());
-                    dto.setRowNumber(seat.getRow_number());
-                    dto.setSeatNumber(seat.getSeat_number());
-                    dto.setSeatType(seat.getSeat_type().getType_name());
-                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
-                    dto.setHallId(seat.getHall().getHall_id());
-                    dto.setBasePrice(seat.getHall().getBase_price());
-                    dto.setHallName(seat.getHall().getHall_name());
+                    dto.setSeatId(seat.getSeatId());
+                    dto.setRowNumber(seat.getRowNumber());
+                    dto.setSeatNumber(seat.getSeatNumber());
+                    dto.setSeatType(seat.getSeatType().getTypeName());
+                    dto.setPriceMultiplier(seat.getSeatType().getPriceMultiplier());
+                    dto.setHallId(seat.getHall().getHallId());
+                    dto.setBasePrice(seat.getHall().getBasePrice());
+                    dto.setHallName(seat.getHall().getHallName());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -92,24 +92,24 @@ public class HallService {
                 .orElseGet(() -> {
                     // Создаем новый тип зала, если не существует
                     HallType newType = new HallType();
-                    newType.setType_name(hallDto.getHallType());
+                    newType.setTypeName(hallDto.getHallType());
                     newType.setDescription("Автоматически созданный тип зала");
                     return hallTypeRepository.save(newType);
                 });
 
         Hall hall = hallMapping.toEntity(hallDto);
-        hall.setHall_type(hallType);
+        hall.setHallType(hallType);
         hall.setStatus("AVAILABLE");
 
         // Проверяем обязательные поля
-        if (hall.getBase_price() == null) {
-            hall.setBase_price(new BigDecimal("300.00")); // цена по умолчанию
+        if (hall.getBasePrice() == null) {
+            hall.setBasePrice(new BigDecimal("300.00")); // цена по умолчанию
         }
-        if (hall.getRows_count() <= 0) {
-            hall.setRows_count((short) 10); // рядов по умолчанию
+        if (hall.getRowsCount() <= 0) {
+            hall.setRowsCount((short) 10); // рядов по умолчанию
         }
-        if (hall.getSeats_per_row() <= 0) {
-            hall.setSeats_per_row((short) 15); // мест в ряду по умолчанию
+        if (hall.getSeatsPerRow() <= 0) {
+            hall.setSeatsPerRow((short) 15); // мест в ряду по умолчанию
         }
 
         Hall savedHall = hallRepository.save(hall);
@@ -125,25 +125,25 @@ public class HallService {
             HallType hallType = hallTypeRepository.findByTypeName(hallDto.getHallType())
                     .orElseGet(() -> {
                         HallType newType = new HallType();
-                        newType.setType_name(hallDto.getHallType());
+                        newType.setTypeName(hallDto.getHallType());
                         newType.setDescription("Автоматически созданный тип зала");
                         return hallTypeRepository.save(newType);
                     });
-            existingHall.setHall_type(hallType);
+            existingHall.setHallType(hallType);
         }
 
         // Обновляем остальные поля
         if (hallDto.getHallName() != null && !hallDto.getHallName().isEmpty()) {
-            existingHall.setHall_name(hallDto.getHallName());
+            existingHall.setHallName(hallDto.getHallName());
         }
         if (hallDto.getBasePrice() != null) {
-            existingHall.setBase_price(hallDto.getBasePrice());
+            existingHall.setBasePrice(hallDto.getBasePrice());
         }
-        if (hallDto.getRows_count() != null) {
-            existingHall.setRows_count(hallDto.getRows_count());
+        if (hallDto.getRowsCount() != null) {
+            existingHall.setRowsCount(hallDto.getRowsCount());
         }
         if (hallDto.getSeatsPerRow() != null) {
-            existingHall.setSeats_per_row(hallDto.getSeatsPerRow());
+            existingHall.setSeatsPerRow(hallDto.getSeatsPerRow());
         }
         if (hallDto.getStatus() != null && !hallDto.getStatus().isEmpty()) {
             existingHall.setStatus(hallDto.getStatus());
@@ -187,7 +187,7 @@ public class HallService {
     public List<HallDto> getHallsByBasePriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         return hallRepository.findAll().stream()
                 .filter(hall -> {
-                    BigDecimal price = hall.getBase_price();
+                    BigDecimal price = hall.getBasePrice();
                     return price.compareTo(minPrice) >= 0 && price.compareTo(maxPrice) <= 0;
                 })
                 .map(hallMapping::toDto)
@@ -215,15 +215,15 @@ public class HallService {
 
         Map<String, Object> statistics = new HashMap<>();
         statistics.put("hallId", hallId);
-        statistics.put("hallName", hall.getHall_name());
+        statistics.put("hallName", hall.getHallName());
         statistics.put("status", hall.getStatus());
         statistics.put("totalSeats", totalSeats != null ? totalSeats : 0);
-        statistics.put("rowsCount", hall.getRows_count());
-        statistics.put("seatsPerRow", hall.getSeats_per_row());
-        statistics.put("basePrice", hall.getBase_price());
-        statistics.put("hallType", hall.getHall_type().getType_name());
+        statistics.put("rowsCount", hall.getRowsCount());
+        statistics.put("seatsPerRow", hall.getSeatsPerRow());
+        statistics.put("basePrice", hall.getBasePrice());
+        statistics.put("hallType", hall.getHallType().getTypeName());
         statistics.put("sessionsCount", sessionsCount);
-        statistics.put("capacity", hall.getRows_count() * hall.getSeats_per_row());
+        statistics.put("capacity", hall.getRowsCount() * hall.getSeatsPerRow());
 
         return statistics;
     }

@@ -29,28 +29,28 @@ public interface FilmRepository extends JpaRepository<Film, Long> {
     @Query("SELECT f FROM Film f WHERE f.duration >= :minDuration")
     List<Film> findByDurationGreaterThanEqual(@Param("minDuration") Short minDuration);
 
-    @Query("SELECT DISTINCT f FROM Film f JOIN f.film_genre_list fg JOIN fg.genre g WHERE LOWER(g.genre_name) = LOWER(:genreName)")
+    @Query("SELECT DISTINCT f FROM Film f JOIN f.filmGenreList fg JOIN fg.genre g WHERE LOWER(g.genreName) = LOWER(:genreName)")
     List<Film> findByGenreName(@Param("genreName") String genreName);
 
-    @Query("SELECT f FROM Film f WHERE f.director.director_id = :directorId")
+    @Query("SELECT f FROM Film f WHERE f.director.directorId = :directorId")
     List<Film> findByDirectorId(@Param("directorId") Integer directorId);
 
-    @Query("SELECT f FROM Film f WHERE f.country.country_id = :countryId")
+    @Query("SELECT f FROM Film f WHERE f.country.countryId = :countryId")
     List<Film> findByCountryId(@Param("countryId") Short countryId);
 
-    @Query("SELECT f FROM Film f WHERE f.age_rating.rating_value = :ageRating")
+    @Query("SELECT f FROM Film f WHERE f.ageRating.ratingValue = :ageRating")
     List<Film> findByAgeRating(@Param("ageRating") String ageRating);
 
     @Query("SELECT f FROM Film f WHERE LOWER(f.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Film> searchByKeyword(@Param("keyword") String keyword);
 
-    @Query("SELECT f FROM Film f JOIN f.session_list s WHERE s.session_id = :sessionId")
+    @Query("SELECT f FROM Film f JOIN f.sessionList s WHERE s.sessionId = :sessionId")
     Optional<Film> findBySessionId(@Param("sessionId") Integer sessionId);
 
-    @Query("SELECT f FROM Film f WHERE f.release_date >= CURRENT_DATE ORDER BY f.release_date ASC")
+    @Query("SELECT f FROM Film f WHERE f.releaseDate >= CURRENT_DATE ORDER BY f.releaseDate ASC")
     List<Film> findUpcomingFilms();
 
-    @Query("SELECT f FROM Film f WHERE f.release_date <= CURRENT_DATE ORDER BY f.release_date DESC")
+    @Query("SELECT f FROM Film f WHERE f.releaseDate <= CURRENT_DATE ORDER BY f.releaseDate DESC")
     List<Film> findReleasedFilms();
 }

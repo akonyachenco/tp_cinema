@@ -14,31 +14,24 @@ public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seat_id")
-    private Integer seat_id;
+    private Integer seatId;
 
     @Column(name = "row_number")
-    private Short row_number;
+    private Short rowNumber;
 
     @Column(name = "seat_number")
-    private Short seat_number;
+    private Short seatNumber;
 
     @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seat_type_id", nullable = false)
-    private SeatType seat_type;
+    private SeatType seatType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hall_id", nullable = false)
     private Hall hall;
 
     @OneToMany(mappedBy = "seat")
-    private List<Ticket> ticket_list = new ArrayList<>();
+    private List<Ticket> ticketList = new ArrayList<>();
 
-    public Short getRowNumber() {
-        return row_number;
-    }
-
-    public Short getSeatNumber() {
-        return seat_number;
-    }
 }

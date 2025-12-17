@@ -28,7 +28,7 @@ public class AuthService {
         }
 
         User user = userMapping.toEntity(registerDto);
-        user.setPassword_hash(passwordEncoder.encode(registerDto.getPassword()));
+        user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
 
         User savedUser = userRepository.save(user);
         return userMapping.toDto(savedUser);

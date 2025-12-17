@@ -27,7 +27,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("SELECT t FROM Ticket t WHERE t.booking.session.sessionId = :sessionId")
     List<Ticket> findBySessionId(@Param("sessionId") Integer sessionId);
 
-    @Query("SELECT t FROM Ticket t WHERE t.creation_date BETWEEN :startDate AND :endDate")
+    @Query("SELECT t FROM Ticket t WHERE t.creationDate BETWEEN :startDate AND :endDate")
     List<Ticket> findByCreationDateBetween(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
@@ -48,16 +48,16 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             @Param("sessionId") Integer sessionId);
 
     @Query("SELECT t FROM Ticket t WHERE t.booking.user.userId = :userId " +
-            "AND t.booking.session.date_time >= CURRENT_DATE")
+            "AND t.booking.session.dateTime >= CURRENT_DATE")
     List<Ticket> findUpcomingTicketsByUser(@Param("userId") Long userId);
 
-    @Query("SELECT SUM(t.price) FROM Ticket t WHERE t.creation_date BETWEEN :start AND :end")
+    @Query("SELECT SUM(t.price) FROM Ticket t WHERE t.creationDate BETWEEN :start AND :end")
     BigDecimal getTotalRevenueForPeriod(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
     @Query("SELECT t.seat.hall.hallName, COUNT(t) FROM Ticket t " +
-            "WHERE t.creation_date BETWEEN :start AND :end " +
+            "WHERE t.creationDate BETWEEN :start AND :end " +
             "GROUP BY t.seat.hall.hallName")
     List<Object[]> countTicketsByHallForPeriod(
             @Param("start") LocalDateTime start,

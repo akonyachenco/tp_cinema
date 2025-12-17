@@ -13,11 +13,11 @@ public class AgeRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rating_id")
-    private short rating_id;
+    private short ratingId;
 
     @Column(name = "rating_value", length = 10)
-    private String rating_value;
+    private String ratingValue;
 
-    @OneToMany(mappedBy = "age_rating")
-    private List<Film> film_list = new ArrayList<Film>();
+    @OneToMany(mappedBy = "ageRating")
+    private List<Film> filmList = new ArrayList<Film>();
 }

@@ -14,13 +14,13 @@ public class Session {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "session_id")
-    private int session_id;
+    private int sessionId;
 
     @Column(name = "status", length = 30)
     private String status;
 
     @Column(name = "date_time")
-    private LocalDateTime date_time;
+    private LocalDateTime dateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "film_id", nullable = false)
@@ -31,5 +31,5 @@ public class Session {
     private Hall hall;
 
     @OneToMany(mappedBy = "session")
-    private List<Booking> booking_list = new ArrayList<>();
+    private List<Booking> bookingList = new ArrayList<>();
 }

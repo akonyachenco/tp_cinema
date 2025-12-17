@@ -13,19 +13,12 @@ public class BookingStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_status_id")
-    private Short booking_status_id;
+    private Short bookingStatusId;
 
     @Column(name = "status_name", length = 40, unique = true)
-    private String status_name;
+    private String statusName;
 
-    @OneToMany(mappedBy = "booking_status")
-    private List<Booking> booking_list = new ArrayList<>();
+    @OneToMany(mappedBy = "bookingStatus")
+    private List<Booking> bookingList = new ArrayList<>();
 
-    public Short getBookingStatusId() {
-        return booking_status_id;
-    }
-
-    public String getStatusName() {
-        return status_name;
-    }
 }

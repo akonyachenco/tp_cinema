@@ -15,16 +15,16 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long user_id;
+    private Long userId;
 
     @CreationTimestamp
     @Column(name = "registration_date")
-    private LocalDate registration_date;
+    private LocalDate registrationDate;
 
     @Column(name = "surname", length = 40)
     private String surname;
@@ -33,13 +33,13 @@ public class User implements UserDetails {
     private String name;
 
     @Column(name = "birth_date")
-    private LocalDate birth_date;
+    private LocalDate birthDate;
 
     @Transient
     private Short age;
 
     @Column(name = "password_hash", nullable = false)
-    private String password_hash;
+    private String passwordHash;
 
     @Column(name = "email", length = 100, unique = true)
     private String email;
@@ -48,13 +48,13 @@ public class User implements UserDetails {
     private String role;
 
     @OneToMany(mappedBy = "user")
-    private List<Booking> booking_list = new ArrayList<>();
+    private List<Booking> bookingList = new ArrayList<>();
 
     public Short getAge() {
-        if (birth_date == null) {
+        if (birthDate == null) {
             return 0;
         }
-        return (short) Period.between(birth_date, LocalDate.now()).getYears();
+        return (short) Period.between(birthDate, LocalDate.now()).getYears();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password_hash;
+        return passwordHash;
     }
 
     @Override
@@ -92,19 +92,4 @@ public class User implements UserDetails {
         return true;
     }
 
-    public Long getUserId() {
-        return user_id;
-    }
-
-    public LocalDate getRegistrationDate() {
-        return registration_date;
-    }
-
-    public LocalDate getBirthDate() {
-        return birth_date;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birth_date = birthDate;
-    }
 }

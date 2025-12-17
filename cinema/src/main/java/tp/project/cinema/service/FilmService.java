@@ -50,25 +50,25 @@ public class FilmService {
             // Поиск по всем трем параметрам
             films = filmRepository.findByTitleContainingIgnoreCase(title);
             films = films.stream()
-                    .filter(f -> f.getFilm_genre_list().stream()
-                            .anyMatch(fg -> fg.getGenre().getGenre_name().equalsIgnoreCase(genre)))
-                    .filter(f -> f.getAge_rating().getRating_value().equalsIgnoreCase(ageRating))
+                    .filter(f -> f.getFilmGenreList().stream()
+                            .anyMatch(fg -> fg.getGenre().getGenreName().equalsIgnoreCase(genre)))
+                    .filter(f -> f.getAgeRating().getRatingValue().equalsIgnoreCase(ageRating))
                     .collect(Collectors.toList());
         } else if (title != null && !title.isEmpty() && genre != null && !genre.isEmpty()) {
             // Поиск по названию и жанру
             films = filmRepository.findByTitleContainingIgnoreCase(title).stream()
-                    .filter(f -> f.getFilm_genre_list().stream()
-                            .anyMatch(fg -> fg.getGenre().getGenre_name().equalsIgnoreCase(genre)))
+                    .filter(f -> f.getFilmGenreList().stream()
+                            .anyMatch(fg -> fg.getGenre().getGenreName().equalsIgnoreCase(genre)))
                     .collect(Collectors.toList());
         } else if (title != null && !title.isEmpty() && ageRating != null && !ageRating.isEmpty()) {
             // Поиск по названию и возрастному рейтингу
             films = filmRepository.findByTitleContainingIgnoreCase(title).stream()
-                    .filter(f -> f.getAge_rating().getRating_value().equalsIgnoreCase(ageRating))
+                    .filter(f -> f.getAgeRating().getRatingValue().equalsIgnoreCase(ageRating))
                     .collect(Collectors.toList());
         } else if (genre != null && !genre.isEmpty() && ageRating != null && !ageRating.isEmpty()) {
             // Поиск по жанру и возрастному рейтингу
             films = filmRepository.findByGenreName(genre).stream()
-                    .filter(f -> f.getAge_rating().getRating_value().equalsIgnoreCase(ageRating))
+                    .filter(f -> f.getAgeRating().getRatingValue().equalsIgnoreCase(ageRating))
                     .collect(Collectors.toList());
         } else if (title != null && !title.isEmpty()) {
             // Поиск только по названию
@@ -95,9 +95,9 @@ public class FilmService {
         // Фильтруем только те фильмы, у которых есть активные сеансы
         return releasedFilms.stream()
                 .filter(film -> {
-                    List<Session> sessions = sessionRepository.findByFilmFilmId(film.getFilm_id());
+                    List<Session> sessions = sessionRepository.findByFilmFilmId(film.getFilmId());
                     return sessions.stream()
-                            .anyMatch(session -> session.getDate_time().isAfter(java.time.LocalDateTime.now())
+                            .anyMatch(session -> session.getDateTime().isAfter(java.time.LocalDateTime.now())
                                     && !"CANCELLED".equals(session.getStatus()));
                 })
                 .map(filmMapping::toDto)
@@ -125,15 +125,15 @@ public class FilmService {
         return sessionRepository.findByFilmFilmId(filmId).stream()
                 .map(session -> {
                     SessionDto dto = new SessionDto();
-                    dto.setSessionId(session.getSession_id());
-                    dto.setDateTime(session.getDate_time());
+                    dto.setSessionId(session.getSessionId());
+                    dto.setDateTime(session.getDateTime());
                     dto.setStatus(session.getStatus());
-                    dto.setFilmId(session.getFilm().getFilm_id());
-                    dto.setHallId(session.getHall().getHall_id());
+                    dto.setFilmId(session.getFilm().getFilmId());
+                    dto.setHallId(session.getHall().getHallId());
                     dto.setFilmTitle(session.getFilm().getTitle());
-                    dto.setHallName(session.getHall().getHall_name());
+                    dto.setHallName(session.getHall().getHallName());
                     dto.setDuration((int) session.getFilm().getDuration());
-                    dto.setBasePrice(session.getHall().getBase_price().doubleValue());
+                    dto.setBasePrice(session.getHall().getBasePrice().doubleValue());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -153,23 +153,23 @@ public class FilmService {
                 .orElseGet(() -> {
                     // Создаем новый возрастной рейтинг, если не существует
                     AgeRating newRating = new AgeRating();
-                    newRating.setRating_value(filmDto.getAgeRating());
+                    newRating.setRatingValue(filmDto.getAgeRating());
                     return ageRatingRepository.save(newRating);
                 });
 
         Film film = filmMapping.toEntity(filmDto);
         film.setDirector(director);
         film.setCountry(country);
-        film.setAge_rating(ageRating);
-        film.setFilm_genre_list(new ArrayList<>());
-        film.setSession_list(new ArrayList<>());
+        film.setAgeRating(ageRating);
+        film.setFilmGenreList(new ArrayList<>());
+        film.setSessionList(new ArrayList<>());
 
         // Устанавливаем значения по умолчанию для обязательных полей
         if (film.getDuration() <= 0) {
             film.setDuration((short) 120); // длительность по умолчанию 2 часа
         }
-        if (film.getRelease_date() == null) {
-            film.setRelease_date(LocalDate.now());
+        if (film.getReleaseDate() == null) {
+            film.setReleaseDate(LocalDate.now());
         }
 
         Film savedFilm = filmRepository.save(film);
@@ -187,12 +187,12 @@ public class FilmService {
             Genre genre = genreRepository.findByGenreName(genreName)
                     .orElseGet(() -> {
                         Genre newGenre = new Genre();
-                        newGenre.setGenre_name(genreName);
+                        newGenre.setGenreName(genreName);
                         return genreRepository.save(newGenre);
                     });
 
             // Проверяем, не добавлен ли уже этот жанр
-            if (!filmGenreRepository.existsByFilmFilmIdAndGenreGenreId(film.getFilm_id(), genre.getGenre_id())) {
+            if (!filmGenreRepository.existsByFilmFilmIdAndGenreGenreId(film.getFilmId(), genre.getGenreId())) {
                 FilmGenre filmGenre = new FilmGenre();
                 filmGenre.setFilm(film);
                 filmGenre.setGenre(genre);
@@ -224,10 +224,10 @@ public class FilmService {
             AgeRating ageRating = ageRatingRepository.findByRatingValue(filmDto.getAgeRating())
                     .orElseGet(() -> {
                         AgeRating newRating = new AgeRating();
-                        newRating.setRating_value(filmDto.getAgeRating());
+                        newRating.setRatingValue(filmDto.getAgeRating());
                         return ageRatingRepository.save(newRating);
                     });
-            existingFilm.setAge_rating(ageRating);
+            existingFilm.setAgeRating(ageRating);
         }
 
         // Обновляем остальные поля
@@ -241,13 +241,13 @@ public class FilmService {
             existingFilm.setDuration(filmDto.getDuration());
         }
         if (filmDto.getReleaseDate() != null) {
-            existingFilm.setRelease_date(filmDto.getReleaseDate());
+            existingFilm.setReleaseDate(filmDto.getReleaseDate());
         }
         if (filmDto.getPosterUrl() != null) {
-            existingFilm.setPoster_url(filmDto.getPosterUrl());
+            existingFilm.setPosterUrl(filmDto.getPosterUrl());
         }
         if (filmDto.getTrailerUrl() != null) {
-            existingFilm.setTrailer_url(filmDto.getTrailerUrl());
+            existingFilm.setTrailerUrl(filmDto.getTrailerUrl());
         }
 
         // Обновляем жанры
@@ -276,9 +276,9 @@ public class FilmService {
 
         return allFilms.stream()
                 .filter(film -> {
-                    List<Session> sessions = sessionRepository.findByFilmFilmId(film.getFilm_id());
+                    List<Session> sessions = sessionRepository.findByFilmFilmId(film.getFilmId());
                     return sessions.stream()
-                            .anyMatch(session -> session.getDate_time().isAfter(java.time.LocalDateTime.now())
+                            .anyMatch(session -> session.getDateTime().isAfter(java.time.LocalDateTime.now())
                                     && !"CANCELLED".equals(session.getStatus()));
                 })
                 .map(filmMapping::toDto)
@@ -345,13 +345,13 @@ public class FilmService {
         statistics.put("filmId", filmId);
         statistics.put("title", film.getTitle());
         statistics.put("duration", film.getDuration());
-        statistics.put("releaseDate", film.getRelease_date());
-        statistics.put("ageRating", film.getAge_rating().getRating_value());
+        statistics.put("releaseDate", film.getReleaseDate());
+        statistics.put("ageRating", film.getAgeRating().getRatingValue());
         statistics.put("director", film.getDirector().getName() + " " + film.getDirector().getSurname());
-        statistics.put("country", film.getCountry().getCountry_name());
+        statistics.put("country", film.getCountry().getCountryName());
         statistics.put("totalSessions", sessionsCount);
         statistics.put("upcomingSessions", upcomingSessions.size());
-        statistics.put("genres", genres.stream().map(Genre::getGenre_name).collect(Collectors.toList()));
+        statistics.put("genres", genres.stream().map(Genre::getGenreName).collect(Collectors.toList()));
         statistics.put("hasUpcomingSessions", upcomingSessions.size() > 0);
 
         return statistics;
@@ -361,16 +361,16 @@ public class FilmService {
         return sessionRepository.findFilmsWithUpcomingSessions().stream()
                 .map(film -> {
                     FilmDto dto = new FilmDto();
-                    dto.setFilmId(film.getFilm_id());
+                    dto.setFilmId(film.getFilmId());
                     dto.setTitle(film.getTitle());
                     dto.setDescription(film.getDescription());
                     dto.setDuration((int) film.getDuration());
-                    dto.setReleaseDate(film.getRelease_date());
-                    dto.setPosterUrl(film.getPoster_url());
-                    dto.setTrailerUrl(film.getTrailer_url());
-                    dto.setDirectorId(film.getDirector().getDirector_id());
-                    dto.setCountryId(film.getCountry().getCountry_id());
-                    dto.setAgeRating(film.getAge_rating().getRating_value());
+                    dto.setReleaseDate(film.getReleaseDate());
+                    dto.setPosterUrl(film.getPosterUrl());
+                    dto.setTrailerUrl(film.getTrailerUrl());
+                    dto.setDirectorId(film.getDirector().getDirectorId());
+                    dto.setCountryId(film.getCountry().getCountryId());
+                    dto.setAgeRating(film.getAgeRating().getRatingValue());
                     return dto;
                 })
                 .collect(Collectors.toList());

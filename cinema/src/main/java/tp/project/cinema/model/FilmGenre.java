@@ -10,7 +10,7 @@ public class FilmGenre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "film_genre_id")
-    private long film_genre_id;
+    private long filmGenreId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", nullable = false)

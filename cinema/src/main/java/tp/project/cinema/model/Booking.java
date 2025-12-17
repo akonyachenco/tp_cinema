@@ -15,13 +15,13 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    private Long booking_id;
+    private Long bookingId;
 
     @Column(name = "booking_time")
-    private LocalDateTime booking_time;
+    private LocalDateTime bookingTime;
 
     @Column(name = "total_cost")
-    private BigDecimal total_cost;
+    private BigDecimal totalCost;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -33,20 +33,9 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_status_id", nullable = false)
-    private BookingStatus booking_status;
+    private BookingStatus bookingStatus;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Ticket> ticket_list = new ArrayList<>();
+    private List<Ticket> ticketList = new ArrayList<>();
 
-    public Long getBookingId() {
-        return booking_id;
-    }
-
-    public LocalDateTime getBookingTime() {
-        return booking_time;
-    }
-
-    public BigDecimal getTotalCost() {
-        return total_cost;
-    }
 }

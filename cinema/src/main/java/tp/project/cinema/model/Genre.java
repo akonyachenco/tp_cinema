@@ -13,11 +13,11 @@ public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "genre_id")
-    private short genre_id;
+    private short genreId;
 
     @Column(name = "genre_name", length = 50)
-    private String genre_name;
+    private String genreName;
 
     @OneToMany(mappedBy = "genre")
-    private List<FilmGenre> film_genre_list = new ArrayList<>();
+    private List<FilmGenre> filmGenreList = new ArrayList<>();
 }

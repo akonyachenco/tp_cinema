@@ -57,7 +57,7 @@ public class SeatService {
         // Получаем hallId из сеанса
         Short hallId = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"))
-                .getHall().getHall_id();
+                .getHall().getHallId();
 
         return seatRepository.findAvailableSeatsForSession(hallId, sessionId).stream()
                 .map(seatMapping::toDto)
@@ -72,7 +72,7 @@ public class SeatService {
 
         Short hallId = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"))
-                .getHall().getHall_id();
+                .getHall().getHallId();
 
         return seatRepository.findBookedSeatsForSession(hallId, sessionId).stream()
                 .map(seatMapping::toDto)
@@ -101,8 +101,8 @@ public class SeatService {
     public List<SeatDto> getSeatsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         return seatRepository.findAll().stream()
                 .filter(seat -> {
-                    BigDecimal price = seat.getHall().getBase_price()
-                            .multiply(seat.getSeat_type().getPrice_multiplier());
+                    BigDecimal price = seat.getHall().getBasePrice()
+                            .multiply(seat.getSeatType().getPriceMultiplier());
                     return price.compareTo(minPrice) >= 0 && price.compareTo(maxPrice) <= 0;
                 })
                 .map(seatMapping::toDto)
@@ -122,10 +122,10 @@ public class SeatService {
 
         // Создаем структуру для фронтенда
         Map<String, Object> layout = new HashMap<>();
-        layout.put("hallId", hall.getHall_id());
-        layout.put("hallName", hall.getHall_name());
-        layout.put("rowsCount", (int) hall.getRows_count());
-        layout.put("seatsPerRow", (int) hall.getSeats_per_row());
+        layout.put("hallId", hall.getHallId());
+        layout.put("hallName", hall.getHallName());
+        layout.put("rowsCount", (int) hall.getRowsCount());
+        layout.put("seatsPerRow", (int) hall.getSeatsPerRow());
         layout.put("seats", seats);
         layout.put("totalSeats", seats.size());
 
@@ -141,7 +141,7 @@ public class SeatService {
         var session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
-        Short hallId = session.getHall().getHall_id();
+        Short hallId = session.getHall().getHallId();
 
         List<SeatDto> allSeats = getSeatsByHall(hallId);
         List<SeatDto> bookedSeats = getBookedSeatsForSession(sessionId);
@@ -156,11 +156,11 @@ public class SeatService {
 
         Map<String, Object> result = new HashMap<>();
         result.put("sessionId", sessionId);
-        result.put("filmId", session.getFilm().getFilm_id());
+        result.put("filmId", session.getFilm().getFilmId());
         result.put("filmTitle", session.getFilm().getTitle());
-        result.put("sessionDateTime", session.getDate_time());
+        result.put("sessionDateTime", session.getDateTime());
         result.put("hallId", hallId);
-        result.put("hallName", session.getHall().getHall_name());
+        result.put("hallName", session.getHall().getHallName());
         result.put("allSeats", allSeats);
         result.put("bookedSeats", bookedSeats);
         result.put("availableSeats", availableSeats);

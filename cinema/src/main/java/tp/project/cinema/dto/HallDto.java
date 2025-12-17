@@ -21,7 +21,7 @@ public class HallDto {
 
     @NotNull(message = "Количество рядов обязательно")
     @Min(value = 1, message = "Количество рядов должно быть не менее 1")
-    private Short rows_count;
+    private Short rowsCount;
 
     @NotNull(message = "Количество мест в ряду обязательно")
     @Min(value = 1, message = "Количество мест в ряду должно быть не менее 1")

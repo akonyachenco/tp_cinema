@@ -53,7 +53,7 @@ public class BookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + bookingDto.getSessionId() + " не найден"));
 
         // 4. Проверка, что сеанс еще не начался
-        if (session.getDate_time().isBefore(LocalDateTime.now())) {
+        if (session.getDateTime().isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Сеанс уже начался или завершился");
         }
 
@@ -67,7 +67,7 @@ public class BookingService {
                 bookingDto.getStatus() != null ? bookingDto.getStatus() : "PENDING"
         ).orElseGet(() -> {
             BookingStatus newStatus = new BookingStatus();
-            newStatus.setStatus_name("PENDING");
+            newStatus.setStatusName("PENDING");
             return bookingStatusRepository.save(newStatus);
         });
 
@@ -75,10 +75,10 @@ public class BookingService {
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setSession(session);
-        booking.setBooking_status(status);
-        booking.setBooking_time(LocalDateTime.now());
-        booking.setTotal_cost(BigDecimal.ZERO);
-        booking.setTicket_list(new ArrayList<>());
+        booking.setBookingStatus(status);
+        booking.setBookingTime(LocalDateTime.now());
+        booking.setTotalCost(BigDecimal.ZERO);
+        booking.setTicketList(new ArrayList<>());
 
         // 8. Сохранение бронирования (нужно сделать до создания билетов)
         Booking savedBooking = bookingRepository.save(booking);
@@ -90,8 +90,8 @@ public class BookingService {
         if (bookingDto.getTicketList() != null && !bookingDto.getTicketList().isEmpty()) {
             // Проверяем, не превышает ли количество выбранных мест доступные
             int availableSeatsCount = seatRepository.findAvailableSeatsForSession(
-                    session.getHall().getHall_id(),
-                    session.getSession_id()
+                    session.getHall().getHallId(),
+                    session.getSessionId()
             ).size();
 
             if (bookingDto.getTicketList().size() > availableSeatsCount) {
@@ -104,14 +104,14 @@ public class BookingService {
                         .orElseThrow(() -> new ResourceNotFoundException("Место с ID " + ticketDto.getSeatId() + " не найдено"));
 
                 // Проверяем, что место принадлежит правильному залу
-                if (seat.getHall().getHall_id() != (session.getHall().getHall_id())) {
+                if (seat.getHall().getHallId() != (session.getHall().getHallId())) {
                     throw new IllegalArgumentException("Место " + ticketDto.getSeatId() + " не принадлежит залу этого сеанса");
                 }
 
                 // Проверяем, свободно ли место на этот сеанс
                 boolean isSeatAvailable = ticketRepository.findBySeatAndSession(
                         ticketDto.getSeatId(),
-                        session.getSession_id()
+                        session.getSessionId()
                 ).isEmpty();
 
                 if (!isSeatAvailable) {
@@ -128,22 +128,22 @@ public class BookingService {
 
                 // Генерируем уникальный код билета
                 String ticketCode = generateTicketCode();
-                ticket.setTicket_code(ticketCode);
+                ticket.setTicketCode(ticketCode);
 
                 // Сохраняем билет
                 Ticket savedTicket = ticketRepository.save(ticket);
                 createdTickets.add(savedTicket);
-                savedBooking.getTicket_list().add(savedTicket);
+                savedBooking.getTicketList().add(savedTicket);
             }
         } else {
             throw new IllegalArgumentException("Не выбрано ни одного места для бронирования");
         }
 
         // 10. Обновляем общую стоимость бронирования
-        savedBooking.setTotal_cost(totalCost);
+        savedBooking.setTotalCost(totalCost);
 
         // 11. Обновляем список билетов
-        savedBooking.setTicket_list(createdTickets);
+        savedBooking.setTicketList(createdTickets);
 
         // 12. Сохраняем обновленное бронирование
         Booking finalBooking = bookingRepository.save(savedBooking);
@@ -179,7 +179,7 @@ public class BookingService {
         Ticket ticket = new Ticket();
         ticket.setSeat(seat);
         ticket.setBooking(booking);
-        ticket.setCreation_date(LocalDateTime.now());
+        ticket.setCreationDate(LocalDateTime.now());
 
         return ticket;
     }
@@ -191,8 +191,8 @@ public class BookingService {
         }
 
         // Иначе рассчитываем цену: базовая цена зала * множитель типа места
-        BigDecimal basePrice = seat.getHall().getBase_price();
-        BigDecimal multiplier = seat.getSeat_type().getPrice_multiplier();
+        BigDecimal basePrice = seat.getHall().getBasePrice();
+        BigDecimal multiplier = seat.getSeatType().getPriceMultiplier();
 
         return basePrice.multiply(multiplier);
     }
@@ -212,7 +212,7 @@ public class BookingService {
         BookingStatus status = bookingStatusRepository.findByStatusName(bookingDto.getStatus())
                 .orElseThrow(() -> new ResourceNotFoundException("Статус бронирования '" + bookingDto.getStatus() + "' не найден"));
 
-        existingBooking.setBooking_status(status);
+        existingBooking.setBookingStatus(status);
 
         Booking updatedBooking = bookingRepository.save(existingBooking);
         return bookingMapping.toDto(updatedBooking);
@@ -258,11 +258,11 @@ public class BookingService {
         BookingStatus confirmedStatus = bookingStatusRepository.findByStatusName("CONFIRMED")
                 .orElseGet(() -> {
                     BookingStatus newStatus = new BookingStatus();
-                    newStatus.setStatus_name("CONFIRMED");
+                    newStatus.setStatusName("CONFIRMED");
                     return bookingStatusRepository.save(newStatus);
                 });
 
-        booking.setBooking_status(confirmedStatus);
+        booking.setBookingStatus(confirmedStatus);
 
         Booking confirmedBooking = bookingRepository.save(booking);
         return bookingMapping.toDto(confirmedBooking);
@@ -275,11 +275,11 @@ public class BookingService {
         BookingStatus cancelledStatus = bookingStatusRepository.findByStatusName("CANCELLED")
                 .orElseGet(() -> {
                     BookingStatus newStatus = new BookingStatus();
-                    newStatus.setStatus_name("CANCELLED");
+                    newStatus.setStatusName("CANCELLED");
                     return bookingStatusRepository.save(newStatus);
                 });
 
-        booking.setBooking_status(cancelledStatus);
+        booking.setBookingStatus(cancelledStatus);
 
         Booking cancelledBooking = bookingRepository.save(booking);
         return bookingMapping.toDto(cancelledBooking);
