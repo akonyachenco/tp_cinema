@@ -69,4 +69,8 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
             @Param("hallId") Short hallId,
             @Param("start") Integer start,
             @Param("end") Integer end);
+
+    // Добавить этот метод если его нет:
+    @Query("SELECT COUNT(s) > 0 FROM Seat s WHERE s.hall.hallId = :hallId")
+    boolean existsSeatsByHallId(@Param("hallId") Short hallId);
 }

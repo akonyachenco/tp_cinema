@@ -7,13 +7,16 @@ import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.dto.Mapping.SeatMapping;
 import tp.project.cinema.exception.ResourceNotFoundException;
 import tp.project.cinema.model.Seat;
+import tp.project.cinema.model.Hall;
 import tp.project.cinema.repository.SeatRepository;
 import tp.project.cinema.repository.SessionRepository;
 import tp.project.cinema.repository.TicketRepository;
 import tp.project.cinema.repository.HallRepository;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +48,7 @@ public class SeatService {
         return seatMapping.toDto(seat);
     }
 
-    // Получить доступные места для сеанса (с фронтенда ожидается endpoint: seats/available?sessionId=...)
+    // Получить доступные места для сеанса
     public List<SeatDto> getAvailableSeatsForSession(Integer sessionId) {
         if (!sessionRepository.existsById(sessionId)) {
             throw new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден");
@@ -106,10 +109,8 @@ public class SeatService {
                 .collect(Collectors.toList());
     }
 
-    // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ ФРОНТЕНДА:
-
-    // Получить схему мест зала (для фронтенда)
-    public Object getHallLayout(Short hallId) {
+    // Получить схему мест зала
+    public Map<String, Object> getHallLayout(Short hallId) {
         if (!hallRepository.existsById(hallId)) {
             throw new ResourceNotFoundException("Зал с ID " + hallId + " не найден");
         }
@@ -120,17 +121,19 @@ public class SeatService {
         List<SeatDto> seats = getSeatsByHall(hallId);
 
         // Создаем структуру для фронтенда
-        return Map.of(
-                "hallId", hall.getHall_id(),
-                "hallName", hall.getHall_name(),
-                "rowsCount", hall.getRows_count(),
-                "seatsPerRow", hall.getSeats_per_row(),
-                "seats", seats
-        );
+        Map<String, Object> layout = new HashMap<>();
+        layout.put("hallId", hall.getHall_id());
+        layout.put("hallName", hall.getHall_name());
+        layout.put("rowsCount", (int) hall.getRows_count());
+        layout.put("seatsPerRow", (int) hall.getSeats_per_row());
+        layout.put("seats", seats);
+        layout.put("totalSeats", seats.size());
+
+        return layout;
     }
 
     // Получить места для бронирования сеанса
-    public Object getSeatsForBooking(Integer sessionId) {
+    public Map<String, Object> getSeatsForBooking(Integer sessionId) {
         if (!sessionRepository.existsById(sessionId)) {
             throw new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден");
         }
@@ -151,19 +154,44 @@ public class SeatService {
             seat.setStatus(isBooked ? "BOOKED" : "AVAILABLE");
         });
 
-        return Map.of(
-                "sessionId", sessionId,
-                "filmId", session.getFilm().getFilm_id(),
-                "filmTitle", session.getFilm().getTitle(),
-                "sessionDateTime", session.getDate_time(),
-                "hallId", hallId,
-                "hallName", session.getHall().getHall_name(),
-                "allSeats", allSeats,
-                "bookedSeats", bookedSeats,
-                "availableSeats", availableSeats,
-                "totalSeats", allSeats.size(),
-                "bookedCount", bookedSeats.size(),
-                "availableCount", availableSeats.size()
-        );
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", sessionId);
+        result.put("filmId", session.getFilm().getFilm_id());
+        result.put("filmTitle", session.getFilm().getTitle());
+        result.put("sessionDateTime", session.getDate_time());
+        result.put("hallId", hallId);
+        result.put("hallName", session.getHall().getHall_name());
+        result.put("allSeats", allSeats);
+        result.put("bookedSeats", bookedSeats);
+        result.put("availableSeats", availableSeats);
+        result.put("totalSeats", allSeats.size());
+        result.put("bookedCount", bookedSeats.size());
+        result.put("availableCount", availableSeats.size());
+
+        return result;
+    }
+
+    // Получить лучшие места в зале (первые ряды)
+    public List<SeatDto> getBestSeats(Short hallId) {
+        List<SeatDto> allSeats = getSeatsByHall(hallId);
+
+        // Фильтруем лучшие места (первые 3 ряда)
+        List<SeatDto> bestSeats = allSeats.stream()
+                .filter(seat -> seat.getRowNumber() != null && seat.getRowNumber() <= 3)
+                .collect(Collectors.toList());
+
+        return bestSeats;
+    }
+
+    // Получить места VIP категории
+    public List<SeatDto> getVipSeats(Short hallId) {
+        List<SeatDto> allSeats = getSeatsByHall(hallId);
+
+        // Фильтруем VIP места (тип "VIP")
+        List<SeatDto> vipSeats = allSeats.stream()
+                .filter(seat -> "VIP".equalsIgnoreCase(seat.getSeatType()))
+                .collect(Collectors.toList());
+
+        return vipSeats;
     }
 }

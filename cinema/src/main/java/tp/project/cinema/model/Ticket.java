@@ -14,7 +14,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticket_id")
-    private long ticket_id;
+    private Long ticket_id;
 
     @CreationTimestamp
     @Column(name = "creation_date")
@@ -23,7 +23,7 @@ public class Ticket {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "ticket_code", length = 20)
+    @Column(name = "ticket_code", length = 20, unique = true)
     private String ticket_code;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,4 +33,16 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
+
+    public Long getTicketId() {
+        return ticket_id;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creation_date;
+    }
+
+    public String getTicketCode() {
+        return ticket_code;
+    }
 }

@@ -9,8 +9,11 @@ import tp.project.cinema.dto.BookingDto;
 import tp.project.cinema.service.BookingService;
 
 import jakarta.validation.Valid;
+
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -110,5 +113,70 @@ public class BookingController {
     public ResponseEntity<List<BookingDto>> getBookingHistory(@PathVariable Long userId) {
         List<BookingDto> bookings = bookingService.getBookingsByUser(userId);
         return ResponseEntity.ok(bookings);
+    }
+
+    // Дополнительные эндпоинты
+
+    @GetMapping("/date-range")
+    public ResponseEntity<List<BookingDto>> getBookingsByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        List<BookingDto> bookings = bookingService.getBookingsByDateRange(start, end);
+        return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("/user/{userId}/from-date")
+    public ResponseEntity<List<BookingDto>> getBookingsFromDate(
+            @PathVariable Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate) {
+        List<BookingDto> bookings = bookingService.getBookingsFromDate(userId, startDate);
+        return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("/session/{sessionId}/confirmed-count")
+    public ResponseEntity<Map<String, Long>> countConfirmedBookingsBySession(@PathVariable Integer sessionId) {
+        long count = bookingService.countConfirmedBookingsBySession(sessionId);
+        Map<String, Long> response = new HashMap<>();
+        response.put("confirmedCount", count);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/cost-greater-than")
+    public ResponseEntity<List<BookingDto>> getBookingsWithTotalCostGreaterThan(
+            @RequestParam Double minAmount) {
+        List<BookingDto> bookings = bookingService.getBookingsWithTotalCostGreaterThan(minAmount);
+        return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("/find-by-session-user")
+    public ResponseEntity<BookingDto> getBookingBySessionAndUser(
+            @RequestParam Integer sessionId,
+            @RequestParam Long userId) {
+        BookingDto booking = bookingService.getBookingBySessionAndUser(sessionId, userId);
+        return ResponseEntity.ok(booking);
+    }
+
+    @GetMapping("/find-by-ticket/{ticketId}")
+    public ResponseEntity<BookingDto> getBookingByTicketId(@PathVariable Long ticketId) {
+        BookingDto booking = bookingService.getBookingByTicketId(ticketId);
+        return ResponseEntity.ok(booking);
+    }
+
+    @GetMapping("/unique-users")
+    public ResponseEntity<Map<String, Long>> countUniqueUsersForPeriod(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String endDate) {
+        Long count = bookingService.countUniqueUsersForPeriod(startDate, endDate);
+        Map<String, Long> response = new HashMap<>();
+        response.put("uniqueUsers", count);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<Map<String, Object>> getBookingStatistics(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        Map<String, Object> statistics = bookingService.getBookingStatistics(start, end);
+        return ResponseEntity.ok(statistics);
     }
 }

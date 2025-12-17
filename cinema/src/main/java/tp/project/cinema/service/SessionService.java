@@ -14,6 +14,7 @@ import tp.project.cinema.repository.FilmRepository;
 import tp.project.cinema.repository.HallRepository;
 import tp.project.cinema.repository.SessionRepository;
 import tp.project.cinema.repository.SeatRepository;
+import tp.project.cinema.repository.TicketRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class SessionService {
     private final FilmRepository filmRepository;
     private final HallRepository hallRepository;
     private final SeatRepository seatRepository;
+    private final TicketRepository ticketRepository;
     private final SessionMapping sessionMapping;
 
     public List<SessionDto> getAllSessions() {
@@ -175,7 +177,7 @@ public class SessionService {
         return sessionMapping.toDto(cancelledSession);
     }
 
-    // 🔥 НОВЫЕ МЕТОДЫ ДЛЯ ФРОНТЕНДА:
+    // ДОБАВЛЕННЫЕ МЕТОДЫ ДЛЯ ФРОНТЕНДА:
 
     public List<SessionDto> getAvailableSessions() {
         return sessionRepository.findByDateTimeAfter(LocalDateTime.now()).stream()
@@ -198,66 +200,84 @@ public class SessionService {
                 .collect(Collectors.toList());
     }
 
-    // Метод getHallLayout()
-    public Map<String, Object> getHallLayout(Short hallId) {
-        if (!hallRepository.existsById(hallId)) {
-            throw new ResourceNotFoundException("Зал с ID " + hallId + " не найден");
-        }
+    // Метод для получения деталей сеанса
+    public Map<String, Object> getSessionDetails(Integer id) {
+        Session session = sessionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + id + " не найден"));
 
-        Hall hall = hallRepository.findById(hallId)
-                .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + hallId + " не найден"));
+        Map<String, Object> details = new HashMap<>();
+        details.put("session", sessionMapping.toDto(session));
+        details.put("film", session.getFilm());
+        details.put("hall", session.getHall());
+        details.put("availableSeats", getAvailableSeats(id).size());
+        details.put("totalSeats", seatRepository.countSeatsByHall(session.getHall().getHall_id()));
 
-        List<SeatDto> seats = getSeatsByHall(hallId);
-
-        // Создаем Map с правильными типами
-        Map<String, Object> layout = new HashMap<>();
-        layout.put("hallId", (int) hall.getHall_id()); // short -> int
-        layout.put("hallName", hall.getHall_name());
-        layout.put("rowsCount", (int) hall.getRows_count()); // short -> int
-        layout.put("seatsPerRow", (int) hall.getSeats_per_row()); // short -> int
-        layout.put("seats", seats);
-        layout.put("totalSeats", seats.size());
-
-        return layout;
+        return details;
     }
 
-    // Метод getSeatsForBooking()
-    public Map<String, Object> getSeatsForBooking(Integer sessionId) {
-        if (!sessionRepository.existsById(sessionId)) {
-            throw new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден");
-        }
+    // Вспомогательные методы, которые должны быть в SessionService
 
-        var session = sessionRepository.findById(sessionId)
+    // Получить места зала
+    private List<SeatDto> getSeatsByHall(Short hallId) {
+        return seatRepository.findByHallHallId(hallId).stream()
+                .map(seat -> {
+                    SeatDto dto = new SeatDto();
+                    dto.setSeatId(seat.getSeat_id());
+                    dto.setRowNumber(seat.getRow_number());
+                    dto.setSeatNumber(seat.getSeat_number());
+                    dto.setSeatType(seat.getSeat_type().getType_name());
+                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
+                    dto.setHallId(seat.getHall().getHall_id());
+                    dto.setBasePrice(seat.getHall().getBase_price());
+                    dto.setHallName(seat.getHall().getHall_name());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // Получить занятые места для сеанса
+    private List<SeatDto> getBookedSeatsForSession(Integer sessionId) {
+        Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
         Short hallId = session.getHall().getHall_id();
 
-        List<SeatDto> allSeats = getSeatsByHall(hallId);
-        List<SeatDto> bookedSeats = getBookedSeatsForSession(sessionId);
-        List<SeatDto> availableSeats = getAvailableSeatsForSession(sessionId);
+        return seatRepository.findBookedSeatsForSession(hallId, sessionId).stream()
+                .map(seat -> {
+                    SeatDto dto = new SeatDto();
+                    dto.setSeatId(seat.getSeat_id());
+                    dto.setRowNumber(seat.getRow_number());
+                    dto.setSeatNumber(seat.getSeat_number());
+                    dto.setSeatType(seat.getSeat_type().getType_name());
+                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
+                    dto.setHallId(seat.getHall().getHall_id());
+                    dto.setBasePrice(seat.getHall().getBase_price());
+                    dto.setHallName(seat.getHall().getHall_name());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
 
-        // Помечаем статус каждого места
-        allSeats.forEach(seat -> {
-            boolean isBooked = bookedSeats.stream()
-                    .anyMatch(booked -> booked.getSeatId().equals(seat.getSeatId()));
-            seat.setStatus(isBooked ? "BOOKED" : "AVAILABLE");
-        });
+    // Получить доступные места для сеанса (вспомогательный)
+    private List<SeatDto> getAvailableSeatsForSession(Integer sessionId) {
+        Session session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден"));
 
-        // Создаем Map с правильными типами
-        Map<String, Object> result = new HashMap<>();
-        result.put("sessionId", sessionId);
-        result.put("filmId", session.getFilm().getFilm_id());
-        result.put("filmTitle", session.getFilm().getTitle());
-        result.put("sessionDateTime", session.getDate_time());
-        result.put("hallId", (int) hallId); // short -> int
-        result.put("hallName", session.getHall().getHall_name());
-        result.put("allSeats", allSeats);
-        result.put("bookedSeats", bookedSeats);
-        result.put("availableSeats", availableSeats);
-        result.put("totalSeats", allSeats.size());
-        result.put("bookedCount", bookedSeats.size());
-        result.put("availableCount", availableSeats.size());
+        Short hallId = session.getHall().getHall_id();
 
-        return result;
+        return seatRepository.findAvailableSeatsForSession(hallId, sessionId).stream()
+                .map(seat -> {
+                    SeatDto dto = new SeatDto();
+                    dto.setSeatId(seat.getSeat_id());
+                    dto.setRowNumber(seat.getRow_number());
+                    dto.setSeatNumber(seat.getSeat_number());
+                    dto.setSeatType(seat.getSeat_type().getType_name());
+                    dto.setPriceMultiplier(seat.getSeat_type().getPrice_multiplier());
+                    dto.setHallId(seat.getHall().getHall_id());
+                    dto.setBasePrice(seat.getHall().getBase_price());
+                    dto.setHallName(seat.getHall().getHall_name());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

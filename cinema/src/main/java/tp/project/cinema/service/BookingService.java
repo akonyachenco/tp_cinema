@@ -312,4 +312,75 @@ public class BookingService {
         Double revenue = bookingRepository.getTotalRevenueForPeriod(start, end);
         return revenue != null ? revenue : 0.0;
     }
+
+    // Дополнительные методы
+
+    public List<BookingDto> getBookingsByDateRange(LocalDateTime start, LocalDateTime end) {
+        return bookingRepository.findByBookingTimeBetween(start, end).stream()
+                .map(bookingMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<BookingDto> getBookingsFromDate(Long userId, LocalDateTime startDate) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("Пользователь с ID " + userId + " не найден");
+        }
+
+        return bookingRepository.findUserBookingsFromDate(userId, startDate).stream()
+                .map(bookingMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public long countConfirmedBookingsBySession(Integer sessionId) {
+        if (!sessionRepository.existsById(sessionId)) {
+            throw new ResourceNotFoundException("Сеанс с ID " + sessionId + " не найден");
+        }
+
+        return bookingRepository.countConfirmedBookingsBySession(sessionId);
+    }
+
+    public List<BookingDto> getBookingsWithTotalCostGreaterThan(Double minAmount) {
+        return bookingRepository.findBookingsWithTotalCostGreaterThan(minAmount).stream()
+                .map(bookingMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public BookingDto getBookingBySessionAndUser(Integer sessionId, Long userId) {
+        Booking booking = bookingRepository.findBySessionAndUser(sessionId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Бронирование для сеанса %d и пользователя %d не найдено", sessionId, userId)));
+
+        return bookingMapping.toDto(booking);
+    }
+
+    public BookingDto getBookingByTicketId(Long ticketId) {
+        Booking booking = bookingRepository.findByTicketId(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Бронирование для билета %d не найдено", ticketId)));
+
+        return bookingMapping.toDto(booking);
+    }
+
+    public Long countUniqueUsersForPeriod(String startDate, String endDate) {
+        LocalDateTime start = LocalDateTime.parse(startDate + "T00:00:00");
+        LocalDateTime end = LocalDateTime.parse(endDate + "T23:59:59");
+
+        Long count = bookingRepository.countUniqueUsersForPeriod(start, end);
+        return count != null ? count : 0L;
+    }
+
+    public Map<String, Object> getBookingStatistics(LocalDateTime start, LocalDateTime end) {
+        Double revenue = bookingRepository.getTotalRevenueForPeriod(start, end);
+        Long uniqueUsers = bookingRepository.countUniqueUsersForPeriod(start, end);
+        List<BookingDto> recentBookings = getBookingsByDateRange(start, end);
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("revenue", revenue != null ? revenue : 0.0);
+        statistics.put("uniqueUsers", uniqueUsers != null ? uniqueUsers : 0);
+        statistics.put("totalBookings", recentBookings.size());
+        statistics.put("averageBookingValue", revenue != null && recentBookings.size() > 0
+                ? revenue / recentBookings.size() : 0);
+
+        return statistics;
+    }
 }

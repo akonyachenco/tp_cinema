@@ -18,21 +18,18 @@ public class SeatController {
 
     private final SeatService seatService;
 
-    // Получить места зала
     @GetMapping("/hall/{hallId}")
     public ResponseEntity<List<SeatDto>> getSeatsByHall(@PathVariable Short hallId) {
         List<SeatDto> seats = seatService.getSeatsByHall(hallId);
         return ResponseEntity.ok(seats);
     }
 
-    // Получить место по ID
     @GetMapping("/{id}")
     public ResponseEntity<SeatDto> getSeatById(@PathVariable Integer id) {
         SeatDto seat = seatService.getSeatById(id);
         return ResponseEntity.ok(seat);
     }
 
-    // Получить доступные места для сеанса
     @GetMapping("/available")
     public ResponseEntity<List<SeatDto>> getAvailableSeatsForSession(
             @RequestParam Integer sessionId) {
@@ -40,7 +37,6 @@ public class SeatController {
         return ResponseEntity.ok(seats);
     }
 
-    // Получить занятые места сеанса
     @GetMapping("/booked")
     public ResponseEntity<List<SeatDto>> getBookedSeatsForSession(
             @RequestParam Integer sessionId) {
@@ -48,7 +44,6 @@ public class SeatController {
         return ResponseEntity.ok(seats);
     }
 
-    // Получить места по ряду
     @GetMapping("/row/{rowNumber}")
     public ResponseEntity<List<SeatDto>> getSeatsByRow(
             @PathVariable Short rowNumber,
@@ -57,14 +52,12 @@ public class SeatController {
         return ResponseEntity.ok(seats);
     }
 
-    // Получить места по типу
     @GetMapping("/type/{seatType}")
     public ResponseEntity<List<SeatDto>> getSeatsByType(@PathVariable String seatType) {
         List<SeatDto> seats = seatService.getSeatsByType(seatType);
         return ResponseEntity.ok(seats);
     }
 
-    // Получить места по диапазону цен
     @GetMapping("/price-range")
     public ResponseEntity<List<SeatDto>> getSeatsByPriceRange(
             @RequestParam BigDecimal minPrice,
@@ -73,14 +66,12 @@ public class SeatController {
         return ResponseEntity.ok(seats);
     }
 
-    // Получить схему зала (для фронтенда)
     @GetMapping("/hall/{hallId}/layout")
     public ResponseEntity<Map<String, Object>> getHallLayout(@PathVariable Short hallId) {
         Map<String, Object> layout = seatService.getHallLayout(hallId);
         return ResponseEntity.ok(layout);
     }
 
-    // Получить все места для бронирования сеанса
     @GetMapping("/session/{sessionId}")
     public ResponseEntity<Map<String, Object>> getSeatsForSession(
             @PathVariable Integer sessionId) {
@@ -88,15 +79,13 @@ public class SeatController {
         return ResponseEntity.ok(seatsInfo);
     }
 
-    // Проверить доступность конкретного места на сеансе
     @GetMapping("/check-availability")
     public ResponseEntity<Map<String, Boolean>> checkSeatAvailability(
             @RequestParam Integer seatId,
             @RequestParam Integer sessionId) {
-        // Логика проверки доступности
         List<SeatDto> bookedSeats = seatService.getBookedSeatsForSession(sessionId);
         boolean isAvailable = bookedSeats.stream()
-                .noneMatch(seat -> seat.getSeatId().equals(seatId));
+                .noneMatch(seat -> seat.getSeatId() != null && seat.getSeatId().equals(seatId));
 
         Map<String, Boolean> response = new HashMap<>();
         response.put("available", isAvailable);
@@ -104,7 +93,6 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
-    // Получить количество свободных мест на сеансе
     @GetMapping("/session/{sessionId}/available-count")
     public ResponseEntity<Map<String, Integer>> getAvailableSeatsCount(
             @PathVariable Integer sessionId) {
@@ -116,13 +104,11 @@ public class SeatController {
         return ResponseEntity.ok(response);
     }
 
-    // Получить схему зала с указанием занятых мест для сеанса
     @GetMapping("/session/{sessionId}/layout")
     public ResponseEntity<Map<String, Object>> getSessionHallLayout(
             @PathVariable Integer sessionId) {
         Map<String, Object> seatsInfo = seatService.getSeatsForBooking(sessionId);
 
-        // Извлекаем нужные данные
         Map<String, Object> layout = new HashMap<>();
         layout.put("hallId", seatsInfo.get("hallId"));
         layout.put("hallName", seatsInfo.get("hallName"));
@@ -134,33 +120,18 @@ public class SeatController {
         return ResponseEntity.ok(layout);
     }
 
-    // Получить лучшие места в зале (первые ряды)
     @GetMapping("/hall/{hallId}/best")
     public ResponseEntity<List<SeatDto>> getBestSeats(@PathVariable Short hallId) {
-        List<SeatDto> allSeats = seatService.getSeatsByHall(hallId);
-
-        // Фильтруем лучшие места (первые 3 ряда)
-        List<SeatDto> bestSeats = allSeats.stream()
-                .filter(seat -> seat.getRowNumber() <= 3)
-                .toList();
-
+        List<SeatDto> bestSeats = seatService.getBestSeats(hallId);
         return ResponseEntity.ok(bestSeats);
     }
 
-    // Получить места VIP категории
     @GetMapping("/hall/{hallId}/vip")
     public ResponseEntity<List<SeatDto>> getVipSeats(@PathVariable Short hallId) {
-        List<SeatDto> allSeats = seatService.getSeatsByHall(hallId);
-
-        // Фильтруем VIP места (тип "VIP")
-        List<SeatDto> vipSeats = allSeats.stream()
-                .filter(seat -> "VIP".equalsIgnoreCase(seat.getSeatType()))
-                .toList();
-
+        List<SeatDto> vipSeats = seatService.getVipSeats(hallId);
         return ResponseEntity.ok(vipSeats);
     }
 
-    // Получить информацию о конкретном месте
     @GetMapping("/{seatId}/info")
     public ResponseEntity<Map<String, Object>> getSeatInfo(
             @PathVariable Integer seatId,
@@ -177,15 +148,15 @@ public class SeatController {
         info.put("hallName", seat.getHallName());
         info.put("basePrice", seat.getBasePrice());
 
-        // Рассчитываем финальную цену
-        BigDecimal finalPrice = seat.getBasePrice().multiply(seat.getPriceMultiplier());
-        info.put("finalPrice", finalPrice);
+        if (seat.getBasePrice() != null && seat.getPriceMultiplier() != null) {
+            BigDecimal finalPrice = seat.getBasePrice().multiply(seat.getPriceMultiplier());
+            info.put("finalPrice", finalPrice);
+        }
 
-        // Если передан sessionId, проверяем доступность
         if (sessionId != null) {
             List<SeatDto> bookedSeats = seatService.getBookedSeatsForSession(sessionId);
             boolean isAvailable = bookedSeats.stream()
-                    .noneMatch(s -> s.getSeatId().equals(seatId));
+                    .noneMatch(s -> s.getSeatId() != null && s.getSeatId().equals(seatId));
             info.put("available", isAvailable);
         }
 

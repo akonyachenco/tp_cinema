@@ -2,6 +2,7 @@ package tp.project.cinema.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,8 +15,9 @@ public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "film_id")
-    private long film_id;
+    private Long film_id;
 
+    @Getter
     @Column(name = "duration")
     private short duration;
 
@@ -29,10 +31,10 @@ public class Film {
     private LocalDate release_date;
 
     @Column(name = "poster_url")
-    private String  poster_url;
+    private String poster_url;
 
     @Column(name = "trailer_url")
-    private String  trailer_url;
+    private String trailer_url;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id", nullable = false)
@@ -51,4 +53,14 @@ public class Film {
 
     @OneToMany(mappedBy = "film")
     private List<Session> session_list = new ArrayList<>();
+
+    public void setDuration(short duration) {
+        this.duration = duration;
+    }
+
+    public void setDuration(Integer duration) {
+        if (duration != null) {
+            this.duration = duration.shortValue();
+        }
+    }
 }

@@ -40,7 +40,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("userId") Long userId,
             @Param("status") String status);
 
-    @Query("SELECT b FROM Booking b WHERE b.totalCost > :minAmount")
+    @Query("SELECT b FROM Booking b WHERE b.total_cost > :minAmount")
     List<Booking> findBookingsWithTotalCostGreaterThan(@Param("minAmount") Double minAmount);
 
     @Query("SELECT b FROM Booking b WHERE b.session.sessionId = :sessionId " +
@@ -52,7 +52,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b JOIN b.ticketList t WHERE t.ticketId = :ticketId")
     Optional<Booking> findByTicketId(@Param("ticketId") Long ticketId);
 
-    @Query("SELECT SUM(b.totalCost) FROM Booking b WHERE b.bookingTime BETWEEN :start AND :end")
+    @Query("SELECT SUM(b.total_cost) FROM Booking b WHERE b.bookingTime BETWEEN :start AND :end")
     Double getTotalRevenueForPeriod(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);

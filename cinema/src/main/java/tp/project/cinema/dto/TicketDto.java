@@ -2,7 +2,6 @@ package tp.project.cinema.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import tp.project.cinema.model.HallType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,8 +12,18 @@ public class TicketDto {
     private LocalDateTime creationDate;
     private BigDecimal price;
     private String ticketCode;
-    @NotNull
+
+    @NotNull(message = "ID места обязателен")
     private Integer seatId;
-    @NotNull
+
+    @NotNull(message = "ID бронирования обязателен")
     private Long bookingId;
+
+    private String seatType;
+    private Short rowNumber;
+    private Short seatNumber;
+    private String hallName;
+    private String filmTitle;
+    private LocalDateTime sessionDateTime;
+    private String status;
 }

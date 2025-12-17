@@ -22,7 +22,6 @@ public class AuthService {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserMapping userMapping;
 
-
     public UserDto register(UserRegisterDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new RuntimeException("Email уже используется");
@@ -36,30 +35,41 @@ public class AuthService {
     }
 
     public AuthResponseDto login(UserLoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getEmail(),
-                        loginDto.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDto.getEmail(),
+                            loginDto.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        User user = (User) authentication.getPrincipal();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            User user = (User) authentication.getPrincipal();
 
-        String token = jwtTokenUtil.generateToken(user);
-        UserDto userDto = userMapping.toDto(user);
+            String token = jwtTokenUtil.generateToken(user);
+            UserDto userDto = userMapping.toDto(user);
 
-        return AuthResponseDto.builder()
-                .token(token)
-                .user(userDto)
-                .build();
+            return AuthResponseDto.builder()
+                    .token(token)
+                    .user(userDto)
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Неверный email или пароль");
+        }
     }
 
     public UserDto getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
 
-        return userMapping.toDto(user);
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        try {
+            User user = (User) authentication.getPrincipal();
+            return userMapping.toDto(user);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 }
-

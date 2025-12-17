@@ -21,10 +21,9 @@ public class SessionDto {
 
     private List<BookingDto> bookingList;
 
-    // Дополнительные поля для фронтенда
     private String filmTitle;
     private String hallName;
     private Integer duration;
     private Double basePrice;
-    private Map<String, Object> seatInfo; // информация о местах
+    private Map<String, Object> seatInfo;
 }

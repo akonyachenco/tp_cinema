@@ -33,7 +33,7 @@ public class FilmDto {
 
     @NotNull(message = "Длительность обязательна")
     @Min(value = 1, message = "Длительность должна быть не менее 1 минуты")
-    private Short duration; // Используем Short вместо short
+    private Integer duration; // Изменим с Short на Integer
 
     @NotNull(message = "ID режиссера обязателен")
     private Integer directorId;
@@ -46,4 +46,9 @@ public class FilmDto {
 
     private List<String> genres;
     private List<SessionDto> sessionList;
+
+    private String directorName;
+    private String countryName;
+    private Integer sessionCount;
+    private Boolean hasUpcomingSessions;
 }

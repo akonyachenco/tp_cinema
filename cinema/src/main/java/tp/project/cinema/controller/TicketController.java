@@ -1,12 +1,17 @@
 package tp.project.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tp.project.cinema.dto.TicketDto;
 import tp.project.cinema.service.TicketService;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -61,5 +66,43 @@ public class TicketController {
     public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
         ticketService.deleteTicket(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/hall/{hallId}")
+    public ResponseEntity<List<TicketDto>> getTicketsByHall(@PathVariable Short hallId) {
+        List<TicketDto> tickets = ticketService.getTicketsByHall(hallId);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<List<TicketDto>> getTicketsByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        List<TicketDto> tickets = ticketService.getTicketsByDateRange(startDate, endDate);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<TicketDto>> getTicketsByStatus(@PathVariable String status) {
+        List<TicketDto> tickets = ticketService.getTicketsByBookingStatus(status);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/user/{userId}/upcoming")
+    public ResponseEntity<List<TicketDto>> getUpcomingTicketsByUser(@PathVariable Long userId) {
+        List<TicketDto> tickets = ticketService.getUpcomingTicketsByUser(userId);
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/revenue")
+    public ResponseEntity<Map<String, BigDecimal>> getRevenueForPeriod(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        BigDecimal revenue = ticketService.getTotalRevenueForPeriod(start, end);
+
+        Map<String, BigDecimal> response = new HashMap<>();
+        response.put("revenue", revenue);
+
+        return ResponseEntity.ok(response);
     }
 }

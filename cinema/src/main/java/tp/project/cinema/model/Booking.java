@@ -15,7 +15,7 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    private long booking_id;
+    private Long booking_id;
 
     @Column(name = "booking_time")
     private LocalDateTime booking_time;
@@ -35,6 +35,18 @@ public class Booking {
     @JoinColumn(name = "booking_status_id", nullable = false)
     private BookingStatus booking_status;
 
-    @OneToMany(mappedBy = "booking")
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ticket> ticket_list = new ArrayList<>();
+
+    public Long getBookingId() {
+        return booking_id;
+    }
+
+    public LocalDateTime getBookingTime() {
+        return booking_time;
+    }
+
+    public BigDecimal getTotalCost() {
+        return total_cost;
+    }
 }

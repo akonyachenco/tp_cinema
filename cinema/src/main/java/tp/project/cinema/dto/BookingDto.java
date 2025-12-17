@@ -22,6 +22,12 @@ public class BookingDto {
     @NotNull(message = "Статус обязателен")
     private String status;
 
-    // Добавлено для создания бронирования с местами
     private List<TicketDto> ticketList;
+
+    private String userName;
+    private String userEmail;
+    private String filmTitle;
+    private String hallName;
+    private LocalDateTime sessionDateTime;
+    private Integer ticketCount;
 }

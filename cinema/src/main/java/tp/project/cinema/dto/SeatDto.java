@@ -1,6 +1,8 @@
 package tp.project.cinema.dto;
 
 import lombok.Data;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,8 +18,13 @@ public class SeatDto {
     private String hallName;
     private List<TicketDto> ticketList;
 
-    // Дополнительные поля для фронтенда
     private String status; // "AVAILABLE", "BOOKED", "SELECTED"
     private BigDecimal price; // Рассчитанная цена
-    private boolean isSelected; // Для UI
+
+    @Setter
+    private Boolean isSelected; // Для UI
+
+    public Boolean getIsSelected() {
+        return isSelected != null ? isSelected : false;
+    }
 }

@@ -1,7 +1,6 @@
 package tp.project.cinema.dto.Mapping;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 import tp.project.cinema.dto.UserDto;
 import tp.project.cinema.dto.UserRegisterDto;
 import tp.project.cinema.model.User;
@@ -18,5 +17,15 @@ public interface UserMapping {
     User toEntity(UserRegisterDto dto);
 
     @Mapping(source = "user_id", target = "userId")
+    @Mapping(source = "registration_date", target = "registrationDate")
+    @Mapping(source = "birth_date", target = "birthDate")
+    @Mapping(expression = "java(entity.getAge())", target = "age")
     UserDto toDto(User entity);
+
+    @AfterMapping
+    default void afterEntityMapping(@MappingTarget User entity, UserRegisterDto dto) {
+        if (entity.getRole() == null) {
+            entity.setRole("USER");
+        }
+    }
 }

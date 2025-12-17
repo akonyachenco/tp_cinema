@@ -1,6 +1,7 @@
 package tp.project.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +10,11 @@ import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.service.HallService;
 
 import jakarta.validation.Valid;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/halls")
@@ -92,5 +97,53 @@ public class HallController {
     public ResponseEntity<Integer> getTotalSeatingCapacity() {
         Integer capacity = hallService.getTotalSeatingCapacity();
         return ResponseEntity.ok(capacity);
+    }
+
+    @GetMapping("/price-range")
+    public ResponseEntity<List<HallDto>> getHallsByBasePriceRange(
+            @RequestParam BigDecimal minPrice,
+            @RequestParam BigDecimal maxPrice) {
+        List<HallDto> halls = hallService.getHallsByBasePriceRange(minPrice, maxPrice);
+        return ResponseEntity.ok(halls);
+    }
+
+    @GetMapping("/film/{filmId}")
+    public ResponseEntity<List<HallDto>> getHallsShowingFilm(@PathVariable Long filmId) {
+        List<HallDto> halls = hallService.getHallsShowingFilm(filmId);
+        return ResponseEntity.ok(halls);
+    }
+
+    @GetMapping("/available-at-time")
+    public ResponseEntity<List<HallDto>> getAvailableHallsAtTime(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
+        List<HallDto> halls = hallService.getAvailableHallsAtTime(dateTime);
+        return ResponseEntity.ok(halls);
+    }
+
+    @GetMapping("/{id}/statistics")
+    public ResponseEntity<Map<String, Object>> getHallStatistics(@PathVariable Short id) {
+        Map<String, Object> statistics = hallService.getHallStatistics(id);
+        return ResponseEntity.ok(statistics);
+    }
+
+    @GetMapping("/type-statistics")
+    public ResponseEntity<Map<String, Long>> getHallTypeStatistics() {
+        Map<String, Long> statistics = hallService.getHallTypeStatistics();
+        return ResponseEntity.ok(statistics);
+    }
+
+    @GetMapping("/capacity/min")
+    public ResponseEntity<List<HallDto>> getHallsByMinRowsAndSeats(
+            @RequestParam Short minRows,
+            @RequestParam Short minSeatsPerRow) {
+        List<HallDto> halls = hallService.getHallsByMinRowsAndSeats(minRows, minSeatsPerRow);
+        return ResponseEntity.ok(halls);
+    }
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<HallDto> getHallDetails(@PathVariable Short id) {
+        HallDto hall = hallService.getHallById(id);
+        // Здесь можно добавить дополнительную информацию если нужно
+        return ResponseEntity.ok(hall);
     }
 }

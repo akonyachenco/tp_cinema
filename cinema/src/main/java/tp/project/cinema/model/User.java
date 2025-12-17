@@ -3,7 +3,6 @@ package tp.project.cinema.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +12,6 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 
 @Data
 @Entity
@@ -38,7 +36,7 @@ public class User implements UserDetails {
     private LocalDate birth_date;
 
     @Transient
-    private short age;
+    private Short age;
 
     @Column(name = "password_hash", nullable = false)
     private String password_hash;
@@ -52,13 +50,16 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Booking> booking_list = new ArrayList<>();
 
-    public short getAge() {
+    public Short getAge() {
+        if (birth_date == null) {
+            return 0;
+        }
         return (short) Period.between(birth_date, LocalDate.now()).getYears();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
     @Override
@@ -89,5 +90,21 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Long getUserId() {
+        return user_id;
+    }
+
+    public LocalDate getRegistrationDate() {
+        return registration_date;
+    }
+
+    public LocalDate getBirthDate() {
+        return birth_date;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birth_date = birthDate;
     }
 }

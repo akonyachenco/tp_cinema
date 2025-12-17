@@ -15,7 +15,10 @@ import tp.project.cinema.repository.SeatRepository;
 import tp.project.cinema.repository.SessionRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -177,5 +180,70 @@ public class HallService {
     public Integer getTotalSeatingCapacity() {
         Integer capacity = hallRepository.getTotalSeatingCapacity();
         return capacity != null ? capacity : 0;
+    }
+
+    // Дополнительные методы
+
+    public List<HallDto> getHallsByBasePriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+        return hallRepository.findAll().stream()
+                .filter(hall -> {
+                    BigDecimal price = hall.getBase_price();
+                    return price.compareTo(minPrice) >= 0 && price.compareTo(maxPrice) <= 0;
+                })
+                .map(hallMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<HallDto> getHallsShowingFilm(Long filmId) {
+        return hallRepository.findHallsShowingFilm(filmId).stream()
+                .map(hallMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<HallDto> getAvailableHallsAtTime(LocalDateTime dateTime) {
+        return hallRepository.findAvailableHallsAtTime(dateTime).stream()
+                .map(hallMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> getHallStatistics(Short hallId) {
+        Hall hall = hallRepository.findById(hallId)
+                .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + hallId + " не найден"));
+
+        Integer totalSeats = seatRepository.countSeatsByHall(hallId);
+        long sessionsCount = sessionRepository.findByHallHallId(hallId).size();
+
+        Map<String, Object> statistics = new HashMap<>();
+        statistics.put("hallId", hallId);
+        statistics.put("hallName", hall.getHall_name());
+        statistics.put("status", hall.getStatus());
+        statistics.put("totalSeats", totalSeats != null ? totalSeats : 0);
+        statistics.put("rowsCount", hall.getRows_count());
+        statistics.put("seatsPerRow", hall.getSeats_per_row());
+        statistics.put("basePrice", hall.getBase_price());
+        statistics.put("hallType", hall.getHall_type().getType_name());
+        statistics.put("sessionsCount", sessionsCount);
+        statistics.put("capacity", hall.getRows_count() * hall.getSeats_per_row());
+
+        return statistics;
+    }
+
+    public Map<String, Long> getHallTypeStatistics() {
+        List<Object[]> hallTypeCounts = hallRepository.countHallsByType();
+        Map<String, Long> statistics = new HashMap<>();
+
+        for (Object[] row : hallTypeCounts) {
+            String typeName = (String) row[0];
+            Long count = (Long) row[1];
+            statistics.put(typeName, count);
+        }
+
+        return statistics;
+    }
+
+    public List<HallDto> getHallsByMinRowsAndSeats(Short minRows, Short minSeatsPerRow) {
+        return hallRepository.findByMinCapacity(minRows, minSeatsPerRow).stream()
+                .map(hallMapping::toDto)
+                .collect(Collectors.toList());
     }
 }

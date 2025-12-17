@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface BookingStatusRepository extends JpaRepository<BookingStatus, Short> {
 
     Optional<BookingStatus> findByStatusName(String statusName);
+
+    boolean existsByStatusName(String statusName);
 }

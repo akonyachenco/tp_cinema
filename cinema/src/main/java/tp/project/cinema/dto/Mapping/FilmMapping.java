@@ -18,7 +18,10 @@ public interface FilmMapping {
     @Mapping(source = "release_date", target = "releaseDate")
     @Mapping(source = "poster_url", target = "posterUrl")
     @Mapping(source = "trailer_url", target = "trailerUrl")
+    @Mapping(target = "duration", expression = "java(entity.getDuration() != 0 ? (Integer) (int) entity.getDuration() : null)")
     @Mapping(target = "genres", ignore = true)
+    @Mapping(target = "directorName", expression = "java(entity.getDirector() != null ? entity.getDirector().getName() + \" \" + entity.getDirector().getSurname() : null)")
+    @Mapping(target = "countryName", expression = "java(entity.getCountry() != null ? entity.getCountry().getCountry_name() : null)")
     FilmDto toDto(Film entity);
 
     @Mapping(target = "film_id", ignore = true)
@@ -30,6 +33,7 @@ public interface FilmMapping {
     @Mapping(source = "releaseDate", target = "release_date")
     @Mapping(source = "posterUrl", target = "poster_url")
     @Mapping(source = "trailerUrl", target = "trailer_url")
+    @Mapping(target = "duration", ignore = true)
     Film toEntity(FilmDto dto);
 
     @AfterMapping
@@ -42,6 +46,22 @@ public interface FilmMapping {
                 }
             }
             dto.setGenres(genres);
+        }
+    }
+
+    @AfterMapping
+    default void setSessionInfo(@MappingTarget FilmDto dto, Film entity) {
+        if (entity.getSession_list() != null) {
+            dto.setSessionCount(entity.getSession_list().size());
+        }
+    }
+
+    @BeforeMapping
+    default void setDuration(@MappingTarget Film entity, FilmDto dto) {
+        if (dto.getDuration() != null) {
+            entity.setDuration(dto.getDuration());
+        } else {
+            entity.setDuration((short) 0);
         }
     }
 }

@@ -1,6 +1,7 @@
 package tp.project.cinema.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tp.project.cinema.dto.UserDto;
@@ -22,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapping userMapping;
+    private final PasswordEncoder passwordEncoder; // Добавляем PasswordEncoder
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -41,7 +43,7 @@ public class UserService {
         }
 
         User user = userMapping.toEntity(userDto);
-        user.setPassword_hash(userDto.getPassword()); // Без шифрования
+        user.setPassword_hash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
         user.setRegistration_date(LocalDate.now());
         user.setRole("USER");
 
@@ -64,7 +66,7 @@ public class UserService {
         existingUser.setBirth_date(userDto.getBirthDate());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            existingUser.setPassword_hash(userDto.getPassword()); // Без шифрования
+            existingUser.setPassword_hash(passwordEncoder.encode(userDto.getPassword())); // Используем шифрование
         }
 
         User updatedUser = userRepository.save(existingUser);
@@ -115,6 +117,53 @@ public class UserService {
         }
 
         user.setRole(role.toUpperCase());
+        User updatedUser = userRepository.save(user);
+        return userMapping.toDto(updatedUser);
+    }
+
+    // Дополнительные методы
+
+    public List<UserDto> getUsersByRole(String role) {
+        List<User> users = userRepository.findByRole(role.toUpperCase());
+        return users.stream()
+                .map(userMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> getUsersRegisteredAfter(LocalDate date) {
+        List<User> users = userRepository.findByRegistrationDateAfter(date);
+        return users.stream()
+                .map(userMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> getUsersByBirthDateBefore(LocalDate date) {
+        List<User> users = userRepository.findByBirthDateBefore(date);
+        return users.stream()
+                .map(userMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> getUsersRegisteredBetween(LocalDate startDate, LocalDate endDate) {
+        List<User> users = userRepository.findUsersRegisteredBetween(startDate, endDate);
+        return users.stream()
+                .map(userMapping::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public long countUsersByRole(String role) {
+        return userRepository.countByRole(role.toUpperCase());
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public UserDto updateUserPassword(Long id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с ID " + id + " не найден"));
+
+        user.setPassword_hash(passwordEncoder.encode(newPassword));
         User updatedUser = userRepository.save(user);
         return userMapping.toDto(updatedUser);
     }
