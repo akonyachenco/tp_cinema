@@ -46,14 +46,10 @@ public interface TicketMapping {
     }
 
     @AfterMapping
-    default void calculatePrice(@MappingTarget TicketDto dto, Ticket entity) {
-        // Если цена не установлена, рассчитываем ее на основе места
-        if (dto.getPrice() == null && entity.getSeat() != null) {
-            BigDecimal basePrice = entity.getSeat().getHall().getBasePrice();
-            BigDecimal multiplier = entity.getSeat().getSeatType().getPriceMultiplier();
-            if (basePrice != null && multiplier != null) {
-                dto.setPrice(basePrice.multiply(multiplier));
-            }
-        }
+    default void calculatePrice(@MappingTarget Ticket ticket) {
+        ticket.setPrice(
+                ticket.getSeat().getHall().getBasePrice()
+                        .multiply(ticket.getSeat().getSeatType().getPriceMultiplier())
+        );
     }
 }

@@ -3,17 +3,20 @@ package tp.project.cinema.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.TicketDto;
 import tp.project.cinema.dto.Mapping.TicketMapping;
 import tp.project.cinema.exception.ResourceNotFoundException;
-import tp.project.cinema.model.Ticket;
+import tp.project.cinema.model.*;
 import tp.project.cinema.repository.TicketRepository;
 import tp.project.cinema.repository.BookingRepository;
 import tp.project.cinema.repository.SeatRepository;
 import tp.project.cinema.repository.SessionRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,23 @@ public class TicketService {
     private final SeatRepository seatRepository;
     private final SessionRepository sessionRepository;
     private final TicketMapping ticketMapping;
+
+    public TicketDto createTicket(TicketDto ticketDto) {
+
+        Seat seat = seatRepository.findById(ticketDto.getSeatId())
+                .orElseThrow(() -> new ResourceNotFoundException("Место с ID " + ticketDto.getSeatId() + " не найдено"));
+
+        Booking booking = bookingRepository.findById(ticketDto.getBookingId())
+                .orElseThrow(() -> new ResourceNotFoundException("Бронь с ID " + ticketDto.getBookingId() + " не найдена"));
+
+        Ticket ticket = ticketMapping.toEntity(ticketDto);
+        ticket.setSeat(seat);
+        ticket.setBooking(booking);
+
+        ticketRepository.save(ticket);
+
+        return ticketMapping.toDto(ticket);
+    }
 
     public TicketDto getTicketById(Long id) {
         Ticket ticket = ticketRepository.findById(id)

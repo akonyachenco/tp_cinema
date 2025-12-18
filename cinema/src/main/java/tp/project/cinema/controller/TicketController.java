@@ -1,9 +1,12 @@
 package tp.project.cinema.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.TicketDto;
 import tp.project.cinema.service.TicketService;
 
@@ -60,6 +63,12 @@ public class TicketController {
     public ResponseEntity<TicketDto> markTicketAsUsed(@PathVariable Long id) {
         TicketDto ticket = ticketService.markTicketAsUsed(id);
         return ResponseEntity.ok(ticket);
+    }
+
+    @PostMapping
+    public ResponseEntity<TicketDto> createTicket(@Valid @RequestBody TicketDto ticketDto) {
+        TicketDto createdTicket = ticketService.createTicket(ticketDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
     }
 
     @DeleteMapping("/{id}")
