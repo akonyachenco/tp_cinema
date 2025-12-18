@@ -3,17 +3,16 @@ package tp.project.cinema.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.dto.Mapping.SeatMapping;
 import tp.project.cinema.exception.ResourceNotFoundException;
-import tp.project.cinema.model.Seat;
-import tp.project.cinema.model.Hall;
-import tp.project.cinema.repository.SeatRepository;
-import tp.project.cinema.repository.SessionRepository;
-import tp.project.cinema.repository.TicketRepository;
-import tp.project.cinema.repository.HallRepository;
+import tp.project.cinema.model.*;
+import tp.project.cinema.repository.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,28 @@ public class SeatService {
     private final TicketRepository ticketRepository;
     private final HallRepository hallRepository;
     private final SeatMapping seatMapping;
+    private final SeatTypeRepository seatTypeRepository;
+
+    public void createSeat(SeatDto seatDto) {
+        if(!seatRepository.existsById(seatDto.getSeatId())) {
+            SeatType seatType = seatTypeRepository.findByTypeName(seatDto.getSeatType())
+                    .orElseGet(() -> {
+                        SeatType newType = new SeatType();
+                        newType.setTypeName(seatDto.getSeatType());
+                        newType.setPriceMultiplier(seatDto.getPriceMultiplier());
+                        return seatTypeRepository.save(newType);
+                    });
+            Hall hall = hallRepository.findById(seatDto.getHallId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Зал с ID " + seatDto.getHallId() + " не найден"));
+
+            Seat seat = seatMapping.toEntity(seatDto);
+            seat.setHall(hall);
+            seat.setSeatType(seatType);
+            seat.setTicketList(new ArrayList<>());
+
+            seatRepository.save(seat);
+        }
+    }
 
     // Получить все места зала
     public List<SeatDto> getSeatsByHall(Short hallId) {

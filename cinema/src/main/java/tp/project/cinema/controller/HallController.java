@@ -59,6 +59,12 @@ public class HallController {
         return ResponseEntity.ok(hall);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFilm(@PathVariable Short id) {
+        hallService.deleteHall(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping
     public ResponseEntity<HallDto> createHall(@Valid @RequestBody HallDto hallDto) {
         // Устанавливаем статус по умолчанию, если не указан

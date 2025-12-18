@@ -5,14 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tp.project.cinema.dto.HallDto;
 import tp.project.cinema.dto.Mapping.HallMapping;
+import tp.project.cinema.dto.Mapping.SeatMapping;
 import tp.project.cinema.dto.SeatDto;
 import tp.project.cinema.exception.ResourceNotFoundException;
 import tp.project.cinema.model.Hall;
 import tp.project.cinema.model.HallType;
-import tp.project.cinema.repository.HallRepository;
-import tp.project.cinema.repository.HallTypeRepository;
-import tp.project.cinema.repository.SeatRepository;
-import tp.project.cinema.repository.SessionRepository;
+import tp.project.cinema.model.Seat;
+import tp.project.cinema.repository.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,8 +28,10 @@ public class HallService {
     private final HallRepository hallRepository;
     private final HallTypeRepository hallTypeRepository;
     private final SeatRepository seatRepository;
+    private final SeatService seatService;
     private final SessionRepository sessionRepository;
     private final HallMapping hallMapping;
+    private final SeatMapping seatMapping;
 
     public List<HallDto> getAllHalls() {
         return hallRepository.findAll().stream()
@@ -86,6 +87,13 @@ public class HallService {
         return dto;
     }
 
+    public void deleteHall(Short id) {
+        if (!hallRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Зал с ID " + id + " не найден");
+        }
+        hallRepository.deleteById(id);
+    }
+
     public HallDto createHall(HallDto hallDto) {
         // Проверяем существование типа зала
         HallType hallType = hallTypeRepository.findByTypeName(hallDto.getHallType())
@@ -113,6 +121,10 @@ public class HallService {
         }
 
         Hall savedHall = hallRepository.save(hall);
+        for(SeatDto seatDto : hallDto.getSeatList()) {
+            seatDto.setHallId(savedHall.getHallId());
+            seatService.createSeat(seatDto);
+        }
         return hallMapping.toDto(savedHall);
     }
 
@@ -148,8 +160,20 @@ public class HallService {
         if (hallDto.getStatus() != null && !hallDto.getStatus().isEmpty()) {
             existingHall.setStatus(hallDto.getStatus());
         }
-
         Hall updatedHall = hallRepository.save(existingHall);
+
+        // Удаление мест
+        List<Seat> seatList = seatRepository.findByHallHallId(id);
+        for(Seat seat : seatList) {
+            if(!hallDto.getSeatList().contains(seatMapping.toDto(seat)))
+                seatRepository.delete(seat);
+        }
+
+        // Создание новых мест
+        for(SeatDto seatDto : hallDto.getSeatList()) {
+            seatDto.setHallId(id);
+            seatService.createSeat(seatDto);
+        }
         return hallMapping.toDto(updatedHall);
     }
 

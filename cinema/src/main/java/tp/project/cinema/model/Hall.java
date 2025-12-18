@@ -38,6 +38,6 @@ public class Hall {
     @OneToMany(mappedBy = "hall")
     private List<Session> sessionList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "hall")
+    @OneToMany(mappedBy = "hall", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seatList = new ArrayList<>();
 }
