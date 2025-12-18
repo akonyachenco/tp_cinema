@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tp.project.cinema.dto.FilmDto;
+import tp.project.cinema.dto.FilmInfoListDto;
 import tp.project.cinema.dto.Mapping.FilmMapping;
 import tp.project.cinema.dto.SessionDto;
 import tp.project.cinema.exception.ResourceNotFoundException;
@@ -374,5 +375,12 @@ public class FilmService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public FilmInfoListDto getCountriesAndDirectors() {
+        FilmInfoListDto filmInfoListDto = new FilmInfoListDto();
+        filmInfoListDto.setCountries(countryRepository.findAll());
+        filmInfoListDto.setDirectors(directorRepository.findAll());
+        return filmInfoListDto;
     }
 }

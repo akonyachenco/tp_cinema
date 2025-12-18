@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tp.project.cinema.dto.FilmDto;
+import tp.project.cinema.dto.FilmInfoListDto;
 import tp.project.cinema.dto.SessionDto;
 import tp.project.cinema.service.FilmService;
 
@@ -69,6 +70,12 @@ public class FilmController {
     public ResponseEntity<List<SessionDto>> getFilmSessions(@PathVariable Long filmId) {
         List<SessionDto> sessions = filmService.getFilmSessions(filmId);
         return ResponseEntity.ok(sessions);
+    }
+
+    @GetMapping
+    public ResponseEntity<FilmInfoListDto> getCountriesAndDirectors() {
+        FilmInfoListDto filmsInfoList = filmService.getCountriesAndDirectors();
+        return ResponseEntity.status(HttpStatus.OK).body(filmsInfoList);
     }
 
     @PostMapping
