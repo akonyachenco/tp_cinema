@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class DirectorDto {
-    private int directorId;
+    private Integer directorId;
     private String directorNameAndSurname;
     private Short countryId;
     private List<FilmDto> filmList;

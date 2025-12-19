@@ -10,6 +10,7 @@ import tp.project.cinema.dto.Mapping.CountryMapping;
 import tp.project.cinema.dto.Mapping.DirectorMapping;
 import tp.project.cinema.dto.Mapping.FilmMapping;
 import tp.project.cinema.dto.SessionDto;
+import tp.project.cinema.exception.AlreadyExistsException;
 import tp.project.cinema.exception.ResourceNotFoundException;
 import tp.project.cinema.model.*;
 import tp.project.cinema.repository.*;
@@ -396,6 +397,14 @@ public class FilmService {
     }
 
     public DirectorDto createDirector(DirectorDto directorDto) {
+
+        Director findDirector = directorRepository.findByNameAndSurnameContaining(directorDto.getDirectorNameAndSurname().split(" ")[1],
+                directorDto.getDirectorNameAndSurname().split(" ")[0]);
+
+        if(findDirector != null) {
+            throw new AlreadyExistsException("Режиссёр с именем и фамилией " + directorDto.getDirectorNameAndSurname() + " уже существует");
+            //return directorMapping.toDto(findDirector);
+        }
 
         Country country = countryRepository.findById(directorDto.getCountryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Страна с ID " + directorDto.getCountryId() + " не найдена"));

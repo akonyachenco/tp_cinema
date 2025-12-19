@@ -12,7 +12,7 @@ import tp.project.cinema.model.Director;
 public interface DirectorMapping {
 
     @Mapping(target = "directorId", source = "directorId")
-    @Mapping(target = "countryId", source = "country.countryName")
+    @Mapping(target = "countryId", source = "country.countryId")
     DirectorDto toDto(Director director);
 
     @Mapping(target = "directorId", ignore = true)

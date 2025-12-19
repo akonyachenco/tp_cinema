@@ -8,6 +8,7 @@ import tp.project.cinema.model.Director;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DirectorRepository extends JpaRepository<Director, Integer> {
@@ -18,6 +19,11 @@ public interface DirectorRepository extends JpaRepository<Director, Integer> {
 
     @Query("SELECT d FROM Director d WHERE d.name LIKE %:name% OR d.surname LIKE %:surname%")
     List<Director> findByNameOrSurnameContaining(
+            @Param("name") String name,
+            @Param("surname") String surname);
+
+    @Query("SELECT d FROM Director d WHERE d.name LIKE %:name% AND d.surname LIKE %:surname%")
+    Director findByNameAndSurnameContaining(
             @Param("name") String name,
             @Param("surname") String surname);
 
