@@ -3,8 +3,11 @@ package tp.project.cinema.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tp.project.cinema.dto.DirectorDto;
 import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.FilmInfoListDto;
+import tp.project.cinema.dto.Mapping.CountryMapping;
+import tp.project.cinema.dto.Mapping.DirectorMapping;
 import tp.project.cinema.dto.Mapping.FilmMapping;
 import tp.project.cinema.dto.SessionDto;
 import tp.project.cinema.exception.ResourceNotFoundException;
@@ -31,6 +34,8 @@ public class FilmService {
     private final GenreRepository genreRepository;
     private final FilmGenreRepository filmGenreRepository;
     private final FilmMapping filmMapping;
+    private final CountryMapping countryMapping;
+    private final DirectorMapping directorMapping;
 
     public List<FilmDto> getAllFilms() {
         return filmRepository.findAll().stream()
@@ -379,8 +384,30 @@ public class FilmService {
 
     public FilmInfoListDto getCountriesAndDirectors() {
         FilmInfoListDto filmInfoListDto = new FilmInfoListDto();
-        filmInfoListDto.setCountries(countryRepository.findAll());
-        filmInfoListDto.setDirectors(directorRepository.findAll());
+        filmInfoListDto.setCountries(countryRepository.findAll()
+                .stream()
+                .map(countryMapping::toDto)
+                .collect(Collectors.toList()));
+        filmInfoListDto.setDirectors(directorRepository.findAll()
+                .stream()
+                .map(directorMapping::toDto)
+                .collect(Collectors.toList()));
         return filmInfoListDto;
+    }
+
+    public DirectorDto createDirector(DirectorDto directorDto) {
+
+        Country country = countryRepository.findById(directorDto.getCountryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Страна с ID " + directorDto.getCountryId() + " не найдена"));
+
+        Director director = directorMapping.toEntity(directorDto);
+        director.setCountry(country);
+        director.setFilmList(new ArrayList<>());
+
+
+        directorRepository.save(director);
+
+
+        return directorMapping.toDto(director);
     }
 }

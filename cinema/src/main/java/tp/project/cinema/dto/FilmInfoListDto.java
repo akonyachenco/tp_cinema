@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 public class FilmInfoListDto {
-    private List<Director> directors;
-    private List<Country> countries;
+    private List<DirectorDto> directors;
+    private List<CountryDto> countries;
 }

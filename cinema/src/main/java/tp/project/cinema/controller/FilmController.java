@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tp.project.cinema.dto.DirectorDto;
 import tp.project.cinema.dto.FilmDto;
 import tp.project.cinema.dto.FilmInfoListDto;
 import tp.project.cinema.dto.SessionDto;
@@ -72,7 +73,7 @@ public class FilmController {
         return ResponseEntity.ok(sessions);
     }
 
-    @GetMapping
+    @GetMapping("/info")
     public ResponseEntity<FilmInfoListDto> getCountriesAndDirectors() {
         FilmInfoListDto filmsInfoList = filmService.getCountriesAndDirectors();
         return ResponseEntity.status(HttpStatus.OK).body(filmsInfoList);
@@ -82,6 +83,12 @@ public class FilmController {
     public ResponseEntity<FilmDto> createFilm(@Valid @RequestBody FilmDto filmDto) {
         FilmDto createdFilm = filmService.createFilm(filmDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
+    }
+
+    @PostMapping("/director")
+    public ResponseEntity<DirectorDto> createDirector(@Valid @RequestBody DirectorDto directorDto) {
+        DirectorDto createdDirector = filmService.createDirector(directorDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdDirector);
     }
 
     @PutMapping("/{id}")
