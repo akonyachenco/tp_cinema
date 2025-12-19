@@ -50,6 +50,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Booking> bookingList = new ArrayList<>();
 
+    @Transient
     public Short getAge() {
         if (birthDate == null) {
             return 0;

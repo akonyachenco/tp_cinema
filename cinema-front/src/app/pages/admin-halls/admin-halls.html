@@ -1,0 +1,46 @@
+<main class="container">
+  <div class="page-header">
+    <h1>Управление залами</h1>
+    <!-- Кнопка для перехода в конструктор залов -->
+    <a routerLink="/admin/hall-constructor" class="btn btn-outline">
+      Конструктор залов
+    </a>
+    <button class="btn" (click)="refreshHalls()" [disabled]="isLoading">
+      Обновить список
+    </button>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Загрузка списка залов...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage" class="error-state">
+    <p>{{ errorMessage }}</p>
+    <button class="btn btn-outline" (click)="loadHalls()">Повторить попытку</button>
+  </div>
+
+  <!-- Список залов -->
+  <section class="halls-list" *ngIf="!isLoading && !errorMessage && halls.length; else noHalls">
+    <div class="hall-card" *ngFor="let hall of halls">
+      <h3>{{ hall.hallName }}</h3>
+      <p>Тип: {{ hall.hallType | titlecase }}</p>
+      <p>Рядов: {{ hall.rowsCount }}, мест в ряду: {{ hall.seatsPerRow }}</p>
+      <p>Базовая цена: {{ hall.basePrice }} ₽</p>
+      <p>Статус: {{ hall.status === 'active' ? 'Активен' : 'Неактивен' }}</p>
+
+      <div class="hall-actions">
+        <button class="btn" (click)="editHall(hall.hallId)">Редактировать</button>
+        <button class="btn btn-outline" (click)="deleteHall(hall.hallId)">Удалить</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Состояние "нет данных" -->
+  <ng-template #noHalls>
+    <div *ngIf="!isLoading && !errorMessage">
+      <p>Залы не найдены.</p>
+    </div>
+  </ng-template>
+</main>

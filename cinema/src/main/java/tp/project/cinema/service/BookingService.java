@@ -64,10 +64,9 @@ public class BookingService {
 
         // 6. Получение статуса бронирования (по умолчанию PENDING)
         BookingStatus status = bookingStatusRepository.findByStatusName(
-                bookingDto.getStatus() != null ? bookingDto.getStatus() : "PENDING"
-        ).orElseGet(() -> {
+                bookingDto.getStatus()).orElseGet(() -> {
             BookingStatus newStatus = new BookingStatus();
-            newStatus.setStatusName("PENDING");
+            newStatus.setStatusName(bookingDto.getStatus());
             return bookingStatusRepository.save(newStatus);
         });
 
@@ -83,73 +82,8 @@ public class BookingService {
         // 8. Сохранение бронирования (нужно сделать до создания билетов)
         Booking savedBooking = bookingRepository.save(booking);
 
-        // 9. Обработка билетов
-        BigDecimal totalCost = BigDecimal.ZERO;
-        List<Ticket> createdTickets = new ArrayList<>();
-
-        if (bookingDto.getTicketList() != null && !bookingDto.getTicketList().isEmpty()) {
-            // Проверяем, не превышает ли количество выбранных мест доступные
-            int availableSeatsCount = seatRepository.findAvailableSeatsForSession(
-                    session.getHall().getHallId(),
-                    session.getSessionId()
-            ).size();
-
-            if (bookingDto.getTicketList().size() > availableSeatsCount) {
-                throw new IllegalArgumentException("Недостаточно свободных мест. Доступно: " + availableSeatsCount);
-            }
-
-            // Создаем билеты для каждого выбранного места
-            for (TicketDto ticketDto : bookingDto.getTicketList()) {
-                Seat seat = seatRepository.findById(ticketDto.getSeatId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Место с ID " + ticketDto.getSeatId() + " не найдено"));
-
-                // Проверяем, что место принадлежит правильному залу
-                if (seat.getHall().getHallId() != (session.getHall().getHallId())) {
-                    throw new IllegalArgumentException("Место " + ticketDto.getSeatId() + " не принадлежит залу этого сеанса");
-                }
-
-                // Проверяем, свободно ли место на этот сеанс
-                boolean isSeatAvailable = ticketRepository.findBySeatAndSession(
-                        ticketDto.getSeatId(),
-                        session.getSessionId()
-                ).isEmpty();
-
-                if (!isSeatAvailable) {
-                    throw new IllegalArgumentException("Место " + ticketDto.getSeatId() + " уже занято на этот сеанс");
-                }
-
-                // Создаем билет
-                Ticket ticket = createTicket(ticketDto, seat, savedBooking);
-
-                // Рассчитываем цену
-                BigDecimal ticketPrice = calculateTicketPrice(ticketDto, seat);
-                ticket.setPrice(ticketPrice);
-                totalCost = totalCost.add(ticketPrice);
-
-                // Генерируем уникальный код билета
-                String ticketCode = generateTicketCode();
-                ticket.setTicketCode(ticketCode);
-
-                // Сохраняем билет
-                Ticket savedTicket = ticketRepository.save(ticket);
-                createdTickets.add(savedTicket);
-                savedBooking.getTicketList().add(savedTicket);
-            }
-        } else {
-            throw new IllegalArgumentException("Не выбрано ни одного места для бронирования");
-        }
-
-        // 10. Обновляем общую стоимость бронирования
-        savedBooking.setTotalCost(totalCost);
-
-        // 11. Обновляем список билетов
-        savedBooking.setTicketList(createdTickets);
-
-        // 12. Сохраняем обновленное бронирование
-        Booking finalBooking = bookingRepository.save(savedBooking);
-
         // 13. Возвращаем DTO
-        return bookingMapping.toDto(finalBooking);
+        return bookingMapping.toDto(savedBooking);
     }
 
     private void validateBookingRequest(BookingDto bookingDto) {

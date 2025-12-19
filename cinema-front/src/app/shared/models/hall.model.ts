@@ -3,7 +3,7 @@ export interface HallDto {
   hallId: number;
   status: string;
   basePrice: number; // Было BigDecimal
-  rows_count: number; // Лучше переименовать в rowsCount
+  rowsCount: number; // Лучше переименовать в rowsCount
   seatsPerRow: number;
   hallName: string;
   hallType: string;

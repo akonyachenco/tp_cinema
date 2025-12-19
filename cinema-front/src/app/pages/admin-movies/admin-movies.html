@@ -1,0 +1,68 @@
+<main class="container">
+  <div class="page-header">
+    <h1>Управление фильмами</h1>
+    
+    <div class="admin-actions">
+      <a routerLink="/admin/movies/add" class="btn btn-outline">Добавить фильм</a>
+      <button class="btn" (click)="refreshMovies()" [disabled]="isLoading">
+        Обновить список
+      </button>
+    </div>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <p>Загрузка списка фильмов...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage" class="error-state">
+    <p>{{ errorMessage }}</p>
+    <button class="btn btn-outline" (click)="loadMovies()">Повторить попытку</button>
+  </div>
+
+  <!-- Список фильмов -->
+  <section class="movies-list" *ngIf="!isLoading && !errorMessage && movies.length; else noMovies">
+    <div class="movie-card" *ngFor="let movie of movies">
+      <img *ngIf="movie.posterUrl" 
+           [src]="movie.posterUrl" 
+           alt="{{movie.title}}" 
+           class="poster"
+           onerror="this.style.display='none'">
+      <div class="movie-info">
+        <h3>{{ movie.title }}</h3>
+        <p class="description" *ngIf="movie.description">{{ movie.description | slice:0:150 }}{{ movie.description.length > 150 ? '...' : '' }}</p>
+        
+        <div class="movie-details">
+          <p><strong>Длительность:</strong> {{ movie.duration }} мин.</p>
+          <p><strong>Дата релиза:</strong> {{ movie.releaseDate | date: 'dd.MM.yyyy' }}</p>
+          <p><strong>Возрастной рейтинг:</strong> {{ movie.ageRating }}</p>
+          <p *ngIf="movie.genres && movie.genres.length">
+            <strong>Жанры:</strong> {{ movie.genres.join(', ') }}
+          </p>
+        </div>
+        
+        <div class="movie-actions">
+          <a [routerLink]="['/admin/sessions']" 
+             [queryParams]="{ filmId: movie.filmId }" 
+             class="btn btn-outline">
+            Управление сеансами
+          </a>
+          <button class="btn" 
+                  (click)="deleteMovie(movie.filmId)"
+                  [disabled]="isLoading">
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Состояние "нет данных" -->
+  <ng-template #noMovies>
+    <div *ngIf="!isLoading && !errorMessage" class="empty-state">
+      <p>Фильмы не найдены.</p>
+      <a routerLink="/admin/movies/add" class="btn btn-outline">Добавить первый фильм</a>
+    </div>
+  </ng-template>
+</main>

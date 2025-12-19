@@ -1,0 +1,59 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-actions {
+  margin-bottom: 20px;
+}
+
+.movies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.movie-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 6px;
+  background: #f9f9f9;
+}
+
+.poster {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.movie-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 6px 12px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid #007bff;
+  color: #007bff;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}

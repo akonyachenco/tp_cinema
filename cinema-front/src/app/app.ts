@@ -1,10 +1,11 @@
 // src/app/app.component.ts
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { MovieCardComponent } from './shared/components/movie-card/movie-card';
-
+import { AuthInterceptor } from './core/services/auth.interceptor'
 import { HomeComponent } from './pages/home/home';
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';

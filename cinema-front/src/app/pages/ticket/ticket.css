@@ -402,3 +402,70 @@ h1 {
     display: none !important;
   }
 }
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  gap: 12px; /* Отступ между элементами */
+}
+
+.ticket-code {
+  font-weight: 600;
+  color: #333;
+  min-width: 120px;
+}
+
+.ticket-seat {
+  color: #555;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.ticket-price {
+  font-weight: 600;
+  color: #2e7d32;
+  min-width: 80px;
+  text-align: right;
+}
+
+.separator {
+  color: #999;
+  opacity: 0.5;
+}
+
+.ticket-select-hint {
+  margin-left: 8px;
+  color: #666;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+/* Для мобильных устройств можно добавить адаптивность */
+@media (max-width: 768px) {
+  .ticket-item {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .ticket-code {
+    min-width: auto;
+  }
+  
+  .separator {
+    display: none;
+  }
+  
+  .ticket-seat {
+    width: 100%;
+    text-align: left;
+    order: 3;
+  }
+  
+  .ticket-price {
+    text-align: left;
+    min-width: auto;
+  }
+}

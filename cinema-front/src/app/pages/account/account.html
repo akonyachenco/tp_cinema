@@ -97,10 +97,10 @@
                       
                       <div class="booking-actions">
                         @if (booking.status === 'active') {
-                          <a class="btn btn-sm" [routerLink]="['/ticket', booking.bookingId]">
+                          <a class="btn btn-sm" [routerLink]="['/booking', booking.bookingId, 'ticket']">
                             Посмотреть билет
                           </a>
-                          @if (canCancelBooking(booking)) {
+                          @if (canCancelBooking(booking) ) {
                             <button 
                               class="btn btn-sm btn-outline" 
                               (click)="cancelBooking(booking.bookingId)">
@@ -149,7 +149,7 @@
                 </div>
                 <div class="info-row">
                   <strong>Статус:</strong> 
-                  <span class="user-role">{{ user.role === 'admin' ? 'Администратор' : 'Пользователь' }}</span>
+                  <span class="user-role">{{ user.role === 'ADMIN' ? 'Администратор' : 'Пользователь' }}</span>
                 </div>
               </div>
               

@@ -2,6 +2,7 @@ package tp.project.cinema.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class Booking {
     @Column(name = "booking_id")
     private Long bookingId;
 
+    @CreationTimestamp
     @Column(name = "booking_time")
     private LocalDateTime bookingTime;
 

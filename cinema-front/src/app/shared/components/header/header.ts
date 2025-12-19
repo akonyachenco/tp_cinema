@@ -14,7 +14,8 @@ export class HeaderComponent {
   appName = 'Кинотеатр';
   isAuthenticated = false;
   isAdmin = false;
-  
+  isUser = false;
+
   constructor(
     private auth: AuthService,
     private router: Router
@@ -25,12 +26,17 @@ export class HeaderComponent {
     this.auth.currentUser$.subscribe(user => {
       console.log('Пользователь изменился:', user);
       this.isAuthenticated = !!user;
-      this.isAdmin = user?.role === 'admin' || user?.role === 'ADMIN';
+      this.isAdmin = user?.role?.toLowerCase() === 'admin';
+      this.isUser = user?.role?.toLowerCase() === 'user';
     });
   }
 
   logout(): void {
     this.auth.logout();
+  }
+  
+    get isUserVisible(): boolean {
+    return this.isUser;
   }
   // constructor(
   //   public auth: AuthService,

@@ -45,11 +45,13 @@ public interface TicketMapping {
         }
     }
 
-    @AfterMapping
-    default void calculatePrice(@MappingTarget Ticket ticket) {
-        ticket.setPrice(
-                ticket.getSeat().getHall().getBasePrice()
-                        .multiply(ticket.getSeat().getSeatType().getPriceMultiplier())
-        );
+    @BeforeMapping
+    default void calculatePrice(Ticket ticket, @MappingTarget TicketDto ticketDto) {
+        if(ticket.getPrice() == null || ticket.getPrice().equals(BigDecimal.valueOf(0))) {
+            ticket.setPrice(
+                    ticket.getSeat().getHall().getBasePrice()
+                            .multiply(ticket.getSeat().getSeatType().getPriceMultiplier())
+            );
+        }
     }
 }

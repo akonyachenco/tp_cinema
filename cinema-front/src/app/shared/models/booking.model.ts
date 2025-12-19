@@ -8,6 +8,7 @@ export interface BookingDto {
   sessionId: number;
   status: string;
   ticketList?: TicketDto[];
+  canCancel?: boolean;
 }
 
 export interface BookingDetails extends BookingDto {

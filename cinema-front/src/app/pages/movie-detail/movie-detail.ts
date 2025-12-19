@@ -1,4 +1,3 @@
-// src/app/pages/movie-detail/movie-detail.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -39,135 +38,31 @@ export class MovieDetailComponent implements OnInit {
 
   loadMovie(movieId: number): void {
     this.isLoading = true;
+    this.errorMessage = '';
     
-    // Временные мок-данные (замените на реальный запрос)
-    const mockMovies: FilmDto[] = [
-      {
-        filmId: 1,
-        title: 'Дюна: Часть вторая',
-        description: 'Продолжение эпической саги о пустынной планете Арракис. Пол Атрейдес объединяется с Фрименами, чтобы отомстить за свою семью и предотвратить ужасное будущее, которое он предвидел. На фоне эпических битв и политических интриг он должен сделать выбор между любовью и судьбой человечества.',
-        duration: 166,
-        ageRating: '16+',
-        genres: ['Фантастика', 'Драма', 'Приключения', 'Экшен'],
-        directorId: 1,
-        countryId: 1,
-        releaseDate: '2024-03-01',
-        posterUrl: 'https://m.media-amazon.com/images/M/MV5BODI0YjNhNjUtYzE2MC00ZDI1LWE5OTgtODVmNDg1N2FiMTIxXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_FMjpg_UX1000_.jpg',
-        trailerUrl: 'https://www.youtube.com/watch?v=Way9Dexny3w',
-        sessionList: []
+    this.movieService.getMovieById(movieId).subscribe({
+      next: (movie) => {
+        this.movie = movie || null;
+        this.isLoading = false;
       },
-      {
-        filmId: 2,
-        title: 'Оппенгеймер',
-        description: 'История американского учёного Джулиуса Роберта Оппенгеймера и его роли в разработке атомной бомбы. Фильм охватывает его студенческие годы, работу над Манхэттенским проектом и последующие слушания по допуску к секретной информации.',
-        duration: 180,
-        ageRating: '18+',
-        genres: ['Биография', 'Драма', 'Исторический'],
-        directorId: 2,
-        countryId: 1,
-        releaseDate: '2023-07-21',
-        posterUrl: 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_.jpg',
-        trailerUrl: 'https://www.youtube.com/watch?v=bK6ldnjE3Y0',
-        sessionList: []
+      error: (error) => {
+        console.error('Ошибка загрузки фильма:', error);
+        this.errorMessage = 'Ошибка загрузки информации о фильме';
+        this.isLoading = false;
       }
-    ];
-
-    const movie = mockMovies.find(m => m.filmId === movieId);
-    
-    setTimeout(() => {
-      if (movie) {
-        this.movie = movie;
-      } else {
-        this.errorMessage = 'Фильм не найден';
-      }
-      this.isLoading = false;
-    }, 300);
-
-    // Позже замените на:
-    // this.movieService.getMovieById(movieId).subscribe({
-    //   next: (movie) => {
-    //     this.movie = movie;
-    //     this.isLoading = false;
-    //   },
-    //   error: (error) => {
-    //     this.errorMessage = 'Ошибка загрузки фильма';
-    //     this.isLoading = false;
-    //   }
-    // });
+    });
   }
 
   loadSessions(movieId: number): void {
-    // Временные мок-сеансы
-    const mockSessions: SessionDto[] = [
-      {
-        sessionId: 101,
-        status: 'active',
-        dateTime: this.getTodayDate('19:00'),
-        filmId: movieId,
-        hallId: 1,
-        bookingList: []
+    this.sessionService.getSessionsByMovie(movieId).subscribe({
+      next: (sessions) => {
+        this.sessions = sessions;
       },
-      {
-        sessionId: 102,
-        status: 'active',
-        dateTime: this.getTodayDate('21:30'),
-        filmId: movieId,
-        hallId: 2,
-        bookingList: []
-      },
-      {
-        sessionId: 103,
-        status: 'active',
-        dateTime: this.getTomorrowDate('15:00'),
-        filmId: movieId,
-        hallId: 1,
-        bookingList: []
-      },
-      {
-        sessionId: 104,
-        status: 'active',
-        dateTime: this.getTomorrowDate('18:00'),
-        filmId: movieId,
-        hallId: 3,
-        bookingList: []
-      },
-      {
-        sessionId: 105,
-        status: 'active',
-        dateTime: this.getDateInDays(2, '20:00'),
-        filmId: movieId,
-        hallId: 1,
-        bookingList: []
+      error: (error) => {
+        console.error('Ошибка загрузки сеансов:', error);
+        // Можно добавить уведомление пользователю
       }
-    ];
-
-    setTimeout(() => {
-      this.sessions = mockSessions;
-    }, 400);
-  }
-
-  // Вспомогательные методы для дат
-  private getTodayDate(time: string): string {
-    const today = new Date();
-    const [hours, minutes] = time.split(':');
-    today.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return today.toISOString();
-  }
-
-  private getTomorrowDate(time: string): string {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const [hours, minutes] = time.split(':');
-    tomorrow.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return tomorrow.toISOString();
-  }
-
-  private getDateInDays(days: number, time: string): string {
-    const date = new Date();
-    date.setDate(date.getDate() + days);
-    const [hours, minutes] = time.split(':');
-    date.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    return date.toISOString();
+    });
   }
 
   // Фильтрация сеансов по дате
@@ -201,33 +96,43 @@ export class MovieDetailComponent implements OnInit {
   }
 
   formatSessionTime(dateTime: string): string {
-    const date = new Date(dateTime);
-    return date.toLocaleTimeString('ru-RU', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    try {
+      const date = new Date(dateTime);
+      return date.toLocaleTimeString('ru-RU', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch (error) {
+      return '--:--';
+    }
   }
 
   formatSessionDate(dateTime: string): string {
-    const date = new Date(dateTime);
-    const today = new Date();
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    if (date.toDateString() === today.toDateString()) {
-      return 'Сегодня';
-    } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Завтра';
-    } else {
-      return date.toLocaleDateString('ru-RU', { 
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      });
+    try {
+      const date = new Date(dateTime);
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      if (date.toDateString() === today.toDateString()) {
+        return 'Сегодня';
+      } else if (date.toDateString() === tomorrow.toDateString()) {
+        return 'Завтра';
+      } else {
+        return date.toLocaleDateString('ru-RU', { 
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        });
+      }
+    } catch (error) {
+      return 'Дата не определена';
     }
   }
 
   getHallName(hallId: number): string {
+    // В идеале нужно загружать информацию о зале через hallService
+    // Здесь оставлю заглушку, которую можно заменить реальным вызовом
     const halls: { [key: number]: string } = {
       1: 'Большой зал (IMAX)',
       2: 'Малый зал',
@@ -238,6 +143,7 @@ export class MovieDetailComponent implements OnInit {
   }
 
   getHallType(hallId: number): string {
+    // Здесь также можно добавить загрузку информации о зале
     const types: { [key: number]: string } = {
       1: 'IMAX • Dolby Atmos',
       2: '2D • Стандарт',
@@ -248,6 +154,7 @@ export class MovieDetailComponent implements OnInit {
   }
 
   getTicketPrice(hallId: number): number {
+    // Цены лучше получать с бэкенда или использовать информацию из сеанса/зала
     const prices: { [key: number]: number } = {
       1: 700, // IMAX
       2: 350, // Стандарт
@@ -266,9 +173,13 @@ export class MovieDetailComponent implements OnInit {
   }
 
   isSessionSoon(session: SessionDto): boolean {
-    const sessionTime = new Date(session.dateTime);
-    const now = new Date();
-    const hoursDiff = (sessionTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-    return hoursDiff < 1; // Меньше часа до сеанса
+    try {
+      const sessionTime = new Date(session.dateTime);
+      const now = new Date();
+      const hoursDiff = (sessionTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      return hoursDiff < 1; // Меньше часа до сеанса
+    } catch (error) {
+      return false;
+    }
   }
 }

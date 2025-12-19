@@ -6,4 +6,5 @@ export * from './hall.model';
 export * from './seat.model';
 export * from './booking.model';
 export * from './ticket.model';
+export * from './filmInfo.model';
 export * from './api.model';

@@ -1,0 +1,280 @@
+.constructor-layout {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.controls {
+  width: 300px;
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.hall-preview {
+  flex: 1;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.screen {
+  text-align: center;
+  background: #495057;
+  color: white;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.hall-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.row-number {
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+  color: #495057;
+}
+
+.seat {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #adb5bd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.seat:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.seat.standard {
+  background: #e9ecef;
+}
+
+.seat.standard:hover {
+  background: #dee2e6;
+}
+
+.seat.vip {
+  background: #ffd43b;
+  border-color: #f08c00;
+}
+
+.seat.vip:hover {
+  background: #ffc107;
+}
+
+.seat.blocked {
+  background: #dc3545;
+  border-color: #c92a2a;
+  cursor: not-allowed;
+}
+
+.seat.blocked:hover {
+  background: #c92a2a;
+  transform: none;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.box {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #adb5bd;
+  border-radius: 3px;
+}
+
+.box.standard {
+  background: #e9ecef;
+}
+
+.box.vip {
+  background: #ffd43b;
+  border-color: #f08c00;
+}
+
+.box.blocked {
+  background: #dc3545;
+  border-color: #c92a2a;
+}
+
+.tool-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tool-buttons button {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #adb5bd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tool-buttons button.active {
+  background: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}
+
+.form-group {
+  margin: 1rem 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #adb5bd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #0d6efd;
+  background: #0d6efd;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-outline {
+  background: white;
+  color: #0d6efd;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-success {
+  background: #198754;
+  border-color: #198754;
+  color: white;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.hall-stats {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.hall-stats p {
+  margin: 0.25rem 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0d6efd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Добавьте в существующий CSS */
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #adb5bd;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.form-actions button {
+  width: 100%;
+}
+
+.tool-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tool-buttons button {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #adb5bd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-buttons button:hover {
+  background: #f8f9fa;
+}
+
+.tool-buttons button.active {
+  background: #0d6efd;
+  color: white;
+  border-color: #0d6efd;
+}

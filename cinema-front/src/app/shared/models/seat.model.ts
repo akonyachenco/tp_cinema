@@ -8,7 +8,8 @@ export interface SeatDto {
   hallId: number;
   basePrice?: number; // Может приходить с залом
   hallName?: string;
-  ticketList?: TicketDto[]; // Обычно не нужно
+  ticketList?: TicketDto[];
+  status: string; // Обычно не нужно
 }
 
 // Для компонента выбора мест

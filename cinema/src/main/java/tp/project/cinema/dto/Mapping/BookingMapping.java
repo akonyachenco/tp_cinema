@@ -1,9 +1,6 @@
 package tp.project.cinema.dto.Mapping;
 
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import tp.project.cinema.dto.BookingDto;
 import tp.project.cinema.model.Booking;
 import tp.project.cinema.model.Ticket;
@@ -34,16 +31,16 @@ public interface BookingMapping {
     @Mapping(target = "ticketList", ignore = true)
     Booking toEntity(BookingDto dto);
 
-    @AfterMapping
-    default void calculateTotalCost(@MappingTarget BookingDto dto, Booking entity) {
-        if (dto.getTotalCost() == null && entity.getTicketList() != null && !entity.getTicketList().isEmpty()) {
-            BigDecimal totalCost = BigDecimal.ZERO;
-            for (Ticket ticket : entity.getTicketList()) {
-                if (ticket.getPrice() != null) {
-                    totalCost = totalCost.add(ticket.getPrice());
-                }
+
+    @BeforeMapping
+    default void calculateTotalCost(@MappingTarget BookingDto bookingDto, Booking entity) {
+        BigDecimal totalCost = BigDecimal.ZERO;
+        for (Ticket ticket : entity.getTicketList()) {
+            if (ticket.getPrice() != null) {
+                totalCost = totalCost.add(ticket.getPrice());
             }
-            dto.setTotalCost(totalCost);
         }
+        entity.setTotalCost(totalCost);
+        bookingDto.setTotalCost(totalCost);
     }
 }

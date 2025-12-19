@@ -1,0 +1,527 @@
+<!-- <main class="container">
+  <div class="page-header">
+    <h1>Добавить новый фильм</h1>
+    <div class="header-actions">
+      <a routerLink="/admin/movies" class="btn btn-outline">← Назад к списку</a>
+    </div>
+  </div>
+
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="icon">✓</span>
+    {{ successMessage }}
+    <p class="redirect-message">Через 2 секунды вы будете перенаправлены...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span class="icon">✗</span>
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-container">
+    <form (ngSubmit)="addMovie()" #movieForm="ngForm" class="movie-form">
+
+      <div class="form-section">
+        <h3>Основная информация</h3>
+        
+        <div class="form-group">
+          <label for="title">Название фильма <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="movie.title" 
+            name="title" 
+            required
+            placeholder="Введите название фильма"
+            [disabled]="isSubmitting">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Описание <span class="required">*</span></label>
+          <textarea 
+            id="description" 
+            rows="4" 
+            [(ngModel)]="movie.description" 
+            name="description" 
+            required
+            placeholder="Введите описание фильма"
+            [disabled]="isSubmitting"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="releaseDate">Дата релиза <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="releaseDate" 
+              [(ngModel)]="movie.releaseDate" 
+              name="releaseDate" 
+              required
+              [disabled]="isSubmitting">
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Продолжительность (мин) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="duration" 
+              [(ngModel)]="movie.duration" 
+              name="duration" 
+              required
+              min="1"
+              placeholder="120"
+              [disabled]="isSubmitting">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Жанры</h3>
+        <div class="genres-grid">
+          <label *ngFor="let genre of genreOptions" class="genre-checkbox"
+                 [class.disabled]="isSubmitting">
+            <input 
+              type="checkbox" 
+              [checked]="movie.genres.includes(genre)" 
+              (change)="!isSubmitting && toggleGenre(genre)"
+              [disabled]="isSubmitting">
+            <span class="checkbox-custom"></span>
+            <span class="genre-label">{{ genre | titlecase }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Метаданные</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="directorId">ID режиссера <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="directorId" 
+              [(ngModel)]="movie.directorId" 
+              name="directorId" 
+              required
+              min="1"
+              placeholder="1"
+              [disabled]="isSubmitting">
+          </div>
+
+          <div class="form-group">
+            <label for="countryId">ID страны <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="countryId" 
+              [(ngModel)]="movie.countryId" 
+              name="countryId" 
+              required
+              min="1"
+              placeholder="1"
+              [disabled]="isSubmitting">
+          </div>
+
+          <div class="form-group">
+            <label for="ageRating">Возрастное ограничение <span class="required">*</span></label>
+            <select 
+              id="ageRating" 
+              [(ngModel)]="movie.ageRating" 
+              name="ageRating" 
+              required
+              [disabled]="isSubmitting">
+              <option value="0+">0+</option>
+              <option value="6+">6+</option>
+              <option value="12+">12+</option>
+              <option value="16+">16+</option>
+              <option value="18+">18+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="movieForm.invalid || isSubmitting">
+          <span *ngIf="!isSubmitting">Добавить фильм</span>
+          <span *ngIf="isSubmitting" class="loading-text">
+            <span class="spinner"></span> Добавление...
+          </span>
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn btn-outline" 
+          (click)="resetForm()"
+          [disabled]="isSubmitting">
+          Очистить форму
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="navigateToMovies()" 
+          [disabled]="isSubmitting">
+          Отмена
+        </button>
+      </div>
+    </form>
+  </div>
+</main> -->
+
+<!-- admin-movies-add.html -->
+<main class="container">
+  <div class="page-header">
+    <h1>Добавить новый фильм</h1>
+    <div class="header-actions">
+      <a routerLink="/admin/movies" class="btn btn-outline">← Назад к списку</a>
+    </div>
+  </div>
+
+  <!-- Сообщение об успехе -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="icon">✓</span>
+    {{ successMessage }}
+    <p class="redirect-message">Через 2 секунды вы будете перенаправлены...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span class="icon">✗</span>
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-container">
+    <form (ngSubmit)="addMovie()" #movieForm="ngForm" class="movie-form">
+      
+      <!-- Основная информация -->
+      <div class="form-section">
+        <h3>Основная информация</h3>
+        
+        <div class="form-group">
+          <label for="title">Название фильма <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="movie.title" 
+            name="title" 
+            required
+            placeholder="Введите название фильма"
+            [disabled]="isSubmitting || isLoading">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Описание <span class="required">*</span></label>
+          <textarea 
+            id="description" 
+            rows="4" 
+            [(ngModel)]="movie.description" 
+            name="description" 
+            required
+            placeholder="Введите описание фильма"
+            [disabled]="isSubmitting || isLoading"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="releaseDate">Дата релиза <span class="required">*</span></label>
+            <input 
+              type="date" 
+              id="releaseDate" 
+              [(ngModel)]="movie.releaseDate" 
+              name="releaseDate" 
+              required
+              [disabled]="isSubmitting || isLoading">
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Продолжительность (мин) <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="duration" 
+              [(ngModel)]="movie.duration" 
+              name="duration" 
+              required
+              min="1"
+              placeholder="120"
+              [disabled]="isSubmitting || isLoading">
+          </div>
+        </div>
+      </div>
+
+      <!-- Режиссер -->
+      <div class="form-section">
+        <h3>Режиссер <span class="required">*</span></h3>
+        
+        <div class="form-group">
+          <div class="selection-mode">
+            <label class="radio-label">
+              <input 
+                type="radio" 
+                name="directorMode" 
+                value="existing"
+                [(ngModel)]="directorSelectionMode"
+                [disabled]="isSubmitting || isLoading">
+              <span class="radio-custom"></span>
+              <span class="radio-text">Выбрать из существующих</span>
+            </label>
+            
+            <label class="radio-label">
+              <input 
+                type="radio" 
+                name="directorMode" 
+                value="new"
+                [(ngModel)]="directorSelectionMode"
+                [disabled]="isSubmitting || isLoading">
+              <span class="radio-custom"></span>
+              <span class="radio-text">Добавить нового</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Существующие режиссеры -->
+        <div *ngIf="directorSelectionMode === 'existing'" class="director-selection">
+          <div class="search-box">
+            <input 
+              type="text" 
+              [(ngModel)]="directorSearchTerm" 
+              placeholder="Поиск режиссера..."
+              [disabled]="isSubmitting || isLoading"
+              name="directorSearch">
+            <span class="search-icon">🔍</span>
+          </div>
+          
+          <div *ngIf="isLoading" class="loading-indicator">
+            <span class="spinner-small"></span>
+            <span>Загрузка списка режиссеров...</span>
+          </div>
+          
+          <div *ngIf="!isLoading && filteredDirectors.length === 0" class="empty-list">
+            <p>Режиссеры не найдены</p>
+          </div>
+          
+          <div class="director-list" *ngIf="!isLoading && filteredDirectors.length > 0">
+            <div 
+              *ngFor="let director of filteredDirectors" 
+              class="director-item"
+              [class.selected]="selectedDirector?.directorId === director.directorId"
+              (click)="!isSubmitting && selectDirector(director)"
+              [class.disabled]="isSubmitting">
+              <div class="director-info">
+                <span class="director-name">{{ director.directorNameAndSurname }}</span>
+              </div>
+              <div class="director-id">ID: {{ director.directorId }}</div>
+            </div>
+          </div>
+          
+          <div *ngIf="selectedDirector" class="selected-info">
+            <span>Выбран: <strong>{{ selectedDirector.directorNameAndSurname }}</strong></span>
+          </div>
+        </div>
+
+       <!-- Новый режиссер -->
+<div *ngIf="directorSelectionMode === 'new'" class="new-director-form">
+  <div class="form-row">
+    <div class="form-group">
+      <label for="newDirectorName">Имя <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="newDirectorName" 
+        [(ngModel)]="newDirectorName" 
+        name="newDirectorName"
+        placeholder="Введите имя"
+        [disabled]="isSubmitting || isLoading || isCreatingDirector">
+    </div>
+    
+    <div class="form-group">
+      <label for="newDirectorSurname">Фамилия <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="newDirectorSurname" 
+        [(ngModel)]="newDirectorSurname" 
+        name="newDirectorSurname"
+        placeholder="Введите фамилию"
+        [disabled]="isSubmitting || isLoading || isCreatingDirector">
+    </div>
+  </div>
+  
+  <div class="form-row">
+    <div class="form-group">
+      <label for="newDirectorBirthDate">Дата рождения</label>
+      <input 
+        type="date" 
+        id="newDirectorBirthDate" 
+        [(ngModel)]="newDirectorBirthDate" 
+        name="newDirectorBirthDate"
+        [disabled]="isSubmitting || isLoading || isCreatingDirector">
+    </div>
+  </div>
+  
+  <!-- Выбор страны для нового режиссера -->
+  <div class="form-section">
+    <h4>Страна режиссера <span class="required">*</span></h4>
+    
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="directorCountrySearchTerm" 
+        placeholder="Поиск страны для режиссера..."
+        [disabled]="isSubmitting || isLoading || isCreatingDirector"
+        name="directorCountrySearch">
+      <span class="search-icon">🔍</span>
+    </div>
+    
+    <div class="country-list" *ngIf="filteredDirectorCountries.length > 0">
+      <div 
+        *ngFor="let country of filteredDirectorCountries" 
+        class="country-item"
+        [class.selected]="selectedDirectorCountry?.countryId === country.countryId"
+        (click)="!isCreatingDirector && selectDirectorCountry(country)"
+        [class.disabled]="isCreatingDirector">
+        <div class="country-info">
+          <span class="country-name">{{ country.countryName }}</span>
+        </div>
+        <div class="country-id">ID: {{ country.countryId }}</div>
+      </div>
+    </div>
+    
+    <div *ngIf="selectedDirectorCountry" class="selected-info">
+      <span>Выбрана страна: <strong>{{ selectedDirectorCountry.countryName }}</strong></span>
+    </div>
+  </div>
+  
+  <!-- Кнопка создания режиссера -->
+  <div class="form-actions director-actions">
+    <button 
+      type="button" 
+      class="btn btn-primary" 
+      (click)="createNewDirector()"
+      [disabled]="isCreatingDirector || !newDirectorName.trim() || !newDirectorSurname.trim() || !selectedDirectorCountry">
+      <span *ngIf="!isCreatingDirector">Создать режиссера</span>
+      <span *ngIf="isCreatingDirector" class="loading-text">
+        <span class="spinner-small"></span> Создание...
+      </span>
+    </button>
+  </div>
+  
+  <div class="note">
+    <small>Примечание: Новый режиссер будет добавлен в базу данных. После создания вы сможете выбрать его для фильма.</small>
+  </div>
+</div>
+
+        
+      </div>
+
+      <!-- Страна -->
+      <div class="form-section">
+        <h3>Страна производства <span class="required">*</span></h3>
+        
+        <div class="search-box">
+          <input 
+            type="text" 
+            [(ngModel)]="countrySearchTerm" 
+            placeholder="Поиск страны..."
+            [disabled]="isSubmitting || isLoading"
+            name="countrySearch">
+          <span class="search-icon">🔍</span>
+        </div>
+        
+        <div *ngIf="isLoading" class="loading-indicator">
+          <span class="spinner-small"></span>
+          <span>Загрузка списка стран...</span>
+        </div>
+        
+        <div *ngIf="!isLoading && filteredCountries.length === 0" class="empty-list">
+          <p>Страны не найдены</p>
+        </div>
+        
+        <div class="country-list" *ngIf="!isLoading && filteredCountries.length > 0">
+          <div 
+            *ngFor="let country of filteredCountries" 
+            class="country-item"
+            [class.selected]="selectedCountry?.countryId === country.countryId"
+            (click)="!isSubmitting && selectCountry(country)"
+            [class.disabled]="isSubmitting">
+            <div class="country-info">
+              <span class="country-name">{{ country.countryName }}</span>
+              <span class="country-details">
+                {{ country.filmList?.length || 0 }} фильмов
+              </span>
+            </div>
+            <div class="country-id">ID: {{ country.countryId }}</div>
+          </div>
+        </div>
+        
+        <div *ngIf="selectedCountry" class="selected-info">
+          <span>Выбрана: <strong>{{ selectedCountry.countryName }}</strong></span>
+        </div>
+      </div>
+
+      <!-- Жанры -->
+      <div class="form-section">
+        <h3>Жанры</h3>
+        <div class="genres-grid">
+          <label *ngFor="let genre of genreOptions" class="genre-checkbox"
+                 [class.disabled]="isSubmitting || isLoading">
+            <input 
+              type="checkbox" 
+              [checked]="movie.genres.includes(genre)" 
+              (change)="!isSubmitting && toggleGenre(genre)"
+              [disabled]="isSubmitting || isLoading">
+            <span class="checkbox-custom"></span>
+            <span class="genre-label">{{ genre | titlecase }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Возрастной рейтинг -->
+      <div class="form-section">
+        <h3>Возрастное ограничение <span class="required">*</span></h3>
+        <div class="form-group">
+          <select 
+            [(ngModel)]="movie.ageRating" 
+            name="ageRating" 
+            required
+            [disabled]="isSubmitting || isLoading">
+            <option value="0+">0+</option>
+            <option value="6+">6+</option>
+            <option value="12+">12+</option>
+            <option value="16+">16+</option>
+            <option value="18+">18+</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Действия -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="movieForm.invalid || isSubmitting || isLoading">
+          <span *ngIf="!isSubmitting">Добавить фильм</span>
+          <span *ngIf="isSubmitting" class="loading-text">
+            <span class="spinner"></span> Добавление...
+          </span>
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn btn-outline" 
+          (click)="resetForm()"
+          [disabled]="isSubmitting || isLoading">
+          Очистить форму
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="navigateToMovies()" 
+          [disabled]="isSubmitting || isLoading">
+          Отмена
+        </button>
+      </div>
+    </form>
+  </div>
+</main>

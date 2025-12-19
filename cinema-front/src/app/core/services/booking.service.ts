@@ -11,7 +11,7 @@ export class BookingService {
   constructor(private api: ApiService) {}
 
   // Создать бронирование
-  createBooking(bookingRequest: BookSeatsRequest): Observable<BookingDto> {
+  createBooking(bookingRequest: BookingDto): Observable<BookingDto> {
     return this.api.post<BookingDto>('bookings', bookingRequest);
   }
 

@@ -1,0 +1,140 @@
+<!-- admin-session-add.html -->
+<div class="container session-add">
+  <header class="page-header">
+    <h1>{{ isEditMode ? 'Редактирование сеанса' : 'Добавить новый сеанс' }}</h1>
+    <a routerLink="/admin/sessions" class="btn btn-outline">Назад к списку</a>
+  </header>
+
+  <!-- Состояние загрузки при редактировании -->
+  <div *ngIf="isLoading && isEditMode" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка данных сеанса...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage" class="error-state">
+    <p class="error-message">{{ errorMessage }}</p>
+    <button class="btn btn-outline" (click)="isEditMode ? loadSessionForEdit(sessionId!) : loadMoviesAndHalls()">
+      Повторить попытку
+    </button>
+  </div>
+
+  <!-- Форма -->
+  <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()" class="session-form" *ngIf="!isLoading || !isEditMode">
+    
+    <!-- Информация о редактировании -->
+    <div *ngIf="isEditMode && originalSession" class="edit-info">
+      <p><strong>Редактирование сеанса #{{ sessionId }}</strong></p>
+    </div>
+
+    <!-- Выбор фильма -->
+    <div class="form-group" [class.invalid]="!isFieldValid('filmId')">
+      <label>Выберите фильм *</label>
+      <select formControlName="filmId" [disabled]="isLoadingData">
+        <option value="">Выберите фильм</option>
+        <option *ngFor="let movie of movies" [value]="movie.filmId">
+          {{ movie.title }} ({{ movie.duration }} мин, {{ movie.ageRating }})
+        </option>
+      </select>
+      <div *ngIf="!isFieldValid('filmId')" class="error-text">
+        {{ getFieldError('filmId') }}
+      </div>
+      <div *ngIf="isLoadingData" class="loading-text">
+        Загрузка списка фильмов...
+      </div>
+    </div>
+
+    <!-- Выбор зала -->
+    <div class="form-group" [class.invalid]="!isFieldValid('hallId')">
+      <label>Выберите зал *</label>
+      <select formControlName="hallId" [disabled]="isLoadingData">
+        <option value="">Выберите зал</option>
+        <option *ngFor="let hall of halls" [value]="hall.hallId">
+          {{ hall.hallName }} ({{ hall.rowsCount * hall.seatsPerRow }} мест, {{ hall.hallType }})
+        </option>
+      </select>
+      <div *ngIf="!isFieldValid('hallId')" class="error-text">
+        {{ getFieldError('hallId') }}
+      </div>
+      <div *ngIf="isLoadingData" class="loading-text">
+        Загрузка списка залов...
+      </div>
+    </div>
+
+    <!-- Дата и время -->
+    <div class="form-row">
+      <div class="form-group" [class.invalid]="!isFieldValid('session_date')">
+        <label>Дата сеанса *</label>
+        <input 
+          type="date" 
+          formControlName="session_date" 
+          [min]="today"
+          [disabled]="isLoadingData"
+        >
+        <div *ngIf="!isFieldValid('session_date')" class="error-text">
+          {{ getFieldError('session_date') }}
+        </div>
+      </div>
+
+      <div class="form-group" [class.invalid]="!isFieldValid('session_time')">
+        <label>Время сеанса *</label>
+        <input 
+          type="time" 
+          formControlName="session_time"
+          [disabled]="isLoadingData"
+        >
+        <div *ngIf="!isFieldValid('session_time')" class="error-text">
+          {{ getFieldError('session_time') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Статус -->
+    <div class="form-group" [class.invalid]="!isFieldValid('status')">
+      <label>Статус сеанса *</label>
+      <select formControlName="status">
+        <option value="active">Активный</option>
+        <option value="cancelled">Отменен</option>
+        <option value="completed">Завершен</option>
+      </select>
+      <div *ngIf="!isFieldValid('status')" class="error-text">
+        {{ getFieldError('status') }}
+      </div>
+    </div>
+
+    <!-- Дополнительная информация -->
+    <div class="form-group">
+      <label>Дополнительная информация</label>
+      <textarea 
+        formControlName="additional_info" 
+        rows="3"
+        placeholder="Введите дополнительную информацию о сеансе..."
+      ></textarea>
+    </div>
+
+    <!-- Предпросмотр -->
+    <div *ngIf="sessionForm.valid" class="form-preview">
+      <h3>Предпросмотр сеанса</h3>
+      <div class="preview-info">
+        <p><strong>Фильм:</strong> {{ getMovieTitle(+sessionForm.get('filmId')?.value) }}</p>
+        <p><strong>Зал:</strong> {{ getHallName(+sessionForm.get('hallId')?.value) }}</p>
+        <p><strong>Дата и время:</strong> {{ sessionForm.get('session_date')?.value }} в {{ sessionForm.get('session_time')?.value }}</p>
+        <p><strong>Статус:</strong> {{ sessionForm.get('status')?.value === 'active' ? 'Активный' : 
+                                    sessionForm.get('status')?.value === 'cancelled' ? 'Отменен' : 'Завершен' }}</p>
+      </div>
+    </div>
+
+    <!-- Действия формы -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        [disabled]="sessionForm.invalid || isLoading || isLoadingData" 
+        class="btn btn-primary"
+      >
+        <span *ngIf="isLoading" class="spinner-small"></span>
+        {{ isEditMode ? 'Обновить сеанс' : 'Создать сеанс' }}
+      </button>
+      <a routerLink="/admin/sessions" class="btn btn-outline">Отмена</a>
+    </div>
+  </form>
+</div>

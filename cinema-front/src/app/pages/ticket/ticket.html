@@ -24,7 +24,7 @@
       </div>
     }
     
-    @if (ticket && booking && !isLoading && !errorMessage) {
+    @if (currentTicket && booking && !isLoading && !errorMessage) {
       <div class="ticket-container">
         <!-- Основной билет -->
         <div class="ticket-main">
@@ -47,22 +47,22 @@
             <!-- Левая часть: информация о фильме -->
             <div class="ticket-left">
               <div class="movie-info">
-                <h3 class="movie-title">{{ getSessionInfo(booking.sessionId).filmTitle }}</h3>
+                <h3 class="movie-title">{{ getSessionInfo().filmTitle }}</h3>
                 
                 <div class="session-details">
                   <div class="detail-row">
                     <span class="label">Дата и время:</span>
-                    <span class="value">{{ formatDateTime(getSessionInfo(booking.sessionId).dateTime) }}</span>
+                    <span class="value">{{ formatDateTime(getSessionInfo().dateTime) }}</span>
                   </div>
                   
                   <div class="detail-row">
                     <span class="label">Зал:</span>
-                    <span class="value">{{ getSessionInfo(booking.sessionId).hallName }}</span>
+                    <span class="value">{{ getSessionInfo().hallName }}</span>
                   </div>
                   
                   <div class="detail-row">
                     <span class="label">Формат:</span>
-                    <span class="value">{{ getSessionInfo(booking.sessionId).format }}</span>
+                    <span class="value">{{ getSessionInfo().format }}</span>
                   </div>
                   
                   <div class="detail-row">
@@ -76,11 +76,11 @@
                 <h4>Информация о покупателе</h4>
                 <div class="detail-row">
                   <span class="label">ФИО:</span>
-                  <span class="value">{{ getUserInfo(booking.userId).name }} {{ getUserInfo(booking.userId).surname }}</span>
+                  <span class="value">{{ getUserInfo().name }} {{ getUserInfo().surname }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="label">Email:</span>
-                  <span class="value">{{ getUserInfo(booking.userId).email }}</span>
+                  <span class="value">{{ getUserInfo().email }}</span>
                 </div>
               </div>
             </div>
@@ -95,21 +95,21 @@
               <div class="ticket-data">
                 <div class="ticket-number">
                   <span class="label">Номер билета:</span>
-                  <span class="value code">{{ ticket.ticketCode }}</span>
+                  <span class="value code">{{ currentTicket.ticketCode }}</span>
                 </div>
                 
                 <div class="seat-info">
                   <span class="label">Место:</span>
                   <span class="value seat">
-                    Ряд {{ getSeatInfo(ticket.seatId).row }}, 
-                    Место {{ getSeatInfo(ticket.seatId).number }}
-                    <span class="seat-type">({{ getSeatInfo(ticket.seatId).type }})</span>
+                    Ряд {{ getSeatInfo(currentTicket.seatId).row }}, 
+                    Место {{ getSeatInfo(currentTicket.seatId).number }}
+                    <span class="seat-type">({{ getSeatInfo(currentTicket.seatId).type }})</span>
                   </span>
                 </div>
                 
                 <div class="price-info">
                   <span class="label">Стоимость:</span>
-                  <span class="value price">{{ ticket.price }} ₽</span>
+                  <span class="value price">{{ currentTicket.price }} ₽</span>
                 </div>
                 
                 <div class="booking-info">
@@ -121,17 +121,23 @@
           </div>
           
           <!-- Все места бронирования (если несколько билетов) -->
-          @if (getAllTickets().length > 1) {
+          @if (getAllTickets().length > 0) {
             <div class="all-tickets">
               <h4>Все места в бронировании:</h4>
               <div class="tickets-list">
-                @for (t of getAllTickets(); track t.ticketId) {
-                  <div class="ticket-item" [class.current]="t.ticketId === ticket.ticketId">
+                @for (t of getAllTickets(); track t.ticketId; let i = $index) {
+                  <div class="ticket-item" 
+                       [class.current]="i === currentTicketIndex"
+                       [class.clickable]="getAllTickets().length > 1"
+                       (click)="getAllTickets().length > 1 ? selectTicket(t) : null">
                     <span class="ticket-code">{{ t.ticketCode }}</span>
                     <span class="ticket-seat">
-                      Ряд {{ getSeatInfo(t.seatId).row }}, Место {{ getSeatInfo(t.seatId).number }}
+                      Ряд {{ getSeatInfo(t.seatId).row }}, Место {{ getSeatInfo(t.seatId).number }}   
                     </span>
-                    <span class="ticket-price">{{ t.price }} ₽</span>
+                    <span class="ticket-price">{{   t.price }} ₽</span>
+                    @if (getAllTickets().length > 1) {
+                      <span class="ticket-select-hint">↪️</span>
+                    }
                   </div>
                 }
               </div>
@@ -180,15 +186,12 @@
     }
     
     <!-- Демо-сообщение -->
-    @if (!ticket && !isLoading && !errorMessage) {
+    @if (!currentTicket && !isLoading && !errorMessage) {
       <div class="demo-message">
         <h2>Демонстрационный билет</h2>
         <p>Здесь будет отображаться ваш электронный билет после покупки.</p>
         <div class="demo-actions">
-          <button class="btn" (click)="showDemoTicket()">
-            Показать демо-билет
-          </button>
-          <a class="btn btn-outline" routerLink="/">
+          <a class="btn" routerLink="/">
             Выбрать фильм
           </a>
         </div>
@@ -219,5 +222,53 @@
   .print-info {
     page-break-inside: avoid;
   }
+  
+  .ticket-item.clickable:hover {
+    background-color: inherit !important;
+  }
+  
+  .ticket-select-hint {
+    display: none !important;
+  }
+}
+
+/* Стили для кликабельных билетов */
+.ticket-item.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.ticket-item.clickable:hover {
+  background-color: #f5f5f5;
+}
+
+.ticket-item.current {
+  border-left: 4px solid #007bff;
+  background-color: #e8f4ff;
+}
+
+.ticket-select-hint {
+  margin-left: auto;
+  color: #666;
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
 }
 </style>

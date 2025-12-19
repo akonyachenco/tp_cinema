@@ -15,6 +15,10 @@ export class TicketService {
     return this.api.get<TicketDto>(`tickets/${id}`);
   }
 
+  createTicket(ticket:any): Observable<TicketDto>{
+    return this.api.post<TicketDto>('tickets',ticket)
+  }
+
   // Получить билеты бронирования
   getTicketsByBooking(bookingId: number): Observable<TicketDto[]> {
     return this.api.get<TicketDto[]>(`tickets/booking/${bookingId}`);

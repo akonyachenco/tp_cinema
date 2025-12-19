@@ -1,0 +1,108 @@
+/* Основной контейнер страницы */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+/* Заголовок страницы с кнопкой */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.page-header .btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.page-header .btn:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Список залов */
+.halls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Карточка зала */
+.hall-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.hall-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Информация о зале */
+.hall-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+}
+
+.hall-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Действия с залом */
+.hall-actions button {
+  margin-left: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 5px;
+  border: 1px solid #007bff;
+  background-color: #fff;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.hall-actions button:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.hall-actions .btn-outline {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.hall-actions .btn-outline:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/* Сообщение, если залов нет */
+ng-template p {
+  font-size: 16px;
+  color: #777;
+  text-align: center;
+  margin-top: 40px;
+}
