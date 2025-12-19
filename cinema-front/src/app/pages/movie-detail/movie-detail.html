@@ -60,14 +60,14 @@
             <p>{{ movie.description }}</p>
           </div>
           
-          <div class="movie-details">
-            <div class="detail-item">
-              <strong>Режиссер:</strong> Дени Вильнёв
-            </div>
-            <div class="detail-item">
-              <strong>Страна:</strong> США, Канада
-            </div>
-          </div>
+<div class="movie-details">
+  <div class="detail-item">
+    <strong>Режиссер:</strong> {{ getDirectorName(movie.directorId) }}
+  </div>
+  <div class="detail-item">
+    <strong>Страна:</strong> {{ getCountryName(movie.countryId) }}
+  </div>
+</div>
         </div>
       </div>
       

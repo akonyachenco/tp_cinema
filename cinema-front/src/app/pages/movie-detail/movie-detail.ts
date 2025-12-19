@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { MovieService } from '../../core/services/movie.service';
 import { SessionService } from '../../core/services/session.service';
-import { FilmDto, SessionDto } from '../../shared/models';
+import { HallService } from '../../core/services/hall.service';
+import { FilmDto, SessionDto, HallDto, FilmInfoListDto, DirectorDto, CountryDto } from '../../shared/models';
 
 @Component({
   selector: 'app-movie-detail',
@@ -12,56 +14,93 @@ import { FilmDto, SessionDto } from '../../shared/models';
   templateUrl: './movie-detail.html',
   styleUrls: ['./movie-detail.css']
 })
-export class MovieDetailComponent implements OnInit {
+export class MovieDetailComponent implements OnInit, OnDestroy {
   movie: FilmDto | null = null;
   sessions: SessionDto[] = [];
+  halls: Map<number, HallDto> = new Map();
+  directors: DirectorDto[] = [];
+  countries: CountryDto[] = [];
   isLoading = true;
   activeDateFilter: 'today' | 'tomorrow' | 'week' = 'today';
   errorMessage = '';
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private movieService: MovieService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private hallService: HallService
   ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       const movieId = +params['id'];
       if (movieId) {
-        this.loadMovie(movieId);
-        this.loadSessions(movieId);
+        this.loadMovieData(movieId);
       }
     });
   }
 
-  loadMovie(movieId: number): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadMovieData(movieId: number): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.movieService.getMovieById(movieId).subscribe({
-      next: (movie) => {
-        this.movie = movie || null;
+    // Загружаем фильм, сеансы и информацию о режиссерах/странах параллельно
+    forkJoin({
+      movie: this.movieService.getMovieById(movieId),
+      sessions: this.sessionService.getSessionsByMovie(movieId),
+      info: this.movieService.getCountriesAndDirectors()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: ({ movie, sessions, info }) => {
+        if (!movie) {
+          this.errorMessage = 'Фильм не найден';
+          this.isLoading = false;
+          return;
+        }
+
+        this.movie = movie;
+        this.sessions = sessions;
+        this.directors = info.directors || [];
+        this.countries = info.countries || [];
+        
+        // Загружаем информацию о залах для сеансов
+        this.loadHallsForSessions(sessions);
+        
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки фильма:', error);
+        console.error('Ошибка загрузки данных фильма:', error);
         this.errorMessage = 'Ошибка загрузки информации о фильме';
         this.isLoading = false;
       }
     });
   }
 
-  loadSessions(movieId: number): void {
-    this.sessionService.getSessionsByMovie(movieId).subscribe({
-      next: (sessions) => {
-        this.sessions = sessions;
-      },
-      error: (error) => {
-        console.error('Ошибка загрузки сеансов:', error);
-        // Можно добавить уведомление пользователю
-      }
+  loadHallsForSessions(sessions: SessionDto[]): void {
+    // Собираем уникальные hallId из сеансов
+    const uniqueHallIds = [...new Set(sessions.map(s => s.hallId))];
+    
+    // Загружаем информацию о каждом зале
+    uniqueHallIds.forEach(hallId => {
+      this.hallService.getHallById(hallId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (hall) => {
+            this.halls.set(hallId, hall);
+          },
+          error: (error) => {
+            console.error(`Ошибка загрузки зала ${hallId}:`, error);
+          }
+        });
     });
   }
 
@@ -88,6 +127,9 @@ export class MovieDetailComponent implements OnInit {
         default:
           return true;
       }
+    }).sort((a, b) => {
+      // Сортируем по времени сеанса
+      return new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime();
     });
   }
 
@@ -131,37 +173,28 @@ export class MovieDetailComponent implements OnInit {
   }
 
   getHallName(hallId: number): string {
-    // В идеале нужно загружать информацию о зале через hallService
-    // Здесь оставлю заглушку, которую можно заменить реальным вызовом
-    const halls: { [key: number]: string } = {
-      1: 'Большой зал (IMAX)',
-      2: 'Малый зал',
-      3: 'VIP зал',
-      4: '4DX зал'
-    };
-    return halls[hallId] || `Зал ${hallId}`;
+    const hall = this.halls.get(hallId);
+    return hall?.hallName || `Зал ${hallId}`;
   }
 
   getHallType(hallId: number): string {
-    // Здесь также можно добавить загрузку информации о зале
-    const types: { [key: number]: string } = {
-      1: 'IMAX • Dolby Atmos',
-      2: '2D • Стандарт',
-      3: '2D • Комфорт',
-      4: '4DX • Эффекты'
-    };
-    return types[hallId] || '2D';
+    const hall = this.halls.get(hallId);
+    return hall?.hallType || '2D';
   }
 
   getTicketPrice(hallId: number): number {
-    // Цены лучше получать с бэкенда или использовать информацию из сеанса/зала
-    const prices: { [key: number]: number } = {
-      1: 700, // IMAX
-      2: 350, // Стандарт
-      3: 500, // Комфорт
-      4: 900  // 4DX
-    };
-    return prices[hallId] || 400;
+    const hall = this.halls.get(hallId);
+    return hall?.basePrice || 400;
+  }
+
+  getDirectorName(directorId: number): string {
+    const director = this.directors.find(d => d.directorId === directorId);
+    return director?.directorNameAndSurname || 'Неизвестный режиссер';
+  }
+
+  getCountryName(countryId: number): string {
+    const country = this.countries.find(c => c.countryId === countryId);
+    return country?.countryName || 'Неизвестная страна';
   }
 
   navigateToBooking(sessionId: number): void {
@@ -181,5 +214,19 @@ export class MovieDetailComponent implements OnInit {
     } catch (error) {
       return false;
     }
+  }
+
+  // Проверка, есть ли сеансы в ближайшее время
+  get hasUpcomingSessions(): boolean {
+    return this.filteredSessions.length > 0;
+  }
+
+  // Получение ближайшего сеанса
+  get nearestSession(): SessionDto | null {
+    const upcoming = this.sessions
+      .filter(s => new Date(s.dateTime) > new Date())
+      .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
+    
+    return upcoming.length > 0 ? upcoming[0] : null;
   }
 }
