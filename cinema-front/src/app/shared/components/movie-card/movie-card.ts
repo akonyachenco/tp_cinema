@@ -1,17 +1,24 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FilmDto } from '../../models'
+import { FilmDto, SessionDto } from '../../models'
 
 @Component({
   selector: 'app-movie-card',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
   templateUrl: './movie-card.html',
-  styleUrls: ['./movie-card.css'] // добавьте этот файл
+  styleUrls: ['./movie-card.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    DatePipe
+  ]
 })
 export class MovieCardComponent {
   @Input() movie!: FilmDto;
+  @Input() showSessions: boolean = false;
+  @Input() sessionDates: {date: string, sessions: SessionDto[]}[] = [];
+  @Input() activeFilter: 'today' | 'tomorrow' | 'upcoming' | 'all' = 'all';
 
   // Обработчик ошибки загрузки изображения
   onImageError(event: Event): void {
@@ -32,5 +39,23 @@ export class MovieCardComponent {
       return description.substring(0, 100) + '...';
     }
     return description;
+  }
+
+  // Форматировать время сеанса
+  formatSessionTime(dateTime: string): string {
+    try {
+      const date = new Date(dateTime);
+      return date.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '--:--';
+    }
+  }
+
+  // Проверяет, есть ли сеансы для отображения
+  get hasSessions(): boolean {
+    return this.showSessions && this.sessionDates && this.sessionDates.length > 0;
   }
 }

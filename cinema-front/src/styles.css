@@ -82,11 +82,11 @@ h1 {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
   }
-  
+
   .poster-img {
     height: 300px;
   }
-  
+
   h1 {
     font-size: 28px;
   }

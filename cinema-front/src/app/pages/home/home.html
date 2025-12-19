@@ -1,43 +1,77 @@
 <div class="page-wrapper">
   <section class="container">
     <h1>🎬 Афиша кинотеатра</h1>
-    
-    <div class="filters">
-      <button class="btn" [class.active]="activeFilter === 'today'" (click)="setFilter('today')">
-        Сегодня в кино
-      </button>
-      <button class="btn btn-outline" [class.active]="activeFilter === 'soon'" (click)="setFilter('soon')">
-        Скоро
-      </button>
-      <button class="btn btn-outline" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
-        Все фильмы
-      </button>
-    </div>
 
+    <!-- Фильтры -->
+    @if (!isLoading && movies.length > 0) {
+      <div class="filters-section">
+        <div class="filters">
+          <button class="btn" [class.active]="activeFilter === 'today'" (click)="setFilter('today')">
+            Сегодня
+            <span class="badge" *ngIf="getTodaysSessionCount() > 0">
+              {{ getTodaysSessionCount() }}
+            </span>
+          </button>
+
+          <button class="btn" [class.active]="activeFilter === 'tomorrow'" (click)="setFilter('tomorrow')">
+            Завтра
+            <span class="badge" *ngIf="getTomorrowsSessionCount() > 0">
+              {{ getTomorrowsSessionCount() }}
+            </span>
+          </button>
+
+          <button class="btn" [class.active]="activeFilter === 'upcoming'" (click)="setFilter('upcoming')">
+            Скоро
+            <span class="badge" *ngIf="getUpcomingSessionCount() > 0">
+              {{ getUpcomingSessionCount() }}
+            </span>
+          </button>
+
+          <button class="btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">
+            Все сеансы
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Загрузка -->
     @if (isLoading) {
       <div class="loading-state">
         <div class="spinner"></div>
-        <p>Загружаем афишу...</p>
-      </div>
-    }
-    
-    @if (!isLoading && movies.length === 0) {
-      <div class="empty-state">
-        <h3>🎭 Сеансов пока нет</h3>
-        <p>Загляните позже или выберите другую дату</p>
+        <p>Загружаем расписание сеансов...</p>
       </div>
     }
 
-    @if (!isLoading && movies.length > 0) {
-      <div class="movies-stats">
-        <p>Найдено фильмов: <strong>{{ movies.length }}</strong></p>
-      </div>
-      
-      <section class="posters">
-        @for (movie of movies; track movie.filmId) {
-          <app-movie-card [movie]="movie"></app-movie-card>
+    <!-- Контент -->
+    @if (!isLoading) {
+      <div class="content">
+
+        <!-- Сообщение, если нет фильмов -->
+        @if (movies.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">🎭</div>
+            <h3>Нет доступных сеансов</h3>
+            <p>В ближайшее время сеансов не запланировано</p>
+          </div>
         }
-      </section>
+
+        <!-- Результаты фильтрации -->
+        @if (movies.length > 0) {
+
+          @if (filteredMovies.length > 0) {
+            <section class="posters">
+              @for (movie of filteredMovies; track movie.filmId) {
+                <app-movie-card
+                  [movie]="movie"
+                  [showSessions]="true"
+                  [sessionDates]="getMovieSessionDatesForCard(movie)"
+                  [activeFilter]="activeFilter"
+                ></app-movie-card>
+              }
+            </section>
+          }
+        }
+      </div>
     }
   </section>
 </div>
