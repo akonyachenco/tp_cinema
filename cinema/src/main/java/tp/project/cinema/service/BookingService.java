@@ -41,9 +41,6 @@ public class BookingService {
     }
 
     public BookingDto createBooking(BookingDto bookingDto) {
-        // 1. Валидация входных данных
-        validateBookingRequest(bookingDto);
-
         // 2. Поиск пользователя
         User user = userRepository.findById(bookingDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с ID " + bookingDto.getUserId() + " не найден"));
