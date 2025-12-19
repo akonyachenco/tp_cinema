@@ -1,188 +1,4 @@
-// // src/app/pages/admin-movies-add/admin-movies-add.ts
-// import { Component } from '@angular/core';
-// import { FormsModule } from '@angular/forms';
-// import { CommonModule } from '@angular/common';
-// import { RouterModule, Router } from '@angular/router';
-// import { FilmDto } from '../../shared/models';
-// import { MovieService } from '../../core/services/movie.service';
-// import { AuthService } from '../../core/services/auth.service';
-
-// @Component({
-//   selector: 'app-admin-movies-add',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule, RouterModule],
-//   templateUrl: './admin-movies-add.html',
-//   styleUrls: ['./admin-movies-add.css']
-// })
-// export class AdminMoviesAdd {
-
-//   movie: FilmDto = {
-//     filmId: 0,
-//     title: '',
-//     description: '',
-//     releaseDate: new Date().toISOString().substring(0, 10),
-//     duration: 120,
-//     directorId: 1, // Изменил на 1 по умолчанию
-//     countryId: 1,  // Изменил на 1 по умолчанию
-//     ageRating: '0+',
-//     genres: [],
-//     sessionList: []
-//   };
-
-//   genreOptions = [
-//     'action', 'comedy', 'drama', 'fantasy', 'horror', 
-//     'romance', 'scifi', 'thriller', 'animation', 'adventure',
-//     'documentary', 'family', 'musical', 'mystery', 'western'
-//   ];
-
-//   // Убрал загрузку файлов для упрощения
-//   isSubmitting = false;
-//   successMessage = '';
-//   errorMessage = '';
-
-//   constructor(
-//     private movieService: MovieService,
-//     private router: Router,
-//     private authService: AuthService
-//   ) {}
-
-//   // Метод для навигации
-//   navigateToMovies() {
-//     if (this.isSubmitting) return;
-//     this.router.navigate(['/admin/movies']);
-//   }
-
-//   toggleGenre(genre: string) {
-//     const index = this.movie.genres.indexOf(genre);
-//     if (index > -1) {
-//       this.movie.genres.splice(index, 1);
-//     } else {
-//       this.movie.genres.push(genre);
-//     }
-//   }
-
-//   addMovie() {
-//     // Проверка авторизации
-//     if (!this.authService.isAuthenticated()) {
-//       this.errorMessage = 'Вы не авторизованы';
-//       return;
-//     }
-
-//     // Проверка прав администратора
-//     if (!this.authService.isAdmin()) {
-//       this.errorMessage = 'Только администраторы могут добавлять фильмы';
-//       return;
-//     }
-
-//     if (!this.validateForm()) {
-//       return;
-//     }
-
-//     this.isSubmitting = true;
-//     this.successMessage = '';
-//     this.errorMessage = '';
-
-//     // Создаем объект фильма для отправки
-//     const movieData = {
-//       title: this.movie.title,
-//       description: this.movie.description,
-//       releaseDate: this.movie.releaseDate,
-//       duration: this.movie.duration,
-//       directorId: this.movie.directorId,
-//       countryId: this.movie.countryId,
-//       ageRating: this.movie.ageRating,
-//       genres: this.movie.genres
-//       // posterUrl можно будет добавить позже через отдельный эндпоинт
-//     };
-
-//     console.log('Отправляемые данные:', movieData);
-
-//     this.movieService.createMovie(movieData).subscribe({
-//       next: (createdMovie) => {
-//         this.isSubmitting = false;
-//         this.successMessage = `Фильм "${createdMovie.title}" успешно добавлен!`;
-        
-//         setTimeout(() => {
-//           this.router.navigate(['/admin/movies']);
-//         }, 2000);
-//       },
-//       error: (error) => {
-//         console.error('Ошибка при добавлении фильма:', error);
-//         console.error('Детали ошибки:', error.error);
-        
-//         // Более детальные сообщения об ошибках
-//         if (error.status === 403) {
-//           this.errorMessage = 'Доступ запрещен. Проверьте права доступа.';
-//         } else if (error.status === 401) {
-//           this.errorMessage = 'Требуется авторизация. Войдите в систему.';
-//         } else if (error.status === 400) {
-//           this.errorMessage = 'Некорректные данные: ' + (error.error?.message || 'проверьте введенные данные');
-//         } else {
-//           this.errorMessage = error.error?.message || 'Не удалось добавить фильм. Код ошибки: ' + error.status;
-//         }
-        
-//         this.isSubmitting = false;
-//       }
-//     });
-//   }
-
-//   validateForm(): boolean {
-//     if (!this.movie.title.trim()) {
-//       this.errorMessage = 'Введите название фильма';
-//       return false;
-//     }
-
-//     if (!this.movie.description.trim()) {
-//       this.errorMessage = 'Введите описание фильма';
-//       return false;
-//     }
-
-//     if (!this.movie.releaseDate) {
-//       this.errorMessage = 'Выберите дату релиза';
-//       return false;
-//     }
-
-//     if (this.movie.duration < 1) {
-//       this.errorMessage = 'Длительность должна быть больше 0';
-//       return false;
-//     }
-
-//     if (this.movie.directorId <= 0) {
-//       this.errorMessage = 'Введите корректный ID режиссера';
-//       return false;
-//     }
-
-//     if (this.movie.countryId <= 0) {
-//       this.errorMessage = 'Введите корректный ID страны';
-//       return false;
-//     }
-
-//     this.errorMessage = '';
-//     return true;
-//   }
-
-//   resetForm() {
-//     if (this.isSubmitting) return;
-    
-//     this.movie = {
-//       filmId: 0,
-//       title: '',
-//       description: '',
-//       releaseDate: new Date().toISOString().substring(0, 10),
-//       duration: 120,
-//       directorId: 1,
-//       countryId: 1,
-//       ageRating: '0+',
-//       genres: [],
-//       sessionList: []
-//     };
-//     this.successMessage = '';
-//     this.errorMessage = '';
-//   }
-// }
-
 // admin-movies-add.ts
-// src/app/pages/admin-movies-add/admin-movies-add.ts
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -210,21 +26,23 @@ export class AdminMoviesAdd implements OnInit {
     countryId: 0,
     ageRating: '0+',
     genres: [],
-    sessionList: []
+    sessionList: [],
+    posterUrl: '', // Добавляем поле
+    trailerUrl: '' // Добавляем поле
   };
 
   // Данные из API
   directors: DirectorDto[] = [];
   countries: CountryDto[] = [];
-  
+
   // Для управления UI
   selectedDirector: DirectorDto | null = null;
   selectedCountry: CountryDto | null = null;
   selectedDirectorCountry: CountryDto | null = null;
-  
+
   // Режим выбора режиссера
   directorSelectionMode: 'existing' | 'new' = 'existing';
-  
+
   // Данные для нового режиссера
   newDirectorName: string = '';
   newDirectorSurname: string = '';
@@ -237,7 +55,7 @@ export class AdminMoviesAdd implements OnInit {
   directorCountrySearchTerm: string = '';
 
   genreOptions = [
-    'action', 'comedy', 'drama', 'fantasy', 'horror', 
+    'action', 'comedy', 'drama', 'fantasy', 'horror',
     'romance', 'scifi', 'thriller', 'animation', 'adventure',
     'documentary', 'family', 'musical', 'mystery', 'western'
   ];
@@ -267,12 +85,12 @@ export class AdminMoviesAdd implements OnInit {
         this.directors = info.directors || [];
         this.countries = info.countries || [];
         this.isLoading = false;
-        
+
         // Устанавливаем первую страну по умолчанию для фильма
         if (this.countries.length > 0 && !this.movie.countryId) {
           this.selectCountry(this.countries[0]);
         }
-        
+
         // Устанавливаем первую страну по умолчанию для нового режиссера
         if (this.countries.length > 0 && !this.newDirectorCountryId) {
           this.selectedDirectorCountry = this.countries[0];
@@ -325,21 +143,21 @@ export class AdminMoviesAdd implements OnInit {
       next: (createdDirector) => {
         console.log('Режиссер создан:', createdDirector);
         this.isCreatingDirector = false;
-        
+
         // Добавляем нового режиссера в список и выбираем его
         this.directors.push(createdDirector);
         this.selectDirector(createdDirector);
-        
+
         // Переключаемся на режим существующего режиссера
         this.directorSelectionMode = 'existing';
-        
+
         // Сбрасываем поля нового режиссера
         this.resetNewDirectorFields();
       },
       error: (error) => {
         console.error('Ошибка при создании режиссера:', error);
         this.isCreatingDirector = false;
-        
+
         if (error.status === 400) {
           this.errorMessage = 'Некорректные данные: ' + (error.error?.message || 'проверьте введенные данные');
         } else if (error.status === 409) {
@@ -370,10 +188,10 @@ export class AdminMoviesAdd implements OnInit {
 
     // Проверяем, нет ли уже режиссера с таким именем и фамилией
     const fullName = `${this.newDirectorName.trim()} ${this.newDirectorSurname.trim()}`;
-    const existingDirector = this.directors.find(d => 
+    const existingDirector = this.directors.find(d =>
       d.directorNameAndSurname.toLowerCase() === fullName.toLowerCase()
     );
-    
+
     if (existingDirector) {
       this.errorMessage = 'Режиссер с таким именем и фамилией уже существует';
       return false;
@@ -387,7 +205,7 @@ export class AdminMoviesAdd implements OnInit {
     this.newDirectorName = '';
     this.newDirectorSurname = '';
     this.newDirectorBirthDate = new Date().toISOString().substring(0, 10);
-    
+
     if (this.countries.length > 0) {
       this.selectedDirectorCountry = this.countries[0];
       this.newDirectorCountryId = this.countries[0].countryId;
@@ -402,10 +220,10 @@ export class AdminMoviesAdd implements OnInit {
     if (!this.directorSearchTerm.trim()) {
       return this.directors;
     }
-    
+
     const searchTerm = this.directorSearchTerm.toLowerCase();
     return this.directors.filter(director =>
-      director.directorNameAndSurname.toLowerCase().includes(searchTerm) 
+      director.directorNameAndSurname.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -413,7 +231,7 @@ export class AdminMoviesAdd implements OnInit {
     if (!this.countrySearchTerm.trim()) {
       return this.countries;
     }
-    
+
     const searchTerm = this.countrySearchTerm.toLowerCase();
     return this.countries.filter(country =>
       country.countryName.toLowerCase().includes(searchTerm)
@@ -424,7 +242,7 @@ export class AdminMoviesAdd implements OnInit {
     if (!this.directorCountrySearchTerm.trim()) {
       return this.countries;
     }
-    
+
     const searchTerm = this.directorCountrySearchTerm.toLowerCase();
     return this.countries.filter(country =>
       country.countryName.toLowerCase().includes(searchTerm)
@@ -467,7 +285,7 @@ export class AdminMoviesAdd implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
 
-    // Создаем объект фильма для отправки
+    // Создаем объект фильма для отправки (включая новые поля)
     const movieData = {
       title: this.movie.title,
       description: this.movie.description,
@@ -476,7 +294,9 @@ export class AdminMoviesAdd implements OnInit {
       directorId: this.movie.directorId,
       countryId: this.movie.countryId,
       ageRating: this.movie.ageRating,
-      genres: this.movie.genres
+      genres: this.movie.genres,
+      posterUrl: this.movie.posterUrl || undefined, // Опциональное поле
+      trailerUrl: this.movie.trailerUrl || undefined // Опциональное поле
     };
 
     console.log('Отправляемые данные фильма:', movieData);
@@ -485,7 +305,7 @@ export class AdminMoviesAdd implements OnInit {
       next: (createdMovie) => {
         this.isSubmitting = false;
         this.successMessage = `Фильм "${createdMovie.title}" успешно добавлен!`;
-        
+
         setTimeout(() => {
           this.router.navigate(['/admin/movies']);
         }, 2000);
@@ -493,7 +313,7 @@ export class AdminMoviesAdd implements OnInit {
       error: (error) => {
         console.error('Ошибка при добавлении фильма:', error);
         console.error('Детали ошибки:', error.error);
-        
+
         // Более детальные сообщения об ошибках
         if (error.status === 403) {
           this.errorMessage = 'Доступ запрещен. Проверьте права доступа.';
@@ -504,7 +324,7 @@ export class AdminMoviesAdd implements OnInit {
         } else {
           this.errorMessage = error.error?.message || 'Не удалось добавить фильм. Код ошибки: ' + error.status;
         }
-        
+
         this.isSubmitting = false;
       }
     });
@@ -532,6 +352,11 @@ export class AdminMoviesAdd implements OnInit {
       return false;
     }
 
+    if (this.movie.duration > 500) {
+      this.errorMessage = 'Длительность не может превышать 500 минут';
+      return false;
+    }
+
     // Проверка режиссера
     if (!this.movie.directorId) {
       this.errorMessage = 'Выберите или создайте режиссера';
@@ -544,13 +369,34 @@ export class AdminMoviesAdd implements OnInit {
       return false;
     }
 
+    // Проверка URL (если введены)
+    if (this.movie.posterUrl && !this.isValidUrl(this.movie.posterUrl)) {
+      this.errorMessage = 'Введите корректный URL для постера';
+      return false;
+    }
+
+    if (this.movie.trailerUrl && !this.isValidUrl(this.movie.trailerUrl)) {
+      this.errorMessage = 'Введите корректный URL для трейлера';
+      return false;
+    }
+
     this.errorMessage = '';
     return true;
   }
 
+  // Вспомогательный метод для проверки URL
+  isValidUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   resetForm() {
     if (this.isSubmitting) return;
-    
+
     this.movie = {
       filmId: 0,
       title: '',
@@ -561,9 +407,11 @@ export class AdminMoviesAdd implements OnInit {
       countryId: 0,
       ageRating: '0+',
       genres: [],
-      sessionList: []
+      sessionList: [],
+      posterUrl: '', // Сбрасываем новые поля
+      trailerUrl: '' // Сбрасываем новые поля
     };
-    
+
     this.selectedDirector = null;
     this.selectedCountry = null;
     this.selectedDirectorCountry = null;
