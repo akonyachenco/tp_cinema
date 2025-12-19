@@ -34,12 +34,6 @@
               (click)="setActiveTab('profile')">
               👤 Профиль
             </button>
-            <button 
-              class="nav-btn" 
-              [class.active]="activeTab === 'settings'"
-              (click)="setActiveTab('settings')">
-              ⚙️ Настройки
-            </button>
           </nav>
         </aside>
         
@@ -152,41 +146,9 @@
                   <span class="user-role">{{ user.role === 'ADMIN' ? 'Администратор' : 'Пользователь' }}</span>
                 </div>
               </div>
-              
-              <div class="profile-actions">
-                <button class="btn">Редактировать профиль</button>
-                <button class="btn btn-outline">Сменить пароль</button>
-              </div>
             </section>
           }
           
-          @if (activeTab === 'settings') {
-            <section class="settings-section">
-              <h2>Настройки</h2>
-              
-              <div class="settings-group">
-                <h3>Уведомления</h3>
-                <div class="setting-item">
-                  <label>
-                    <input type="checkbox" checked>
-                    Уведомления о новых сеансах
-                  </label>
-                </div>
-                <div class="setting-item">
-                  <label>
-                    <input type="checkbox" checked>
-                    Напоминание о бронировании
-                  </label>
-                </div>
-              </div>
-              
-              <div class="settings-group">
-                <h3>Безопасность</h3>
-                <button class="btn btn-outline">Сменить пароль</button>
-                <button class="btn btn-outline">Выйти из всех устройств</button>
-              </div>
-            </section>
-          }
         </main>
       </div>
     }

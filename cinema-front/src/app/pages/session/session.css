@@ -1,4 +1,7 @@
 /* pages/session/session.component.css */
+
+
+
 .session-container {
   min-height: 100vh;
   background: #1a1a1a;
@@ -129,6 +132,9 @@ h1 {
   padding: 2rem;
   border-radius: 8px;
   border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем по горизонтали */
 }
 
 .screen {
@@ -142,10 +148,17 @@ h1 {
   letter-spacing: 2px;
   text-transform: uppercase;
   border: 1px solid #666;
+  width: calc(60px * var(--seats-per-row, 10) + 4px * (var(--seats-per-row, 10) - 1)); /* Адаптивная ширина */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .seat-map {
   margin-bottom: 2rem;
+  width: auto; /* Убираем фиксированную ширину */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Центрируем всю карту мест */
 }
 
 .row {
@@ -153,6 +166,8 @@ h1 {
   align-items: center;
   gap: 4px;
   margin-bottom: 8px;
+  justify-content: flex-start; /* Выравнивание по левому краю */
+  width: fit-content; /* Ширина по содержимому */
 }
 
 .row-number {
@@ -160,6 +175,7 @@ h1 {
   color: #888;
   font-size: 0.9rem;
   text-align: center;
+  flex-shrink: 0; /* Запрещаем сжатие */
 }
 
 .seat {
@@ -175,7 +191,9 @@ h1 {
   transition: all 0.2s;
   user-select: none;
   border: 2px solid transparent;
+  flex-shrink: 0; /* Запрещаем сжатие мест */
 }
+
 
 .seat:hover:not(.taken) {
   transform: scale(1.05);
@@ -261,7 +279,7 @@ h1 {
 }
 
 .box.taken {
-  background-color: #444;
+  background-color: #444444;
   border-color: #555;
 }
 
