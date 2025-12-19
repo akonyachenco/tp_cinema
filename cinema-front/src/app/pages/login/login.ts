@@ -9,12 +9,13 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.html',
    imports: [
     ReactiveFormsModule, // ← ДОБАВИТЬ для formGroup
     CommonModule,
     RouterModule
   ],
+  templateUrl: './login.html',
+  styleUrls: ['./login.css']
 })
 export class LoginComponent {
   loginForm: FormGroup;
