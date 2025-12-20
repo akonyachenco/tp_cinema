@@ -1,3 +1,4 @@
+<!-- home.html -->
 <div class="page-wrapper">
   <section class="container">
     <h1>🎬 Афиша кинотеатра</h1>
@@ -20,10 +21,11 @@
             </span>
           </button>
 
-          <button class="btn" [class.active]="activeFilter === 'upcoming'" (click)="setFilter('upcoming')">
-            Скоро
-            <span class="badge" *ngIf="getUpcomingSessionCount() > 0">
-              {{ getUpcomingSessionCount() }}
+          <!-- Изменяем на "На неделю" -->
+          <button class="btn" [class.active]="activeFilter === 'week'" (click)="setFilter('week')">
+            На неделю
+            <span class="badge" *ngIf="getWeekSessionCount() > 0">
+              {{ getWeekSessionCount() }}
             </span>
           </button>
 
@@ -69,6 +71,12 @@
                 ></app-movie-card>
               }
             </section>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-icon">📅</div>
+              <h3>Нет сеансов на выбранную дату</h3>
+              <p>Попробуйте выбрать другой период</p>
+            </div>
           }
         }
       </div>

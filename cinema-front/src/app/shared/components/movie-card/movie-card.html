@@ -1,103 +1,105 @@
 <div class="movie-card">
-  <!-- Постер фильма -->
-  <div class="poster-container">
-    @if (movie.posterUrl) {
-      <img
-        [src]="movie.posterUrl"
-        [alt]="movie.title"
-        class="poster"
-        (error)="onImageError($event)"
-        loading="lazy"
-      >
-    } @else {
-      <div class="poster-placeholder">🎬</div>
-    }
+  <!-- Левая часть - постер -->
+  <div class="poster-side">
+    <div class="poster-container">
+      @if (movie.posterUrl) {
+        <img
+          [src]="movie.posterUrl"
+          [alt]="movie.title"
+          class="poster"
+          (error)="onImageError($event)"
+          loading="lazy"
+        >
+      } @else {
+        <div class="poster-placeholder">🎬</div>
+      }
 
-    <!-- Возрастной рейтинг -->
-    <div class="age-rating">
-      {{ movie.ageRating }}
-    </div>
-
-    <!-- Год выпуска -->
-    <div class="year-badge">
-      {{ getYear(movie.releaseDate) }}
+      <!-- Бейджи на постере -->
+      <div class="poster-overlay">
+        <div class="age-rating">
+          {{ movie.ageRating }}
+        </div>
+        <div class="year-badge">
+          {{ getYear(movie.releaseDate) }}
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Информация о фильме -->
-  <div class="movie-info">
-    <h3 class="movie-title">{{ movie.title }}</h3>
+  <!-- Правая часть - информация -->
+  <div class="info-side">
+    <!-- Заголовок и мета-информация -->
+    <div class="movie-header">
+      <h3 class="movie-title">{{ movie.title }}</h3>
+
+      <div class="movie-meta">
+        <div class="meta-item">
+          <span class="meta-icon">⏱️</span>
+          <span>{{ movie.duration }} мин.</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Жанры -->
-    <div class="genres">
-      @for (genre of movie.genres; track genre) {
-        <span class="genre-tag">{{ genre }}</span>
-      }
-    </div>
-
-    <!-- Длительность -->
-    <div class="duration">
-      <span class="icon">⏱️</span>
-      <span>{{ movie.duration }} мин.</span>
-    </div>
-
-    <!-- Описание (если есть) -->
-    @if (movie.description) {
-      <p class="description">
-        {{ truncateDescription(movie.description) }}
-      </p>
+    @if (movie.genres && movie.genres.length > 0) {
+      <div class="genres-section">
+        <div class="genres">
+          @for (genre of movie.genres; track genre) {
+            <span class="genre-tag">{{ genre }}</span>
+          }
+        </div>
+      </div>
     }
-  </div>
 
-  <!-- Сеансы (показываем только если включено) -->
-  @if (showSessions) {
-    <div class="sessions-section">
-      @if (hasSessions) {
-        <h4 class="sessions-title">Доступные сеансы:</h4>
 
-        @for (sessionGroup of sessionDates; track sessionGroup.date) {
-          <div class="session-date-group">
-            <div class="date-header">
-              <span class="date-label">
-                @if (sessionGroup.date === 'Скоро') {
-                  Скоро
-                } @else {
-                  {{ sessionGroup.date | date:'dd.MM.yyyy' }}
-                }
-              </span>
-              <span class="session-count">
-                {{ sessionGroup.sessions.length }}
-              </span>
-            </div>
+    <!-- Сеансы -->
+    @if (showSessions) {
+      <div class="sessions-section">
+        <div class="sessions-header">
+          <h4 class="sessions-title">Доступные сеансы</h4>
+        </div>
 
-            <div class="session-times">
-              @for (session of sessionGroup.sessions; track session.sessionId) {
-                <a
-                  [routerLink]="['/session', session.sessionId]"
-                  class="session-time-btn"
-                  [title]="'Билеты на ' + formatSessionTime(session.dateTime)"
-                >
-                  {{ formatSessionTime(session.dateTime) }}
-                </a>
-              }
-            </div>
+        @if (hasSessions && sessionDates && sessionDates.length > 0) {
+          <!-- Навигация по датам -->
+          <div class="session-dates">
+            @for (sessionGroup of sessionDates; track sessionGroup.date) {
+              <div class="session-date-group">
+                <div class="date-header">
+                  <span class="date-label">
+                    {{ sessionGroup.date | date:'dd.MM.yyyy' }}
+                  </span>
+                </div>
+
+                <div class="session-times">
+                  @for (session of sessionGroup.sessions; track session.sessionId) {
+                    <a
+                      [routerLink]="['/session', session.sessionId]"
+                      class="session-time-btn"
+                      [title]="'Билеты на ' + formatSessionTime(session.dateTime)"
+                    >
+                      {{ formatSessionTime(session.dateTime) }}
+                    </a>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-sessions">
+            <p>🎭 Нет доступных сеансов</p>
           </div>
         }
-      } @else {
-        <div class="no-sessions">
-          <p>🎭 Нет доступных сеансов</p>
-        </div>
-      }
-    </div>
-  }
+      </div>
+    }
 
-  <!-- Кнопка подробнее -->
-  <div class="actions">
-    <a
-      [routerLink]="['/movie', movie.filmId]"
-      class="details-btn"
-    >
-      Подробнее о фильме
-    </a>
+    <!-- Кнопка подробнее -->
+    <div class="movie-actions">
+      <a
+        [routerLink]="['/movie', movie.filmId]"
+        class="details-btn"
+      >
+        Подробнее о фильме
+      </a>
+    </div>
   </div>
 </div>

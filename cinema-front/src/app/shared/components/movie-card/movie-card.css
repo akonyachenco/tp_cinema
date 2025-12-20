@@ -1,38 +1,52 @@
-/* movie-card.css */
+/* movie-card.css - Горизонтальный дизайн */
 .movie-card {
-  background: white;
-  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
   display: flex;
-  flex-direction: column;
+  min-height: 360px;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .movie-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px) scale(1.005);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 
-/* Контейнер постера */
+/* Левая часть - постер */
+.poster-side {
+  flex: 0 0 280px;
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
 .poster-container {
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 100%;
   overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .poster {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .movie-card:hover .poster {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .poster-placeholder {
@@ -43,303 +57,401 @@
   justify-content: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 4rem;
+  font-size: 3.5rem;
+  border-radius: 12px;
 }
 
 /* Бейджи на постере */
-.age-rating {
+.poster-overlay {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(231, 76, 60, 0.95);
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+}
+
+.age-rating {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 25px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1rem;
   backdrop-filter: blur(10px);
   line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .year-badge {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(52, 152, 219, 0.95);
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 25px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   backdrop-filter: blur(10px);
   line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Информация о фильме */
-.movie-info {
-  padding: 1.5rem;
-  flex-grow: 1;
+/* Правая часть - информация */
+.info-side {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Для корректного обрезания текста */
+}
+
+/* Заголовок и основная информация */
+.movie-header {
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 1rem;
 }
 
 .movie-title {
   margin: 0 0 1rem 0;
-  font-size: 1.4rem;
-  color: #1a365d; /* Более насыщенный синий для заголовка */
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.3px;
+  font-size: 1.8rem;
+  color: #1a365d;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.movie-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4a5568;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.meta-icon {
+  font-size: 1.1rem;
+  opacity: 0.8;
 }
 
 /* Жанры */
+.genres-section {
+  margin-bottom: 1.5rem;
+}
+
 .genres {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
 }
 
 .genre-tag {
-  background: #f0f9ff; /* Светло-голубой фон для лучшего контраста */
-  color: #1e40af; /* Насыщенный синий для текста */
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600; /* Полужирный для лучшей читаемости */
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  color: #1e40af;
+  padding: 8px 16px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
   border: 1px solid #dbeafe;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   line-height: 1.2;
+  cursor: pointer;
 }
 
 .genre-tag:hover {
-  background: #1e40af;
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   color: white;
-  border-color: #1e40af;
-}
-
-/* Длительность */
-.duration {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #2d3748; /* Темно-серый вместо светло-серого */
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-  font-weight: 500; /* Немного жирнее для лучшей читаемости */
-}
-
-.duration .icon {
-  font-size: 1rem;
-  opacity: 0.9; /* Увеличил непрозрачность */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(30, 64, 175, 0.2);
 }
 
 /* Описание */
+.description-section {
+  flex: 1;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
 .description {
-  color: #4a5568; /* Более насыщенный серый для лучшей читаемости */
+  color: #2d3748;
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.7;
   margin: 0;
   font-weight: 400;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Сеансы */
 .sessions-section {
-  padding: 0 1.5rem 1.5rem;
-  border-top: 1px solid #e2e8f0;
   margin-top: auto;
+  border-top: 2px solid rgba(0, 0, 0, 0.05);
+  padding-top: 1.5rem;
 }
 
-.sessions-title {
-  font-size: 1.1rem;
-  color: #d0b4ff; /* Более насыщенный цвет */
-  margin: 0 0 1rem 0;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.session-date-group {
-  margin-bottom: 1.25rem;
-  background: #f7fafc;
-  border-radius: 10px;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-}
-
-.session-date-group:last-child {
-  margin-bottom: 0;
-}
-
-.date-header {
+.sessions-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.date-label {
+.sessions-title {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sessions-title::before {
+  content: '🎬';
+  font-size: 1.1rem;
+}
+
+.session-dates {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.session-date-btn {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   font-weight: 600;
-  color: #2d3748; /* Более насыщенный цвет */
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: fit-content;
 }
 
-.session-count {
-  background: #e6fffa;
-  color: #2c7a7b;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 600; /* Полужирный для лучшей видимости */
-  line-height: 1.2;
+.session-date-btn:hover {
+  border-color: #4299e1;
+  color: #4299e1;
+}
+
+.session-date-btn.active {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  border-color: #4299e1;
+  color: white;
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
 }
 
 .session-times {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 0.75rem;
 }
 
 .session-time-btn {
-  display: inline-block;
-  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
   background: white;
   color: #2b6cb0;
   border: 2px solid #2b6cb0;
-  border-radius: 8px;
+  border-radius: 10px;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
-  text-align: center;
-  min-width: 70px;
-  line-height: 1.3;
+  min-height: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.session-time-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .session-time-btn:hover {
-  background: #2b6cb0;
+  background: linear-gradient(135deg, #2b6cb0 0%, #1e4e8c 100%);
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(43, 108, 176, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(43, 108, 176, 0.3);
+  border-color: transparent;
 }
 
-/* Состояние без сеансов */
-.no-sessions {
-  text-align: center;
-  padding: 1.5rem;
-  background: #f7fafc;
-  border-radius: 10px;
-  margin: 1rem 0;
+.session-time-btn:hover::before {
+  left: 100%;
 }
 
-.no-sessions p {
-  color: #4a5568; /* Более насыщенный серый */
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  font-weight: 500;
-}
-
-/* Кнопка подробнее - УБИРАЕМ ПРИЖАТИЕ К ПРАВОМУ КРАЮ */
-.actions {
-  padding: 0 1.5rem 1.5rem;
+/* Кнопка подробнее */
+.movie-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid rgba(0, 0, 0, 0.05);
   display: flex;
-  justify-content: center; /* Центрируем кнопку */
+  justify-content: center;
 }
 
 .details-btn {
-  display: inline-block; /* Меняем с block на inline-block */
-  width: auto; /* Убираем ширину 100% */
-  padding: 12px 24px; /* Добавляем горизонтальный padding */
-  background: linear-gradient(135deg, #3498db, #2ecc71);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
   color: white;
-  text-align: center;
   text-decoration: none;
-  border-radius: 10px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   font-size: 1rem;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: none;
   cursor: pointer;
-  line-height: 1.4;
-  letter-spacing: 0.3px;
-  min-width: 200px; /* Минимальная ширина для хорошего вида */
+  min-width: 240px;
+  position: relative;
+  overflow: hidden;
+}
+
+.details-btn::after {
+  content: '→';
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
 }
 
 .details-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(52, 152, 219, 0.4);
+  background: linear-gradient(135deg, #2980b9 0%, #27ae60 100%);
+}
+
+.details-btn:hover::after {
+  transform: translateX(5px);
 }
 
 /* Адаптивность */
-@media (max-width: 768px) {
-  .poster-container {
-    height: 280px;
+@media (max-width: 1200px) {
+  .poster-side {
+    flex: 0 0 240px;
+  }
+}
+
+@media (max-width: 992px) {
+  .movie-card {
+    flex-direction: column;
+    min-height: auto;
   }
 
-  .movie-info {
-    padding: 1.25rem;
+  .poster-side {
+    flex: none;
+    height: 280px;
+    padding: 1.5rem;
+  }
+
+  .info-side {
+    padding: 1.5rem;
+  }
+
+  .session-times {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .poster-side {
+    height: 250px;
   }
 
   .movie-title {
-    font-size: 1.25rem;
-    line-height: 1.3;
+    font-size: 1.5rem;
   }
 
-  .sessions-section {
-    padding: 0 1.25rem 1.25rem;
+  .movie-meta {
+    gap: 1rem;
   }
 
-  .actions {
-    padding: 0 1.25rem 1.25rem;
+  .session-dates {
+    flex-wrap: wrap;
+  }
+
+  .session-times {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
   }
 
   .session-time-btn {
-    padding: 7px 12px;
-    font-size: 0.85rem;
-    min-width: 65px;
+    padding: 10px;
+    font-size: 0.9rem;
+    min-height: 44px;
   }
 
-  .description {
-    font-size: 0.9rem;
-    line-height: 1.5;
+  .details-btn {
+    min-width: 200px;
+    padding: 12px 24px;
   }
 }
 
 @media (max-width: 576px) {
-  .poster-container {
-    height: 250px;
-  }
-
-  .movie-info {
+  .poster-side {
+    height: 220px;
     padding: 1rem;
   }
 
-  .sessions-section {
-    padding: 0 1rem 1rem;
-  }
-
-  .actions {
-    padding: 0 1rem 1rem;
-  }
-
-  .session-date-group {
-    padding: 0.75rem;
+  .info-side {
+    padding: 1.25rem;
   }
 
   .movie-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 
-  .genre-tag {
-    font-size: 0.8rem;
-    padding: 5px 10px;
+  .movie-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .genres {
+    justify-content: center;
+  }
+
+  .session-dates {
+    justify-content: center;
+  }
+
+  .session-times {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .details-btn {
-    width: 100%; /* На маленьких экранах делаем на всю ширину */
+    width: 100%;
     min-width: auto;
   }
 }
@@ -347,70 +459,187 @@
 /* Темная тема */
 @media (prefers-color-scheme: dark) {
   .movie-card {
-    background: #1a202c;
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border-color: #4a5568;
+  }
+
+  .poster-side {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   }
 
   .movie-title {
     color: #f7fafc;
   }
 
-  .description {
-    color: #e2e8f0; /* Более светлый цвет для темной темы */
+  .meta-item {
+    color: #cbd5e0;
   }
 
   .genre-tag {
-    background: #2d3748;
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
     color: #90cdf4;
     border-color: #4a5568;
   }
 
   .genre-tag:hover {
-    background: #4299e1;
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
     color: white;
   }
 
-  .duration {
-    color: #cbd5e0;
+  .description {
+    color: #e2e8f0;
   }
 
-  .sessions-section {
-    border-top-color: #4a5568;
-  }
-
-  .session-date-group {
-    background: #2d3748;
-    border-color: #4a5568;
-  }
-
-  .date-label {
+  .sessions-title {
     color: #f7fafc;
   }
 
-  .session-count {
-    background: #1a202c;
-    color: #81e6d9;
+  .session-date-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #cbd5e0;
+  }
+
+  .session-date-btn:hover {
+    border-color: #4299e1;
+    color: #4299e1;
+  }
+
+  .session-date-btn.active {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
   }
 
   .session-time-btn {
-    background: #2d3748;
+    background: #374151;
     color: #90cdf4;
     border-color: #4299e1;
   }
 
   .session-time-btn:hover {
-    background: #4299e1;
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
     color: white;
   }
 
-  .no-sessions {
-    background: #2d3748;
-  }
-
-  .no-sessions p {
-    color: #cbd5e0;
-  }
-
   .details-btn {
-    background: linear-gradient(135deg, #4299e1, #48bb78);
+    background: linear-gradient(135deg, #4299e1 0%, #48bb78 100%);
+  }
+
+  .details-btn:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #38a169 100%);
+  }
+
+  /* Добавьте этот стиль в movie-card.css после существующих стилей для session-times */
+
+  /* Обновленные стили для сеансов в горизонтальном дизайне */
+  .session-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+
+  .session-date-group {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .session-date-group:hover {
+    background: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+
+  .date-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .date-label {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1rem;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .date-label::before {
+    content: '📅';
+    font-size: 0.9rem;
+  }
+
+  /* Прячем оригинальный .sessions-title и .session-count,
+     если они есть в оригинальном CSS, чтобы не было конфликтов */
+  .sessions-title {
+    display: none;
+  }
+
+  /* Адаптивные стили */
+  @media (max-width: 768px) {
+    .session-dates {
+      max-height: 150px;
+    }
+
+    .session-date-group {
+      padding: 0.75rem;
+    }
+  }
+
+  /* Темная тема для сеансов */
+  @media (prefers-color-scheme: dark) {
+    .session-date-group {
+      background: rgba(55, 65, 81, 0.8);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .session-date-group:hover {
+      background: #374151;
+      border-color: rgba(66, 153, 225, 0.3);
+    }
+
+    .date-header {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .date-label {
+      color: #f7fafc;
+    }
+  }
+
+  /* Стилизация скроллбара для session-dates */
+  .session-dates::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .session-dates::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  .session-dates::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    border-radius: 10px;
+  }
+
+  .session-dates::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2980b9, #27ae60);
+  }
+
+  /* Границы в темной теме */
+  .movie-header,
+  .sessions-section,
+  .movie-actions {
+    border-color: rgba(255, 255, 255, 0.1);
   }
 }

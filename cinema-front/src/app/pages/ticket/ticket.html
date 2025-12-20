@@ -171,7 +171,7 @@
             </div>
 
             <div class="actions-right">
-              @if (booking.status === 'active' && canCancel()) {
+              @if (booking.status === 'Активно' && canCancel()) {
                 <button class="btn btn-danger" (click)="cancelBooking()">
                   ❌ Отменить бронирование
                 </button>

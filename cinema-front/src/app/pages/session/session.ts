@@ -354,7 +354,7 @@ export class SessionComponent implements OnInit {
       sessionId: this.sessionId,
       bookingTime: new Date().toISOString(),
       totalCost: this.getTotalPrice(),
-      status: 'active'
+      status: 'Активно'
     };
 
     console.log('Создаем бронирование:', bookingData);

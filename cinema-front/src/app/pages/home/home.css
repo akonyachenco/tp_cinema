@@ -3,27 +3,28 @@
 /* Основные стили страницы */
 .page-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding-bottom: 4rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 2rem 0 4rem;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 /* Заголовок */
 h1 {
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin: 2rem 0 2.5rem;
+  font-size: 2.8rem;
+  color: #1a365d;
+  margin: 0 0 2rem 0;
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
   position: relative;
-  padding-bottom: 1rem;
+  padding-bottom: 1.5rem;
   line-height: 1.2;
   letter-spacing: -0.5px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 h1::after {
@@ -32,40 +33,55 @@ h1::after {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(to right, #3498db, #2ecc71);
-  border-radius: 2px;
+  width: 200px;
+  height: 6px;
+  background: linear-gradient(to right, #3498db, #2ecc71, #9b59b6);
+  border-radius: 3px;
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Фильтры */
+.filters-section {
+  margin-bottom: 3rem;
+}
+
 .filters {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-bottom: 3rem;
   flex-wrap: wrap;
-  padding: 1rem;
+  padding: 1.5rem;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn {
-  padding: 0.85rem 2rem;
+  padding: 1rem 2rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 15px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
   z-index: 1;
-  min-width: 160px;
+  min-width: 170px;
   letter-spacing: 0.5px;
   line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
 .btn::before {
@@ -78,7 +94,8 @@ h1::after {
   background: linear-gradient(135deg, #3498db, #2ecc71);
   z-index: -1;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
+  border-radius: 15px;
 }
 
 .btn.active::before {
@@ -87,72 +104,110 @@ h1::after {
 
 .btn.active {
   color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(52, 152, 219, 0.3);
 }
 
 .btn:not(.active) {
   background: white;
-  color: #2c3e50;
-  border: 2px solid #e8e8e8;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
 }
 
 .btn:not(.active):hover {
   border-color: #3498db;
   color: #3498db;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
 }
 
-/* Состояние загрузки */
+/* Бейджи для счетчиков */
+.badge {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
+}
+
+/* Контейнер карточек фильмов */
+.posters {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Загрузка */
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 6rem 2rem;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin: 2rem 0;
+  border-radius: 25px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  margin: 3rem 0;
   animation: fadeIn 0.5s ease;
 }
 
 .spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(52, 152, 219, 0.1);
-  border-top: 4px solid #3498db;
+  width: 70px;
+  height: 70px;
+  border: 5px solid rgba(52, 152, 219, 0.1);
+  border-top: 5px solid #3498db;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1.5rem;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 2rem;
 }
 
 .loading-state p {
   color: #2c3e50;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 600;
   margin: 0;
   line-height: 1.5;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 /* Пустое состояние */
 .empty-state {
   text-align: center;
-  padding: 5rem 2rem;
+  padding: 6rem 2rem;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin: 2rem 0;
+  border-radius: 25px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  margin: 3rem 0;
   animation: fadeIn 0.5s ease;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  opacity: 0.9;
+  animation: bounce 2s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 .empty-state h3 {
   color: #2c3e50;
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-bottom: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .empty-state p {
@@ -161,91 +216,150 @@ h1::after {
   margin: 0;
   line-height: 1.6;
   opacity: 0.9;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-/* Сетка постеров */
-.posters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-  animation: fadeIn 0.8s ease;
+/* Нет результатов фильтрации */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  margin: 3rem 0;
+  animation: fadeIn 0.5s ease;
+  border: 2px dashed #e8e8e8;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-/* Карточки фильмов */
-app-movie-card {
+.no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
   display: block;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.7;
 }
 
-app-movie-card:hover {
-  transform: translateY(-8px);
+.no-results h3 {
+  color: #5d6d7e;
+  margin: 0 0 1rem 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.no-results p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Адаптивность */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 100%;
+    padding: 0 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  h1 {
+    font-size: 2.4rem;
+  }
+
+  .filters {
+    padding: 1.25rem;
+  }
+
+  .btn {
+    min-width: 150px;
+    padding: 0.9rem 1.75rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1.25rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  h1::after {
+    width: 150px;
+  }
+
+  .filters {
+    gap: 0.75rem;
+    padding: 1.25rem;
+  }
+
+  .btn {
+    min-width: calc(50% - 0.75rem);
+    font-size: 0.95rem;
+    padding: 0.85rem 1.5rem;
+  }
+
+  .loading-state,
+  .empty-state,
+  .no-results {
+    padding: 4rem 1.5rem;
+    margin: 2rem 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-wrapper {
+    padding: 1.5rem 0 3rem;
+  }
+
   .container {
     padding: 0 1rem;
   }
 
   h1 {
-    font-size: 2rem;
-    margin: 1.5rem 0 2rem;
-    line-height: 1.3;
+    font-size: 1.8rem;
+    margin-bottom: 1.25rem;
   }
 
-  .filters {
-    gap: 0.75rem;
-    padding: 0.75rem;
+  h1::after {
+    width: 120px;
+    height: 5px;
   }
 
-  .btn {
-    min-width: 140px;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-
-  .posters {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .loading-state,
-  .empty-state {
-    padding: 3rem 1.5rem;
-    margin: 1.5rem 0;
-  }
-
-  .empty-state h3 {
-    font-size: 1.5rem;
-  }
-
-  .empty-state p {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 576px) {
   .filters {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
   }
 
   .btn {
     width: 100%;
     min-width: auto;
-    font-size: 0.95rem;
+    justify-content: center;
   }
 
-  .posters {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .badge {
+    min-width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
   }
 
-  h1 {
-    font-size: 1.8rem;
-    line-height: 1.4;
+  .empty-state h3,
+  .no-results h3 {
+    font-size: 1.4rem;
+  }
+
+  .empty-state p,
+  .no-results p {
+    font-size: 1rem;
   }
 }
 
@@ -253,7 +367,7 @@ app-movie-card:hover {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -269,146 +383,46 @@ app-movie-card:hover {
 /* Темная тема */
 @media (prefers-color-scheme: dark) {
   .page-wrapper {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   }
 
   h1 {
-    color: #ffffff;
+    color: #f1f5f9;
   }
 
   .filters {
-    background: rgba(30, 30, 46, 0.95);
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .btn:not(.active) {
-    background: #2d3748;
-    color: #e2e8f0;
-    border-color: #4a5568;
+    background: #1e293b;
+    color: #cbd5e0;
+    border-color: #475569;
   }
 
   .loading-state,
-  .empty-state {
-    background: #2d3748;
+  .empty-state,
+  .no-results {
+    background: #1e293b;
+    border-color: #475569;
+  }
+
+  .loading-state p {
+    color: #e2e8f0;
   }
 
   .empty-state h3 {
-    color: #e2e8f0;
+    color: #f1f5f9;
   }
 
   .empty-state p {
     color: #cbd5e0;
   }
 
-  .loading-state p {
-    color: #e2e8f0;
-  }
-}
-
-/* Бейджи для счетчиков сеансов */
-.badge {
-  background: #e74c3c;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-/* Фикс для сетки карточек */
-.posters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  align-items: stretch;
-}
-
-.posters app-movie-card {
-  display: flex;
-  height: 100%;
-}
-
-/* Гарантируем что карточки имеют одинаковую высоту в строке */
-.posters {
-  grid-auto-rows: 1fr;
-}
-
-.posters > * {
-  min-height: 550px;
-}
-
-/* Адаптивность для сетки */
-@media (max-width: 768px) {
-  .posters {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .posters > * {
-    min-height: 500px;
-  }
-}
-
-@media (max-width: 576px) {
-  .posters {
-    grid-template-columns: 1fr;
-  }
-
-  .posters > * {
-    min-height: auto;
-  }
-}
-
-/* Улучшенные стили для кнопок фильтров */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-/* Стили для состояния "нет результатов" */
-.no-results {
-  text-align: center;
-  padding: 3rem 2rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin: 2rem 0;
-  animation: fadeIn 0.5s ease;
-  border: 2px dashed #e8e8e8;
-}
-
-.no-results h3 {
-  color: #5d6d7e;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.no-results p {
-  color: #7f8c8d;
-  font-size: 1rem;
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* Стили для иконок в заголовках */
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  display: block;
-  opacity: 0.7;
-}
-
-/* Темная тема для нет результатов */
-@media (prefers-color-scheme: dark) {
   .no-results {
-    background: #2d3748;
-    border-color: #4a5568;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #475569;
   }
 
   .no-results h3 {
@@ -416,6 +430,6 @@ app-movie-card:hover {
   }
 
   .no-results p {
-    color: #cbd5e0;
+    color: #94a3b8;
   }
 }

@@ -44,7 +44,7 @@ export class TicketComponent implements OnInit {
     this.route.params.subscribe(params => {
       const ticketId = +params['id'];
       const bookingId = params['bookingId'] ? +params['bookingId'] : null;
-      
+
       if (ticketId) {
         this.loadTicket(ticketId);
       } else if (bookingId) {
@@ -62,7 +62,7 @@ export class TicketComponent implements OnInit {
   loadTicket(ticketId: number): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     this.ticketService.getTicketById(ticketId).subscribe({
       next: (ticket) => {
         this.tickets = [ticket];
@@ -80,7 +80,7 @@ export class TicketComponent implements OnInit {
     this.bookingService.getBookingById(bookingId).subscribe({
       next: (booking) => {
         this.booking = booking;
-        
+
         // Загружаем все билеты бронирования
         if (booking.ticketList && booking.ticketList.length > 0) {
           this.tickets = booking.ticketList;
@@ -90,15 +90,15 @@ export class TicketComponent implements OnInit {
           // Если билеты не пришли с бронированием, загружаем отдельно
           this.loadTicketsByBooking(bookingId);
         }
-        
+
         // Загружаем дополнительную информацию
         if (booking.sessionId) {
           this.loadSession(booking.sessionId);
         }
-        
+
         // Загружаем информацию о пользователе
         this.user = this.authService.getCurrentUser();
-        
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -127,12 +127,12 @@ export class TicketComponent implements OnInit {
     this.sessionService.getSessionById(sessionId).subscribe({
       next: (session) => {
         this.session = session;
-        
+
         // Загружаем информацию о фильме
         if (session.filmId) {
           this.loadMovie(session.filmId);
         }
-        
+
         // Загружаем информацию о зале
         if (session.hallId) {
           this.loadHall(session.hallId);
@@ -189,7 +189,7 @@ export class TicketComponent implements OnInit {
       this.seatInfo.set(seat.seatId, {
         row: seat.rowNumber,
         number: seat.seatNumber,
-        type: seat.seatType === 'vip' ? 'VIP' : 
+        type: seat.seatType === 'vip' ? 'VIP' :
                seat.seatType === 'blocked' ? 'Заблокировано' : 'Стандарт'
       });
     });
@@ -203,10 +203,10 @@ export class TicketComponent implements OnInit {
   // Методы для отображения данных
   getSeatInfo(seatId: number): { row: number, number: number, type: string } {
     const info = this.seatInfo.get(seatId);
-    return info || { 
-      row: Math.floor(seatId / 10) + 1, 
-      number: seatId % 10 || 10, 
-      type: 'Стандарт' 
+    return info || {
+      row: Math.floor(seatId / 10) + 1,
+      number: seatId % 10 || 10,
+      type: 'Стандарт'
     };
   }
 
@@ -272,9 +272,9 @@ export class TicketComponent implements OnInit {
     if (!this.currentTicket || !this.movie || !this.session) {
       return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Загрузка...';
     }
-    
+
     const ticketData = `Кинотеатр\nБилет: ${this.currentTicket.ticketCode}\nФильм: ${this.movie.title}\nСеанс: ${this.formatDateTime(this.session.dateTime)}\nМесто: Ряд ${this.getSeatInfo(this.currentTicket.seatId).row}, Место ${this.getSeatInfo(this.currentTicket.seatId).number}`;
-    
+
     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(ticketData)}`;
   }
 
@@ -309,7 +309,7 @@ export class TicketComponent implements OnInit {
 
   downloadPdf(): void {
     if (!this.currentTicket) return;
-    
+
     this.ticketService.generateTicketPdf(this.currentTicket.ticketId).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -335,13 +335,13 @@ export class TicketComponent implements OnInit {
   }
 
   canCancel(): boolean {
-    if (!this.booking || this.booking.status !== 'active' || !this.session) return false;
-    
+    if (!this.booking || this.booking.status !== 'Активно' || !this.session) return false;
+
     try {
       const sessionTime = new Date(this.session.dateTime);
       const now = new Date();
       const hoursDiff = (sessionTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-      
+
       return hoursDiff > 1;
     } catch (error) {
       return false;
@@ -350,7 +350,7 @@ export class TicketComponent implements OnInit {
 
   cancelBooking(): void {
     if (!this.booking) return;
-    
+
     if (confirm('Вы уверены, что хотите отменить бронирование? Средства будут возвращены на карту в течение 3-5 дней.')) {
       this.bookingService.cancelBooking(this.booking.bookingId).subscribe({
         next: () => {

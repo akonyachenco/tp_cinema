@@ -18,7 +18,8 @@ export class MovieCardComponent {
   @Input() movie!: FilmDto;
   @Input() showSessions: boolean = false;
   @Input() sessionDates: {date: string, sessions: SessionDto[]}[] = [];
-  @Input() activeFilter: 'today' | 'tomorrow' | 'upcoming' | 'all' = 'all';
+  // Изменяем тип на 'week'
+  @Input() activeFilter: 'today' | 'tomorrow' | 'week' | 'all' = 'all';
 
   // Обработчик ошибки загрузки изображения
   onImageError(event: Event): void {

@@ -55,7 +55,7 @@ public class BookingService {
         }
 
         // 5. Проверка, что сеанс не отменен
-        if ("CANCELLED".equals(session.getStatus())) {
+        if ("Отменен".equals(session.getStatus())) {
             throw new IllegalArgumentException("Сеанс отменен");
         }
 

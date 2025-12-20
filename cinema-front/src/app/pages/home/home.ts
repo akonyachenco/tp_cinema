@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
   movies: FilmDto[] = [];
   filteredMovies: FilmDto[] = [];
   isLoading = true;
-  activeFilter: 'today' | 'tomorrow' | 'upcoming' | 'all' = 'today';
+  activeFilter: 'today' | 'tomorrow' | 'week' | 'all' = 'today';
 
   constructor(private movieService: MovieService) {}
 
@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'today' | 'tomorrow' | 'upcoming' | 'all'): void {
+  setFilter(filter: 'today' | 'tomorrow' | 'week' | 'all'): void {
     this.activeFilter = filter;
 
     const now = new Date();
@@ -59,34 +59,35 @@ export class HomeComponent implements OnInit {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = this.formatDate(tomorrow);
 
-    const dayAfterTomorrow = new Date(now);
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = this.formatDate(dayAfterTomorrow);
+    // Получаем дату через 7 дней
+    const weekLater = new Date(now);
+    weekLater.setDate(weekLater.getDate() + 7);
+    const weekLaterStr = this.formatDate(weekLater);
 
     console.log('🗓️ Даты для фильтрации:', {
       сегодня: todayStr,
       завтра: tomorrowStr,
-      послезавтра: dayAfterTomorrowStr
+      через_7_дней: weekLaterStr
     });
 
     switch(filter) {
       case 'today':
         this.filteredMovies = this.movies.filter(movie =>
-          this.hasSessionOnDate(movie, todayStr) &&
           this.hasFutureSessionsOnDate(movie, todayStr)
         );
         break;
 
       case 'tomorrow':
         this.filteredMovies = this.movies.filter(movie =>
-          this.hasSessionOnDate(movie, tomorrowStr) &&
-          this.hasFutureSessionsOnDate(movie, tomorrowStr)
+          this.hasSessionOnDate(movie, tomorrowStr)
         );
         break;
 
-      case 'upcoming':
+      case 'week':
+        // Показываем фильмы с сеансами в течение 7 дней от сегодня
+        // Включая сегодня и завтра
         this.filteredMovies = this.movies.filter(movie =>
-          this.hasFutureSession(movie, tomorrowStr)
+          this.hasSessionsInRange(movie, todayStr, weekLaterStr)
         );
         break;
 
@@ -140,10 +141,15 @@ export class HomeComponent implements OnInit {
     return count;
   }
 
-  getUpcomingSessionCount(): number {
-    const dayAfterTomorrow = new Date();
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = this.formatDate(dayAfterTomorrow);
+
+  getWeekSessionCount(): number {
+    const now = new Date();
+    const todayStr = this.formatDate(now);
+
+    const weekLater = new Date(now);
+    weekLater.setDate(weekLater.getDate() + 7);
+    const weekLaterStr = this.formatDate(weekLater);
+
     let count = 0;
     this.movies.forEach(movie => {
       if (movie.sessionList) {
@@ -151,7 +157,7 @@ export class HomeComponent implements OnInit {
           if (!session.dateTime) return false;
           const sessionDate = new Date(session.dateTime);
           const sessionDateStr = this.formatDate(sessionDate);
-          return sessionDateStr >= dayAfterTomorrowStr;
+          return sessionDateStr >= todayStr && sessionDateStr <= weekLaterStr;
         }).length;
       }
     });
@@ -163,21 +169,15 @@ export class HomeComponent implements OnInit {
 
     const now = new Date();
     const todayStr = this.formatDate(now);
-
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = this.formatDate(tomorrow);
-
-    const dayAfterTomorrow = new Date(now);
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = this.formatDate(dayAfterTomorrow);
+    const tomorrowStr = this.formatDate(this.getDateOffset(now, 1));
+    const weekLaterStr = this.formatDate(this.getDateOffset(now, 7));
 
     switch(this.activeFilter) {
       case 'today':
         return movie.sessionList.filter(session =>
           session.dateTime &&
           this.formatDate(new Date(session.dateTime)) === todayStr &&
-          new Date(session.dateTime) >= now // Только будущие сеансы
+          new Date(session.dateTime) >= now
         );
 
       case 'tomorrow':
@@ -186,12 +186,11 @@ export class HomeComponent implements OnInit {
           this.formatDate(new Date(session.dateTime)) === tomorrowStr
         );
 
-      case 'upcoming':
+      case 'week':
         return movie.sessionList.filter(session => {
           if (!session.dateTime) return false;
-          const sessionDate = new Date(session.dateTime);
-          const sessionDateStr = this.formatDate(sessionDate);
-          return sessionDateStr >= dayAfterTomorrowStr;
+          const sessionDateStr = this.formatDate(new Date(session.dateTime));
+          return sessionDateStr >= todayStr && sessionDateStr <= weekLaterStr;
         });
 
       default: // 'all'
@@ -215,7 +214,6 @@ export class HomeComponent implements OnInit {
       })
       .filter(date => date !== '');
 
-    // Уникальные даты, отсортированные
     return [...new Set(dates)].sort();
   }
 
@@ -237,7 +235,6 @@ export class HomeComponent implements OnInit {
       return [];
     }
 
-    // Группируем сеансы по датам
     const groupedSessions: {[key: string]: SessionDto[]} = {};
     sessions.forEach(session => {
       if (session.dateTime) {
@@ -249,7 +246,6 @@ export class HomeComponent implements OnInit {
       }
     });
 
-    // Преобразуем в массив и сортируем по дате
     return Object.keys(groupedSessions)
       .sort()
       .map(date => ({
@@ -268,7 +264,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // ================= PRIVATE METHODS =================
 
   private filterMoviesWithFutureSessions(movies: FilmDto[]): FilmDto[] {
     const now = new Date();
@@ -277,7 +272,6 @@ export class HomeComponent implements OnInit {
         return false;
       }
 
-      // Проверяем, есть ли хотя бы один будущий сеанс
       return movie.sessionList.some(session => {
         if (!session.dateTime) return false;
         return new Date(session.dateTime) >= now;
@@ -311,19 +305,21 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  private hasFutureSession(movie: FilmDto, tomorrowStr: string): boolean {
+  private hasSessionsInRange(movie: FilmDto, startDateStr: string, endDateStr: string): boolean {
     if (!movie.sessionList || movie.sessionList.length === 0) {
       return false;
     }
 
-    const dayAfterTomorrow = new Date();
-    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-    const dayAfterTomorrowStr = this.formatDate(dayAfterTomorrow);
-
+    const now = new Date();
     return movie.sessionList.some(session => {
       if (!session.dateTime) return false;
-      const sessionDateStr = this.formatDate(new Date(session.dateTime));
-      return sessionDateStr >= dayAfterTomorrowStr;
+      const sessionDate = new Date(session.dateTime);
+      const sessionDateStr = this.formatDate(sessionDate);
+
+      // Проверяем, что сеанс в диапазоне дат И является будущим сеансом
+      return sessionDateStr >= startDateStr &&
+        sessionDateStr <= endDateStr &&
+        sessionDate >= now;
     });
   }
 
@@ -345,4 +341,12 @@ export class HomeComponent implements OnInit {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
+
+  private getDateOffset(baseDate: Date, daysOffset: number): Date {
+    const newDate = new Date(baseDate);
+    newDate.setDate(newDate.getDate() + daysOffset);
+    return newDate;
+  }
+
+  // Удаляем старый метод getEndOfWeekDate, он больше не нужен
 }
