@@ -23,7 +23,7 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
   isLoading = true;
   activeDateFilter: 'today' | 'tomorrow' | 'week' = 'today';
   errorMessage = '';
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -51,7 +51,7 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
   loadMovieData(movieId: number): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     // Загружаем фильм, сеансы и информацию о режиссерах/странах параллельно
     forkJoin({
       movie: this.movieService.getMovieById(movieId),
@@ -71,10 +71,10 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
         this.sessions = sessions;
         this.directors = info.directors || [];
         this.countries = info.countries || [];
-        
+
         // Загружаем информацию о залах для сеансов
         this.loadHallsForSessions(sessions);
-        
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -88,7 +88,7 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
   loadHallsForSessions(sessions: SessionDto[]): void {
     // Собираем уникальные hallId из сеансов
     const uniqueHallIds = [...new Set(sessions.map(s => s.hallId))];
-    
+
     // Загружаем информацию о каждом зале
     uniqueHallIds.forEach(hallId => {
       this.hallService.getHallById(hallId)
@@ -104,19 +104,34 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+
+
   // Фильтрация сеансов по дате
   get filteredSessions(): SessionDto[] {
     if (!this.sessions.length) return [];
-    
+
     const now = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const weekLater = new Date();
     weekLater.setDate(weekLater.getDate() + 7);
-    
+
+    // Фильтруем сеансы по дате и статусу
     return this.sessions.filter(session => {
       const sessionDate = new Date(session.dateTime);
-      
+      const sessionStatus = session.status.toLowerCase();
+
+      // Исключаем сеансы с определенными статусами
+      if (sessionStatus === 'завершен' ||
+        sessionStatus === 'активен' ||
+        sessionStatus === 'отменен' ||
+        sessionStatus === 'completed' ||
+        sessionStatus === 'active' ||
+        sessionStatus === 'cancelled') {
+        return false;
+      }
+
+      // Фильтрация по дате
       switch(this.activeDateFilter) {
         case 'today':
           return sessionDate.toDateString() === now.toDateString();
@@ -140,9 +155,9 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
   formatSessionTime(dateTime: string): string {
     try {
       const date = new Date(dateTime);
-      return date.toLocaleTimeString('ru-RU', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      return date.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch (error) {
       return '--:--';
@@ -155,13 +170,13 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      
+
       if (date.toDateString() === today.toDateString()) {
         return 'Сегодня';
       } else if (date.toDateString() === tomorrow.toDateString()) {
         return 'Завтра';
       } else {
-        return date.toLocaleDateString('ru-RU', { 
+        return date.toLocaleDateString('ru-RU', {
           weekday: 'long',
           day: 'numeric',
           month: 'long'
@@ -226,7 +241,7 @@ export class MovieDetailComponent implements OnInit, OnDestroy {
     const upcoming = this.sessions
       .filter(s => new Date(s.dateTime) > new Date())
       .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
-    
+
     return upcoming.length > 0 ? upcoming[0] : null;
   }
 }

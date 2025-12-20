@@ -401,9 +401,6 @@
                   <strong>Email:</strong> {{ user.email }}
                 </div>
                 <div class="info-row">
-                  <strong>Дата рождения:</strong> {{ user.birthDate | date:'dd.MM.yyyy' }}
-                </div>
-                <div class="info-row">
                   <strong>Возраст:</strong> {{ getUserAge(user.birthDate) }} лет
                 </div>
                 <div class="info-row">

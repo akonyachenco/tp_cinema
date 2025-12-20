@@ -3,6 +3,7 @@ package tp.project.cinema.dto.Mapping;
 import org.mapstruct.*;
 import tp.project.cinema.dto.BookingDto;
 import tp.project.cinema.model.Booking;
+import tp.project.cinema.model.BookingStatus;
 import tp.project.cinema.model.Ticket;
 
 import java.math.BigDecimal;
@@ -47,15 +48,13 @@ public interface BookingMapping {
 
     @AfterMapping
     default void checkSessionStatus(@MappingTarget BookingDto bookingDto, Booking entity) {
-        if (!entity.getBookingStatus().getStatusName().equals("Отмена") && !entity.getBookingStatus().getStatusName().equals("Неактивно")) {
+        if (!bookingDto.getStatus().equals("Отмена") && !bookingDto.getStatus().equals("Неактивно")) {
             String status = entity.getSession().getStatus();
             switch (status) {
                 case "Отменен":
-                    entity.getBookingStatus().setStatusName("Отмена");
                     bookingDto.setStatus("Отмена");
                     break;
                 case "Завершен":
-                    entity.getBookingStatus().setStatusName("Неактивно");
                     bookingDto.setStatus("Неактивно");
                     break;
             }

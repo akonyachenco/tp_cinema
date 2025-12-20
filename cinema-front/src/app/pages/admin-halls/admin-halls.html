@@ -28,7 +28,6 @@
       <p>Тип: {{ hall.hallType | titlecase }}</p>
       <p>Рядов: {{ hall.rowsCount }}, мест в ряду: {{ hall.seatsPerRow }}</p>
       <p>Базовая цена: {{ hall.basePrice }} ₽</p>
-      <p>Статус: {{ hall.status === 'active' ? 'Активен' : 'Неактивен' }}</p>
 
       <div class="hall-actions">
         <button class="btn" (click)="editHall(hall.hallId)">Редактировать</button>

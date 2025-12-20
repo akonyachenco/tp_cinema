@@ -412,9 +412,12 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   formatSessionTime(sessionTime?: Date): string {
     if (!sessionTime) return 'Время не указано';
-    return sessionTime.toLocaleString('ru-RU', {
+    const sessionDate = new Date(sessionTime);
+
+    return sessionDate.toLocaleString('ru-RU', {
       day: 'numeric',
       month: 'long',
+      year:  'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -434,4 +437,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   isFilterActive(filter: string): boolean {
     return this.activeStatusFilter === filter;
   }
+
+
 }

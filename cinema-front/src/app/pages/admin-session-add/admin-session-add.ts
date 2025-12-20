@@ -20,19 +20,19 @@ export class AdminSessionAdd implements OnInit {
   movies: FilmDto[] = [];
   halls: HallDto[] = [];
   today: string = '';
-  
+
   // Режим редактирования
   isEditMode = false;
   sessionId: number | null = null;
   originalSession: SessionDto | null = null;
-  
+
   isLoading = false;
   isLoadingData = false;
   errorMessage = '';
   filmIdFromRoute: number | null = null;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private movieService: MovieService,
@@ -42,14 +42,14 @@ export class AdminSessionAdd implements OnInit {
 
   ngOnInit(): void {
     this.today = new Date().toISOString().split('T')[0];
-    
+
     // Получаем параметры из URL
     this.route.params.subscribe(params => {
       if (params['filmId']) {
         this.filmIdFromRoute = +params['filmId'];
       }
     });
-    
+
     // Проверяем режим редактирования через query параметры
     this.route.queryParams.subscribe(params => {
       if (params['edit'] && params['id']) {
@@ -77,7 +77,7 @@ export class AdminSessionAdd implements OnInit {
 
   loadMoviesAndHalls() {
     this.isLoadingData = true;
-    
+
     // Загружаем фильмы
     this.movieService.getAllMovies().subscribe({
       next: (movies) => {
@@ -90,7 +90,7 @@ export class AdminSessionAdd implements OnInit {
         this.isLoadingData = false;
       }
     });
-    
+
     // Загружаем залы
     this.hallService.getAllHalls().subscribe({
       next: (halls) => {
@@ -108,7 +108,7 @@ export class AdminSessionAdd implements OnInit {
   loadSessionForEdit(sessionId: number) {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     this.sessionService.getSessionById(sessionId).subscribe({
       next: (session) => {
         this.originalSession = session;
@@ -128,7 +128,7 @@ export class AdminSessionAdd implements OnInit {
     const dateTime = new Date(session.dateTime);
     const session_date = dateTime.toISOString().split('T')[0];
     const session_time = dateTime.toTimeString().slice(0, 5);
-    
+
     this.sessionForm = this.fb.group({
       filmId: [session.filmId, Validators.required],
       hallId: [session.hallId, Validators.required],
@@ -220,15 +220,15 @@ export class AdminSessionAdd implements OnInit {
   // Получить сообщение об ошибке для поля
   getFieldError(fieldName: string): string {
     const field = this.sessionForm.get(fieldName);
-    
+
     if (!field || !field.errors || !field.touched) {
       return '';
     }
-    
+
     if (field.errors['required']) {
       return 'Это поле обязательно для заполнения';
     }
-    
+
     return 'Неверное значение';
   }
 

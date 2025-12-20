@@ -376,19 +376,55 @@ h1 {
   .hall {
     flex-direction: column;
   }
-  
+
   .hall-info {
     flex: none;
     width: 100%;
   }
-  
+
   .seat {
     width: 35px;
     height: 30px;
     font-size: 0.8rem;
   }
-  
+
   .container {
     padding: 1rem;
   }
+}
+/* Добавьте в session.css */
+.selection-info {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #007bff;
+}
+
+.limit-info {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.warning-message {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  animation: fadeIn 0.3s;
+}
+
+.seat.disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background-color: #e9ecef !important;
+  border-color: #dee2e6 !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

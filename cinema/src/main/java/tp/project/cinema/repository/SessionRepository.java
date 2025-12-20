@@ -48,11 +48,21 @@ public interface SessionRepository extends JpaRepository<Session, Integer> {
 
     @Query("SELECT s FROM Session s WHERE s.hall.hallId = :hallId " +
             "AND s.dateTime BETWEEN :startTime AND :endTime " +
-            "AND s.status != 'CANCELLED'")
+            "AND s.status != 'Отменен'")
     List<Session> findConflictingSessions(
             @Param("hallId") Short hallId,
             @Param("startTime") LocalDateTime startTime,
             @Param("endTime") LocalDateTime endTime);
+
+
+    @Query("SELECT s FROM Session s WHERE s.hall.hallId = :hallId " +
+            "AND s.dateTime < :startTime " +
+            "AND s.status != 'CANCELLED' " +
+            "ORDER BY s.dateTime DESC " +
+            "LIMIT 1")
+    Optional<Session> findPreviousSession(
+            @Param("hallId") Short hallId,
+            @Param("startTime") LocalDateTime startTime);
 
     @Query("SELECT s FROM Session s WHERE s.dateTime BETWEEN :start AND :end " +
             "ORDER BY s.dateTime, s.hall.hallName")

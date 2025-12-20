@@ -117,15 +117,25 @@ public class SessionService {
             throw new IllegalArgumentException("ID фильма обязателен");
         }
 
+        Session previousSession = sessionRepository.findPreviousSession(
+                sessionDto.getHallId(),
+                sessionDto.getDateTime()
+        ).orElse(null);
+
+        if (previousSession != null && previousSession.getDateTime().plusMinutes(
+                previousSession.getFilm().getDuration() + 20).isAfter(sessionDto.getDateTime()))
+            throw new IllegalArgumentException("Данный сеанс перекрывает предыдущий сеанс");
+
+
         // Проверяем конфликт времени
         List<Session> conflictingSessions = sessionRepository.findConflictingSessions(
                 sessionDto.getHallId(),
                 sessionDto.getDateTime(),
-                sessionDto.getDateTime().plusMinutes(film.getDuration() + 30) // +30 минут на уборку
+                sessionDto.getDateTime().plusMinutes(film.getDuration() + 20)
         );
 
         if (!conflictingSessions.isEmpty()) {
-            throw new IllegalArgumentException("В это время в зале уже запланирован другой сеанс");
+            throw new IllegalArgumentException("Данный сеанс перекрывает следующий сеанс");
         }
 
         Session session = sessionMapping.toEntity(sessionDto);

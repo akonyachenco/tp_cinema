@@ -8,11 +8,11 @@ import { MovieService } from '../../core/services/movie.service';
 import { BookingService } from '../../core/services/booking.service';
 import { TicketService } from '../../core/services/ticket.service';
 import { AuthService } from '../../core/services/auth.service';
-import { 
-  SessionDto, 
-  HallDto, 
-  FilmDto, 
-  SeatDto, 
+import {
+  SessionDto,
+  HallDto,
+  FilmDto,
+  SeatDto,
   BookingDto,
   TicketDto
 } from '../../shared/models';
@@ -37,10 +37,15 @@ export class SessionComponent implements OnInit {
   movie: FilmDto | null = null;
   seats: SeatUI[] = [];
   selectedSeats: SeatDto[] = [];
-  
+
   isLoading = true;
   isBooking = false;
   errorMessage = '';
+
+  // Константы для ограничения выбора мест
+  readonly MAX_SELECTED_SEATS = 15;
+  maxSeatsMessage = '';
+  showMaxSeatsWarning = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,29 +68,29 @@ export class SessionComponent implements OnInit {
   loadSessionData(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
     // Загружаем сеанс со всеми бронированиями
     this.sessionService.getSessionById(this.sessionId).subscribe({
       next: (session) => {
         this.session = session;
-        
+
         // Загружаем зал
         this.hallService.getHallById(session.hallId).subscribe({
           next: (hall) => {
             this.hall = hall;
-            
+
             // Загружаем фильм
             this.movieService.getMovieById(session.filmId).subscribe({
               next: (movie) => {
                 this.movie = movie || null;
-                
+
                 if (!this.movie) {
                   console.warn('Фильм не найден');
                   this.errorMessage = 'Информация о фильме не найдена';
                   this.isLoading = false;
                   return;
                 }
-                
+
                 // Загружаем схему мест зала и забронированные места
                 this.loadHallLayout();
               },
@@ -108,12 +113,12 @@ export class SessionComponent implements OnInit {
 
   loadHallLayout(): void {
     if (!this.hall || !this.session) return;
-    
+
     this.hallService.getHallLayout(this.hall.hallId).subscribe({
       next: (response: any) => {
         // Проверяем разные форматы ответа
         let seatsFromApi: SeatDto[] = [];
-        
+
         if (Array.isArray(response)) {
           seatsFromApi = response; // Если API возвращает массив мест напрямую
         } else if (response.seats && Array.isArray(response.seats)) {
@@ -127,7 +132,7 @@ export class SessionComponent implements OnInit {
           this.loadBookedSeats();
           return;
         }
-        
+
         // Создаем UI места с базовой ценой из зала
         this.seats = seatsFromApi.map(seat => ({
           seat: {
@@ -138,7 +143,7 @@ export class SessionComponent implements OnInit {
           isSelected: false,
           isBooked: false
         }));
-        
+
         // Загружаем забронированные места
         this.loadBookedSeats();
       },
@@ -155,10 +160,10 @@ export class SessionComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    
+
     // Собираем все ID забронированных мест из всех бронирований сеанса
     const bookedSeatIds = new Set<number>();
-    
+
     this.session.bookingList.forEach((booking: any) => {
       if (booking.ticketList && Array.isArray(booking.ticketList)) {
         booking.ticketList.forEach((ticket: any) => {
@@ -166,26 +171,26 @@ export class SessionComponent implements OnInit {
         });
       }
     });
-    
+
     // Помечаем места как забронированные
     this.seats.forEach(seatUI => {
       seatUI.isBooked = bookedSeatIds.has(seatUI.seat.seatId);
     });
-    
+
     this.isLoading = false;
   }
 
   private generateBasicSeats(): void {
     if (!this.hall) return;
-    
+
     let seatId = 1;
     const seats: SeatUI[] = [];
-    
+
     for (let row = 1; row <= this.hall.rowsCount; row++) {
       for (let seatNum = 1; seatNum <= this.hall.seatsPerRow; seatNum++) {
         const seatType = this.getSeatTypeForPosition(row, seatNum);
         const priceMultiplier = this.getPriceMultiplierBySeatType(seatType);
-        
+
         seats.push({
           seat: {
             seatId: seatId++,
@@ -203,7 +208,7 @@ export class SessionComponent implements OnInit {
         });
       }
     }
-    
+
     this.seats = seats;
   }
 
@@ -245,14 +250,40 @@ export class SessionComponent implements OnInit {
 
   selectSeat(seatUI: SeatUI): void {
     if (seatUI.isBooked || seatUI.seat.seatType === 'blocked') return;
-    
-    seatUI.isSelected = !seatUI.isSelected;
-    
+
+    // Если пытаемся выбрать уже выбранное место - снимаем выбор
     if (seatUI.isSelected) {
-      this.selectedSeats.push(seatUI.seat);
-    } else {
+      seatUI.isSelected = false;
       this.selectedSeats = this.selectedSeats.filter(s => s.seatId !== seatUI.seat.seatId);
+      this.hideMaxSeatsWarning();
+      return;
     }
+
+    // Проверяем лимит выбранных мест
+    if (this.selectedSeats.length >= this.MAX_SELECTED_SEATS) {
+      this.showMaxSeatsLimitWarning();
+      return;
+    }
+
+    // Выбираем место
+    seatUI.isSelected = true;
+    this.selectedSeats.push(seatUI.seat);
+    this.hideMaxSeatsWarning();
+  }
+
+  private showMaxSeatsLimitWarning(): void {
+    this.maxSeatsMessage = `Вы можете выбрать не более ${this.MAX_SELECTED_SEATS} мест за один раз`;
+    this.showMaxSeatsWarning = true;
+
+    // Автоматически скрыть предупреждение через 3 секунды
+    setTimeout(() => {
+      this.hideMaxSeatsWarning();
+    }, 3000);
+  }
+
+  private hideMaxSeatsWarning(): void {
+    this.showMaxSeatsWarning = false;
+    this.maxSeatsMessage = '';
   }
 
   getTotalPrice(): number {
@@ -265,7 +296,7 @@ export class SessionComponent implements OnInit {
 
   getSelectedSeatsText(): string {
     if (this.selectedSeats.length === 0) return 'Места не выбраны';
-    
+
     const seatsByRow = this.groupSeatsByRow();
     return Object.keys(seatsByRow)
       .map(row => `Ряд ${row}: ${seatsByRow[+row].join(', ')}`)
@@ -274,25 +305,31 @@ export class SessionComponent implements OnInit {
 
   private groupSeatsByRow(): {[row: number]: number[]} {
     const groups: {[row: number]: number[]} = {};
-    
+
     this.selectedSeats.forEach(seat => {
       if (!groups[seat.rowNumber]) {
         groups[seat.rowNumber] = [];
       }
       groups[seat.rowNumber].push(seat.seatNumber);
     });
-    
+
     // Сортируем места в ряду
     Object.keys(groups).forEach(row => {
       groups[+row].sort((a, b) => a - b);
     });
-    
+
     return groups;
   }
 
   bookSeats(): void {
     if (this.selectedSeats.length === 0) {
       alert('Выберите хотя бы одно место');
+      return;
+    }
+
+    // Дополнительная проверка лимита (на всякий случай)
+    if (this.selectedSeats.length > this.MAX_SELECTED_SEATS) {
+      alert(`Вы не можете забронировать более ${this.MAX_SELECTED_SEATS} мест за один раз`);
       return;
     }
 
@@ -310,13 +347,13 @@ export class SessionComponent implements OnInit {
 
     this.isBooking = true;
 
- 
+    // Создаем данные для бронирования
     const bookingData: BookingDto = {
-      bookingId: 0, 
+      bookingId: 0, // Будет установлено на бэкенде
       userId: currentUser.userId,
       sessionId: this.sessionId,
-      bookingTime: '2024-12-25T18:30:00',
-      totalCost: 12,
+      bookingTime: new Date().toISOString(),
+      totalCost: this.getTotalPrice(),
       status: 'active'
     };
 
@@ -326,7 +363,7 @@ export class SessionComponent implements OnInit {
     this.bookingService.createBooking(bookingData).subscribe({
       next: (createdBooking) => {
         console.log('Бронирование создано:', createdBooking);
-        
+
         // 2. Создаем билеты для каждого выбранного места
         this.createTicketsForBooking(createdBooking.bookingId);
       },
@@ -357,7 +394,7 @@ export class SessionComponent implements OnInit {
     Promise.all(ticketPromises)
       .then((createdTickets) => {
         console.log('Все билеты созданы:', createdTickets);
-        
+
         // После успешного создания всех билетов переходим на страницу подтверждения
         this.navigateToConfirmation(bookingId);
       })
@@ -440,6 +477,7 @@ export class SessionComponent implements OnInit {
       seatUI.isSelected = false;
     });
     this.selectedSeats = [];
+    this.hideMaxSeatsWarning();
   }
 
   goBack(): void {
@@ -462,5 +500,15 @@ export class SessionComponent implements OnInit {
     if (seatUI.isSelected) return 'selected';
     if (seatUI.seat.seatType === 'vip') return 'vip';
     return 'available';
+  }
+
+  // Дополнительный метод для отображения информации о лимите
+  getSelectionLimitInfo(): string {
+    return `Выбрано: ${this.selectedSeats.length} из ${this.MAX_SELECTED_SEATS} мест`;
+  }
+
+  // Метод для проверки, можно ли выбрать еще места
+  canSelectMoreSeats(): boolean {
+    return this.selectedSeats.length < this.MAX_SELECTED_SEATS;
   }
 }

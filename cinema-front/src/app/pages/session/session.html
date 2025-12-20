@@ -21,6 +21,16 @@
         {{ movie.title }} — {{ session.dateTime | date:'dd.MM.yyyy HH:mm' }}
       </h1>
 
+      <!-- Блок с информацией о лимите выбора -->
+      <div class="selection-info">
+        <p class="limit-info">{{ getSelectionLimitInfo() }}</p>
+        @if (showMaxSeatsWarning) {
+          <div class="warning-message">
+            ⚠️ {{ maxSeatsMessage }}
+          </div>
+        }
+      </div>
+
       <section class="hall">
         <aside class="hall-info">
           <h3>Информация</h3>
@@ -29,14 +39,15 @@
           <p><strong>Рядов:</strong> {{ hall.rowsCount }}</p>
           <p><strong>Мест в ряду:</strong> {{ hall.seatsPerRow }}</p>
           <p><strong>Базовая цена:</strong> {{ hall.basePrice }} ₽</p>
-          
+
           <div class="selected-info" *ngIf="selectedSeats.length > 0">
             <h4>Выбранные места ({{ selectedSeats.length }})</h4>
             <p>{{ getSelectedSeatsText() }}</p>
             <p><strong>Итого: {{ getTotalPrice() }} ₽</strong></p>
-            
+
             <div class="action-buttons">
-              <button class="btn btn-confirm" (click)="bookSeats()">
+              <button class="btn btn-confirm" (click)="bookSeats()"
+                      [disabled]="selectedSeats.length === 0">
                 Забронировать
               </button>
               <button class="btn btn-outline" (click)="clearSelection()">
@@ -54,11 +65,12 @@
               <div class="row">
                 <div class="row-number">{{ row }}</div>
                 @for (seatUI of getSeatsByRow(row); track seatUI.seat.seatId) {
-                  <div 
+                  <div
                     class="seat"
                     [class]="getSeatStatus(seatUI)"
                     (click)="selectSeat(seatUI)"
-                    [title]="'Ряд ' + seatUI.seat.rowNumber + ', Место ' + seatUI.seat.seatNumber + ' - ' + getSeatPrice(seatUI.seat) + ' ₽'">
+                    [title]="'Ряд ' + seatUI.seat.rowNumber + ', Место ' + seatUI.seat.seatNumber + ' - ' + getSeatPrice(seatUI.seat) + ' ₽'"
+                    [class.disabled]="!seatUI.isSelected && !seatUI.isBooked && seatUI.seat.seatType !== 'blocked' && !canSelectMoreSeats()">
                     {{ seatUI.seat.seatNumber }}
                   </div>
                 }
@@ -79,16 +91,12 @@
             <span class="legend-item">
               <span class="box taken"></span>Занято
             </span>
+            <span class="legend-item">
+              <span class="box disabled"></span>Лимит
+            </span>
           </div>
 
-          <div class="next-step">
-            <button class="btn" (click)="bookSeats()" [disabled]="selectedSeats.length === 0">
-              Оформить бронь
-            </button>
-            <button class="btn btn-outline" (click)="goBack()">
-              Отмена
-            </button>
-          </div>
+
         </div>
       </section>
     }
