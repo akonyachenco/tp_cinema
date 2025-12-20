@@ -9,21 +9,21 @@
         <h1>Электронный билет</h1>
       </div>
     }
-    
+
     @if (isLoading) {
       <div class="loading">
         <div class="spinner"></div>
         <p>Загружаем билет...</p>
       </div>
     }
-    
+
     @if (errorMessage) {
       <div class="error-message">
         <h3>{{ errorMessage }}</h3>
         <a class="btn" routerLink="/account">Вернуться в кабинет</a>
       </div>
     }
-    
+
     @if (currentTicket && booking && !isLoading && !errorMessage) {
       <div class="ticket-container">
         <!-- Основной билет -->
@@ -34,44 +34,44 @@
               <p class="cinema-address">г. Москва, ул. Кинотеатральная, 1</p>
               <p class="cinema-phone">+7 (495) 123-45-67</p>
             </div>
-            
+
             <div class="ticket-status">
-              <div class="status-badge" [class.active]="booking.status === 'active'" 
+              <div class="status-badge" [class.active]="booking.status === 'active'"
                                      [class.cancelled]="booking.status === 'cancelled'">
                 {{ booking.status === 'active' ? 'ПОДТВЕРЖДЕН' : 'ОТМЕНЕН' }}
               </div>
             </div>
           </div>
-          
+
           <div class="ticket-content">
             <!-- Левая часть: информация о фильме -->
             <div class="ticket-left">
               <div class="movie-info">
                 <h3 class="movie-title">{{ getSessionInfo().filmTitle }}</h3>
-                
+
                 <div class="session-details">
                   <div class="detail-row">
                     <span class="label">Дата и время:</span>
                     <span class="value">{{ formatDateTime(getSessionInfo().dateTime) }}</span>
                   </div>
-                  
+
                   <div class="detail-row">
                     <span class="label">Зал:</span>
                     <span class="value">{{ getSessionInfo().hallName }}</span>
                   </div>
-                  
+
                   <div class="detail-row">
                     <span class="label">Формат:</span>
                     <span class="value">{{ getSessionInfo().format }}</span>
                   </div>
-                  
+
                   <div class="detail-row">
                     <span class="label">Возрастное ограничение:</span>
                     <span class="value age-rating">16+</span>
                   </div>
                 </div>
               </div>
-              
+
               <div class="user-info">
                 <h4>Информация о покупателе</h4>
                 <div class="detail-row">
@@ -84,34 +84,34 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Правая часть: QR-код и данные билета -->
             <div class="ticket-right">
               <div class="qr-code">
                 <img [src]="getQrCodeUrl()" alt="QR-код билета">
                 <p class="qr-hint">Покажите QR-код на входе</p>
               </div>
-              
+
               <div class="ticket-data">
                 <div class="ticket-number">
                   <span class="label">Номер билета:</span>
                   <span class="value code">{{ currentTicket.ticketCode }}</span>
                 </div>
-                
+
                 <div class="seat-info">
                   <span class="label">Место:</span>
                   <span class="value seat">
-                    Ряд {{ getSeatInfo(currentTicket.seatId).row }}, 
+                    Ряд {{ getSeatInfo(currentTicket.seatId).row }},
                     Место {{ getSeatInfo(currentTicket.seatId).number }}
                     <span class="seat-type">({{ getSeatInfo(currentTicket.seatId).type }})</span>
                   </span>
                 </div>
-                
+
                 <div class="price-info">
                   <span class="label">Стоимость:</span>
                   <span class="value price">{{ currentTicket.price }} ₽</span>
                 </div>
-                
+
                 <div class="booking-info">
                   <span class="label">Бронирование №:</span>
                   <span class="value">{{ booking.bookingId }}</span>
@@ -119,20 +119,20 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Все места бронирования (если несколько билетов) -->
           @if (getAllTickets().length > 0) {
             <div class="all-tickets">
               <h4>Все места в бронировании:</h4>
               <div class="tickets-list">
                 @for (t of getAllTickets(); track t.ticketId; let i = $index) {
-                  <div class="ticket-item" 
+                  <div class="ticket-item"
                        [class.current]="i === currentTicketIndex"
                        [class.clickable]="getAllTickets().length > 1"
                        (click)="getAllTickets().length > 1 ? selectTicket(t) : null">
                     <span class="ticket-code">{{ t.ticketCode }}</span>
                     <span class="ticket-seat">
-                      Ряд {{ getSeatInfo(t.seatId).row }}, Место {{ getSeatInfo(t.seatId).number }}   
+                      Ряд {{ getSeatInfo(t.seatId).row }}, Место {{ getSeatInfo(t.seatId).number }}
                     </span>
                     <span class="ticket-price">{{   t.price }} ₽</span>
                     @if (getAllTickets().length > 1) {
@@ -145,7 +145,7 @@
             </div>
           }
         </div>
-        
+
         <!-- Информация для печати -->
         <div class="print-info">
           <p><strong>Важная информация:</strong></p>
@@ -153,11 +153,11 @@
             <li>Приходите за 15 минут до начала сеанса</li>
             <li>Иметь при себе документ, удостоверяющий личность</li>
             <li>Дети до 12 лет только в сопровождении взрослых</li>
-            <li>Возврат билетов возможен за 3 часа до сеанса</li>
+            <li>Возврат билетов возможен за 1 час до сеанса</li>
             <li>QR-код должен быть хорошо виден при сканировании</li>
           </ul>
         </div>
-        
+
         <!-- Действия с билетом -->
         @if (!isPrintMode) {
           <div class="ticket-actions">
@@ -169,7 +169,7 @@
                 📥 Скачать PDF
               </button>
             </div>
-            
+
             <div class="actions-right">
               @if (booking.status === 'active' && canCancel()) {
                 <button class="btn btn-danger" (click)="cancelBooking()">
@@ -184,7 +184,7 @@
         }
       </div>
     }
-    
+
     <!-- Демо-сообщение -->
     @if (!currentTicket && !isLoading && !errorMessage) {
       <div class="demo-message">
@@ -206,27 +206,27 @@
   .ticket-page {
     background: white !important;
   }
-  
+
   .page-header,
   .ticket-actions,
   .back-btn,
   .demo-message {
     display: none !important;
   }
-  
+
   .ticket-main {
     border: 2px solid #000 !important;
     box-shadow: none !important;
   }
-  
+
   .print-info {
     page-break-inside: avoid;
   }
-  
+
   .ticket-item.clickable:hover {
     background-color: inherit !important;
   }
-  
+
   .ticket-select-hint {
     display: none !important;
   }

@@ -203,10 +203,10 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Бронирование с ID " + id + " не найдено"));
 
-        BookingStatus cancelledStatus = bookingStatusRepository.findByStatusName("CANCELLED")
+        BookingStatus cancelledStatus = bookingStatusRepository.findByStatusName("Отмена")
                 .orElseGet(() -> {
                     BookingStatus newStatus = new BookingStatus();
-                    newStatus.setStatusName("CANCELLED");
+                    newStatus.setStatusName("Отмена");
                     return bookingStatusRepository.save(newStatus);
                 });
 

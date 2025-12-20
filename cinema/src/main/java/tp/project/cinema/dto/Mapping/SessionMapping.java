@@ -32,7 +32,7 @@ public interface SessionMapping {
 
     @AfterMapping
     default void checkStatus(@MappingTarget SessionDto dto, Session session) {
-        if(!session.getStatus().equals("Завершен")) {
+        if(!session.getStatus().equals("Завершен") && !session.getStatus().equals("Отменен")) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime sessionDateTime = session.getDateTime();
             LocalDateTime sessionEndTime = sessionDateTime.plusMinutes(session.getFilm().getDuration());

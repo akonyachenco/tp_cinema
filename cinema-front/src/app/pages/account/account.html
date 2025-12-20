@@ -1,7 +1,7 @@
 <div class="account-page">
   <div class="container">
     <h1>Личный кабинет</h1>
-    
+
     @if (!user) {
       <div class="not-authorized">
         <p>Для доступа к личному кабинету необходимо войти в систему.</p>
@@ -9,7 +9,6 @@
       </div>
     } @else {
       <div class="account-layout">
-        <!-- Боковая панель -->
         <aside class="sidebar">
           <div class="user-info">
             <div class="avatar">{{ user.name?.charAt(0) }}{{ user.surname?.charAt(0) }}</div>
@@ -20,29 +19,65 @@
               Пользователь с {{ user.registrationDate | date:'dd.MM.yyyy' }}
             </p>
           </div>
-          
+
           <nav class="sidebar-nav">
-            <button 
-              class="nav-btn" 
+            <button
+              class="nav-btn"
               [class.active]="activeTab === 'bookings'"
               (click)="setActiveTab('bookings')">
               📅 Мои бронирования
             </button>
-            <button 
-              class="nav-btn" 
+            <button
+              class="nav-btn"
               [class.active]="activeTab === 'profile'"
               (click)="setActiveTab('profile')">
               👤 Профиль
             </button>
           </nav>
         </aside>
-        
-        <!-- Основное содержимое -->
+
         <main class="content">
           @if (activeTab === 'bookings') {
             <section class="bookings-section">
-              <h2>Мои бронирования</h2>
-              
+              <div class="bookings-header">
+                <h2>Мои бронирования</h2>
+
+                @if (bookings.length > 0) {
+                  <div class="status-filters">
+                    <button
+                      class="filter-btn"
+                      [class.active]="isFilterActive('all')"
+                      (click)="applyStatusFilter('all')">
+                      {{ getFilterText('all') }}
+                    </button>
+                    <button
+                      class="filter-btn"
+                      [class.active]="isFilterActive('active')"
+                      (click)="applyStatusFilter('active')">
+                      {{ getFilterText('active') }}
+                    </button>
+                    <button
+                      class="filter-btn"
+                      [class.active]="isFilterActive('completed')"
+                      (click)="applyStatusFilter('completed')">
+                      {{ getFilterText('completed') }}
+                    </button>
+                    <button
+                      class="filter-btn"
+                      [class.active]="isFilterActive('cancelled')"
+                      (click)="applyStatusFilter('cancelled')">
+                      {{ getFilterText('cancelled') }}
+                    </button>
+                    <button
+                      class="filter-btn"
+                      [class.active]="isFilterActive('inactive')"
+                      (click)="applyStatusFilter('inactive')">
+                      {{ getFilterText('inactive') }}
+                    </button>
+                  </div>
+                }
+              </div>
+
               @if (isLoading) {
                 <div class="loading">
                   <div class="spinner"></div>
@@ -54,74 +89,307 @@
                   <p>Выберите фильм и забронируйте места, чтобы они появились здесь</p>
                   <a class="btn" routerLink="/">Посмотреть афишу</a>
                 </div>
+              } @else if (filteredBookings.length === 0) {
+                <div class="empty-state">
+                  <h3>Бронирования не найдены</h3>
+                  <p>Нет бронирований с выбранным статусом</p>
+                  <button class="btn" (click)="applyStatusFilter('all')">
+                    Показать все бронирования
+                  </button>
+                </div>
               } @else {
                 <div class="bookings-list">
-                  @for (booking of bookings; track booking.bookingId) {
-                    <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
-                      <div class="booking-header">
-                        <h3>Бронирование #{{ booking.bookingId }}</h3>
-                        <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
-                          {{ getBookingStatusText(booking.status) }}
-                        </span>
-                      </div>
-                      
-                      <div class="booking-info">
-                        <p class="booking-time">
-                          <strong>Дата бронирования:</strong> 
-                          {{ formatDate(booking.bookingTime) }}
-                        </p>
-                        <p class="booking-cost">
-                          <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
-                        </p>
-                        <p class="booking-seats">
-                          <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
-                        </p>
-                        
-                        @if (booking.ticketList && booking.ticketList.length > 0) {
-                          <div class="tickets-list">
-                            <strong>Билеты:</strong>
-                            @for (ticket of booking.ticketList; track ticket.ticketId) {
-                              <div class="ticket-item">
-                                Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
-                              </div>
-                            }
+                  @if (activeStatusFilter === 'all') {
+                    @if (activeBookings.length > 0) {
+                      <div class="bookings-group">
+                        <h3 class="group-title">📌 Активные бронирования</h3>
+                        @for (booking of activeBookings; track booking.bookingId) {
+                          <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                            <div class="booking-header">
+
+                              <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                                {{ getBookingStatusText(booking.status) }}
+                              </span>
+                            </div>
+
+                            <div class="booking-info">
+                              <p class="booking-time">
+                                <strong>Дата бронирования:</strong>
+                                {{ formatDate(booking.bookingTime) }}
+                              </p>
+
+                              @if (booking.filmTitle) {
+                                <p class="session-info">
+                                  <strong>Фильм:</strong> {{ booking.filmTitle }}
+                                  @if (booking.sessionTime) {
+                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
+                                  }
+                                </p>
+                              }
+
+                              <p class="booking-cost">
+                                <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                              </p>
+                              <p class="booking-seats">
+                                <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                              </p>
+
+                              @if (booking.ticketList && booking.ticketList.length > 0) {
+                                <div class="tickets-list">
+                                  <strong>Билеты:</strong>
+                                  @for (ticket of booking.ticketList; track ticket.ticketId) {
+                                    <div class="ticket-item">
+                                      Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+
+                            <div class="booking-actions">
+                              <a class="btn btn-sm" [routerLink]="['/booking', booking.bookingId, 'ticket']">
+                                Посмотреть билет
+                              </a>
+                              @if (booking.canCancel) {
+                                <button
+                                  class="btn btn-sm btn-outline"
+                                  (click)="cancelBooking(booking.bookingId)">
+                                  Отменить
+                                </button>
+                              } @else {
+                                <span class="cancel-disabled">
+                                  Отмена недоступна
+                                </span>
+                              }
+                            </div>
                           </div>
                         }
                       </div>
-                      
-                      <div class="booking-actions">
-                        @if (booking.status === 'active') {
-                          <a class="btn btn-sm" [routerLink]="['/booking', booking.bookingId, 'ticket']">
-                            Посмотреть билет
-                          </a>
-                          @if (canCancelBooking(booking) ) {
-                            <button 
-                              class="btn btn-sm btn-outline" 
-                              (click)="cancelBooking(booking.bookingId)">
-                              Отменить
-                            </button>
-                          } @else {
-                            <span class="cancel-disabled">
-                              Отмена недоступна
-                            </span>
-                          }
-                        } @else if (booking.status === 'cancelled') {
-                          <span class="cancelled-text">
-                            ❌ Бронирование отменено
-                          </span>
+                    }
+
+                    @if (completedBookings.length > 0) {
+                      <div class="bookings-group">
+                        <h3 class="group-title">✅ Завершенные бронирования</h3>
+                        @for (booking of completedBookings; track booking.bookingId) {
+                          <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                            <div class="booking-header">
+
+                              <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                                {{ getBookingStatusText(booking.status) }}
+                              </span>
+                            </div>
+
+                            <div class="booking-info">
+                              <p class="booking-time">
+                                <strong>Дата бронирования:</strong>
+                                {{ formatDate(booking.bookingTime) }}
+                              </p>
+
+                              @if (booking.filmTitle) {
+                                <p class="session-info">
+                                  <strong>Фильм:</strong> {{ booking.filmTitle }}
+                                  @if (booking.sessionTime) {
+                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
+                                  }
+                                </p>
+                              }
+
+                              <p class="booking-cost">
+                                <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                              </p>
+                              <p class="booking-seats">
+                                <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                              </p>
+
+                              @if (booking.ticketList && booking.ticketList.length > 0) {
+                                <div class="tickets-list">
+                                  <strong>Билеты:</strong>
+                                  @for (ticket of booking.ticketList; track ticket.ticketId) {
+                                    <div class="ticket-item">
+                                      Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
                         }
                       </div>
-                    </div>
+                    }
+
+                    @if (inactiveBookings.length > 0) {
+                      <div class="bookings-group">
+                        <h3 class="group-title">⚫ Неактивные бронирования</h3>
+                        @for (booking of inactiveBookings; track booking.bookingId) {
+                          <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                            <div class="booking-header">
+
+                              <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                                {{ getBookingStatusText(booking.status) }}
+                              </span>
+                            </div>
+
+                            <div class="booking-info">
+                              <p class="booking-time">
+                                <strong>Дата бронирования:</strong>
+                                {{ formatDate(booking.bookingTime) }}
+                              </p>
+
+                              @if (booking.filmTitle) {
+                                <p class="session-info">
+                                  <strong>Фильм:</strong> {{ booking.filmTitle }}
+                                  @if (booking.sessionTime) {
+                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
+                                  }
+                                </p>
+                              }
+
+                              <p class="booking-cost">
+                                <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                              </p>
+                              <p class="booking-seats">
+                                <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                              </p>
+
+                              @if (booking.ticketList && booking.ticketList.length > 0) {
+                                <div class="tickets-list">
+                                  <strong>Билеты:</strong>
+                                  @for (ticket of booking.ticketList; track ticket.ticketId) {
+                                    <div class="ticket-item">
+                                      Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    @if (cancelledBookings.length > 0) {
+                      <div class="bookings-group">
+                        <h3 class="group-title">❌ Отмененные бронирования</h3>
+                        @for (booking of cancelledBookings; track booking.bookingId) {
+                          <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                            <div class="booking-header">
+
+                              <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                                {{ getBookingStatusText(booking.status) }}
+                              </span>
+                            </div>
+
+                            <div class="booking-info">
+                              <p class="booking-time">
+                                <strong>Дата бронирования:</strong>
+                                {{ formatDate(booking.bookingTime) }}
+                              </p>
+
+                              @if (booking.filmTitle) {
+                                <p class="session-info">
+                                  <strong>Фильм:</strong> {{ booking.filmTitle }}
+                                  @if (booking.sessionTime) {
+                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
+                                  }
+                                </p>
+                              }
+
+                              <p class="booking-cost">
+                                <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                              </p>
+                              <p class="booking-seats">
+                                <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                              </p>
+
+                              @if (booking.ticketList && booking.ticketList.length > 0) {
+                                <div class="tickets-list">
+                                  <strong>Билеты:</strong>
+                                  @for (ticket of booking.ticketList; track ticket.ticketId) {
+                                    <div class="ticket-item">
+                                      Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  } @else {
+                    @for (booking of filteredBookings; track booking.bookingId) {
+                      <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
+                        <div class="booking-header">
+
+                          <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
+                            {{ getBookingStatusText(booking.status) }}
+                          </span>
+                        </div>
+
+                        <div class="booking-info">
+                          <p class="booking-time">
+                            <strong>Дата бронирования:</strong>
+                            {{ formatDate(booking.bookingTime) }}
+                          </p>
+
+                          @if (booking.filmTitle) {
+                            <p class="session-info">
+                              <strong>Фильм:</strong> {{ booking.filmTitle }}
+                              @if (booking.sessionTime) {
+                                <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
+                              }
+                            </p>
+                          }
+
+                          <p class="booking-cost">
+                            <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
+                          </p>
+                          <p class="booking-seats">
+                            <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
+                          </p>
+
+                          @if (booking.ticketList && booking.ticketList.length > 0) {
+                            <div class="tickets-list">
+                              <strong>Билеты:</strong>
+                              @for (ticket of booking.ticketList; track ticket.ticketId) {
+                                <div class="ticket-item">
+                                  Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+
+                        <div class="booking-actions">
+                          @if (booking.status === 'active' || booking.status === 'Активно') {
+                            <a class="btn btn-sm" [routerLink]="['/booking', booking.bookingId, 'ticket']">
+                              Посмотреть билет
+                            </a>
+                            @if (booking.canCancel) {
+                              <button
+                                class="btn btn-sm btn-outline"
+                                (click)="cancelBooking(booking.bookingId)">
+                                Отменить
+                              </button>
+                            } @else {
+                              <span class="cancel-disabled">
+                                Отмена недоступна
+                              </span>
+                            }
+                          }
+                        </div>
+                      </div>
+                    }
                   }
                 </div>
               }
             </section>
           }
-          
+
           @if (activeTab === 'profile') {
             <section class="profile-section">
               <h2>Мой профиль</h2>
-              
+
               <div class="profile-info">
                 <div class="info-row">
                   <strong>Имя:</strong> {{ user.name }}
@@ -142,13 +410,13 @@
                   <strong>Дата регистрации:</strong> {{ user.registrationDate | date:'dd.MM.yyyy' }}
                 </div>
                 <div class="info-row">
-                  <strong>Статус:</strong> 
+                  <strong>Статус:</strong>
                   <span class="user-role">{{ user.role === 'ADMIN' ? 'Администратор' : 'Пользователь' }}</span>
                 </div>
               </div>
             </section>
           }
-          
+
         </main>
       </div>
     }
