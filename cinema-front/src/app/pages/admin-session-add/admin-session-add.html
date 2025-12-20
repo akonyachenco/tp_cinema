@@ -21,7 +21,7 @@
 
   <!-- Форма -->
   <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()" class="session-form" *ngIf="!isLoading || !isEditMode">
-    
+
     <!-- Информация о редактировании -->
     <div *ngIf="isEditMode && originalSession" class="edit-info">
       <p><strong>Редактирование сеанса #{{ sessionId }}</strong></p>
@@ -65,9 +65,9 @@
     <div class="form-row">
       <div class="form-group" [class.invalid]="!isFieldValid('session_date')">
         <label>Дата сеанса *</label>
-        <input 
-          type="date" 
-          formControlName="session_date" 
+        <input
+          type="date"
+          formControlName="session_date"
           [min]="today"
           [disabled]="isLoadingData"
         >
@@ -78,8 +78,8 @@
 
       <div class="form-group" [class.invalid]="!isFieldValid('session_time')">
         <label>Время сеанса *</label>
-        <input 
-          type="time" 
+        <input
+          type="time"
           formControlName="session_time"
           [disabled]="isLoadingData"
         >
@@ -89,29 +89,6 @@
       </div>
     </div>
 
-    <!-- Статус -->
-    <div class="form-group" [class.invalid]="!isFieldValid('status')">
-      <label>Статус сеанса *</label>
-      <select formControlName="status">
-        <option value="active">Активный</option>
-        <option value="cancelled">Отменен</option>
-        <option value="completed">Завершен</option>
-      </select>
-      <div *ngIf="!isFieldValid('status')" class="error-text">
-        {{ getFieldError('status') }}
-      </div>
-    </div>
-
-    <!-- Дополнительная информация -->
-    <div class="form-group">
-      <label>Дополнительная информация</label>
-      <textarea 
-        formControlName="additional_info" 
-        rows="3"
-        placeholder="Введите дополнительную информацию о сеансе..."
-      ></textarea>
-    </div>
-
     <!-- Предпросмотр -->
     <div *ngIf="sessionForm.valid" class="form-preview">
       <h3>Предпросмотр сеанса</h3>
@@ -119,16 +96,14 @@
         <p><strong>Фильм:</strong> {{ getMovieTitle(+sessionForm.get('filmId')?.value) }}</p>
         <p><strong>Зал:</strong> {{ getHallName(+sessionForm.get('hallId')?.value) }}</p>
         <p><strong>Дата и время:</strong> {{ sessionForm.get('session_date')?.value }} в {{ sessionForm.get('session_time')?.value }}</p>
-        <p><strong>Статус:</strong> {{ sessionForm.get('status')?.value === 'active' ? 'Активный' : 
-                                    sessionForm.get('status')?.value === 'cancelled' ? 'Отменен' : 'Завершен' }}</p>
       </div>
     </div>
 
     <!-- Действия формы -->
     <div class="form-actions">
-      <button 
-        type="submit" 
-        [disabled]="sessionForm.invalid || isLoading || isLoadingData" 
+      <button
+        type="submit"
+        [disabled]="sessionForm.invalid || isLoading || isLoadingData"
         class="btn btn-primary"
       >
         <span *ngIf="isLoading" class="spinner-small"></span>

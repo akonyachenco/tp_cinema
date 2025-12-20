@@ -10,88 +10,98 @@
   </header>
 
   <div class="admin-actions">
-    <a 
-      [routerLink]="filmId ? ['/admin/sessions/add', filmId] : '/admin/sessions/add'" 
+    <a
+      [routerLink]="filmId() ? ['/admin/sessions/add', filmId()] : '/admin/sessions/add'"
       class="btn btn-primary"
     >
       <span class="icon">+</span> Добавить сеанс
     </a>
-    
+
     <div class="filters">
       <!-- Быстрые фильтры -->
       <div class="filter-group">
         <label>Быстрые фильтры:</label>
         <div class="filter-buttons">
-          <button 
-            class="filter-btn" 
-            [class.active]="filterMode==='today'" 
+          <button
+            class="filter-btn"
+            [class.active]="filterMode() === 'today' && !dateFilter()"
             (click)="setFilter('today')"
+            [disabled]="!!dateFilter()"
           >
             Сегодня
           </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="filterMode==='week'" 
+          <button
+            class="filter-btn"
+            [class.active]="filterMode() === 'week' && !dateFilter()"
             (click)="setFilter('week')"
+            [disabled]="!!dateFilter()"
           >
             На неделю
           </button>
-          <button 
-            class="filter-btn" 
-            [class.active]="filterMode==='all'" 
+          <button
+            class="filter-btn"
+            [class.active]="filterMode() === 'all' || !!dateFilter()"
             (click)="setFilter('all')"
           >
             Все
           </button>
         </div>
+        <small class="filter-hint" *ngIf="dateFilter()">
+          При ручном выборе даты активен фильтр "Все"
+        </small>
       </div>
-      
+
       <!-- Фильтр по названию фильма -->
       <div class="filter-group">
         <label>Фильм:</label>
-        <input 
-          type="text" 
-          class="form-input" 
-          [(ngModel)]="filmNameFilter"
-          (ngModelChange)="onFilmNameFilterChange()"
+        <input
+          type="text"
+          class="form-input"
+          [value]="filmNameFilter()"
+          (input)="updateFilmNameFilter($any($event.target).value)"
           placeholder="Введите название фильма..."
         />
       </div>
-      
+
       <!-- Фильтр по названию зала -->
       <div class="filter-group">
         <label>Зал:</label>
-        <input 
-          type="text" 
-          class="form-input" 
-          [(ngModel)]="hallNameFilter"
-          (ngModelChange)="onHallNameFilterChange()"
+        <input
+          type="text"
+          class="form-input"
+          [value]="hallNameFilter()"
+          (input)="updateHallNameFilter($any($event.target).value)"
           placeholder="Введите название зала..."
         />
       </div>
-      
+
       <!-- Фильтр по статусу -->
       <div class="filter-group">
         <label>Статус:</label>
-        <select class="form-select" [(ngModel)]="statusFilter" (ngModelChange)="onStatusFilterChange()">
+        <select
+          class="form-select"
+          [value]="statusFilter()"
+          (change)="updateStatusFilter($any($event.target).value)"
+        >
           <option value="">Все статусы</option>
-          <option value="active">Активный</option>
-          <option value="cancelled">Отменен</option>
-          <option value="completed">Завершен</option>
+          <option value="Запланирован">Запланирован</option>
+          <option value="Активен">Активен</option>
+          <option value="Завершен">Завершен</option>
+          <option value="Отменен">Отменен</option>
         </select>
       </div>
-      
+
       <!-- Фильтр по дате -->
       <div class="filter-group">
         <label>Дата:</label>
-        <input 
-          type="date" 
-          class="form-input" 
-          [(ngModel)]="dateFilter"
-          (ngModelChange)="onDateFilterChange()"
+        <input
+          type="date"
+          class="form-input"
+          [value]="dateFilter()"
+          (change)="updateDateFilter($any($event.target).value)"
         />
       </div>
-      
+
       <!-- Сброс фильтров -->
       <button class="btn btn-outline" (click)="clearFilters()">
         Сбросить фильтры
@@ -100,89 +110,119 @@
   </div>
 
   <!-- Состояние загрузки -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Загрузка сеансов...</p>
-  </div>
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Загрузка сеансов...</p>
+    </div>
+  }
 
   <!-- Сообщение об ошибке -->
-  <div *ngIf="errorMessage && !isLoading" class="error-state">
-    <p class="error-message">{{ errorMessage }}</p>
-    <button class="btn btn-outline" (click)="loadSessions()">Повторить попытку</button>
-  </div>
+  @if (errorMessage() && !isLoading()) {
+    <div class="error-state">
+      <p class="error-message">{{ errorMessage() }}</p>
+      <button class="btn btn-outline" (click)="loadSessions()">Повторить попытку</button>
+    </div>
+  }
 
-  <!-- Статистика -->
-  <div *ngIf="!isLoading && !errorMessage && filteredSessions.length > 0" class="stats">
-    <p>Найдено сеансов: <strong>{{ filteredSessions.length }}</strong></p>
-  </div>
 
   <!-- Список сеансов -->
-  <section class="sessions-list" *ngIf="!isLoading && !errorMessage">
-    <div *ngIf="filteredSessions.length === 0" class="empty-state">
-      <p class="empty-text">Сеансы не найдены</p>
-      <div *ngIf="filmNameFilter || hallNameFilter || dateFilter || statusFilter || filterMode !== 'all'" 
-           class="empty-suggestions">
-        <p>Попробуйте:</p>
-        <ul>
-          <li *ngIf="filmNameFilter">Изменить поисковый запрос для фильма</li>
-          <li *ngIf="hallNameFilter">Изменить поисковый запрос для зала</li>
-          <li>Изменить фильтры</li>
-          <li><button class="btn-link" (click)="clearFilters()">Сбросить все фильтры</button></li>
-        </ul>
-      </div>
-      <p *ngIf="filmId && !filmNameFilter" class="empty-subtext">
-        У этого фильма пока нет сеансов. 
-        <a [routerLink]="['/admin/sessions/add', filmId]">Добавить первый сеанс</a>
-      </p>
-    </div>
+  @if (!isLoading() && !errorMessage()) {
+    <section class="sessions-list">
+      @if (filteredSessions().length === 0) {
+        <div class="empty-state">
+          <p class="empty-text">Сеансы не найдены</p>
 
-    <div *ngFor="let session of filteredSessions" class="session-card">
-      <div class="session-header">
-        <div class="session-id">Сеанс #{{ session.sessionId }}</div>
-        <div class="session-status" [class]="'status-' + session.status">
-          {{ getStatusText(session.status) }}
+          @if (filmNameFilter() || hallNameFilter() || dateFilter() || statusFilter() || filterMode() !== 'all') {
+            <div class="empty-suggestions">
+              <p>Попробуйте:</p>
+              <ul>
+                @if (filmNameFilter()) {
+                  <li>Изменить поисковый запрос для фильма</li>
+                }
+                @if (hallNameFilter()) {
+                  <li>Изменить поисковый запрос для зала</li>
+                }
+                @if (dateFilter()) {
+                  <li>Изменить или очистить фильтр по дате</li>
+                }
+                <li>Изменить другие фильтры</li>
+                <li><button class="btn-link" (click)="clearFilters()">Сбросить все фильтры</button></li>
+              </ul>
+            </div>
+          }
+
+          @if (filmId() && !filmNameFilter()) {
+            <p class="empty-subtext">
+              У этого фильма пока нет сеансов.
+              <a [routerLink]="['/admin/sessions/add', filmId()]">Добавить первый сеанс</a>
+            </p>
+          }
         </div>
-      </div>
-      
-      <div class="session-body">
-        <div class="session-info">
-          <div class="info-item">
-            <span class="info-label">Дата и время:</span>
-            <span class="info-value">{{ formatDateTime(session.dateTime) }}</span>
+      }
+
+      @for (session of filteredSessions(); track session.sessionId) {
+        <div class="session-card">
+          <div class="session-header">
+            <div class="session-id">Сеанс #{{ session.sessionId }}</div>
+            <div class="session-status" [class]="getStatusClass(session.status)">
+              {{ getStatusText(session.status) }}
+            </div>
           </div>
-          <div class="info-item">
-            <span class="info-label">Фильм:</span>
-            <span class="info-value">{{ session.filmTitle }}</span>
+
+          <div class="session-body">
+            <div class="session-info">
+              <div class="info-item">
+                <span class="info-label">Дата и время:</span>
+                <span class="info-value">
+                  {{ formatDateTime(session.dateTime) }}
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Фильм:</span>
+                <span class="info-value">{{ session.filmTitle }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Зал:</span>
+                <span class="info-value">{{ session.hallName }}</span>
+              </div>
+              @if (session.filmData?.duration) {
+                <div class="info-item">
+                  <span class="info-label">Длительность:</span>
+                  <span class="info-value">{{ session.filmData.duration }} мин.</span>
+                </div>
+              }
+              @if (session.hallData?.hallType) {
+                <div class="info-item">
+                  <span class="info-label">Тип зала:</span>
+                  <span class="info-value">{{ session.hallData.hallType }}</span>
+                </div>
+              }
+            </div>
           </div>
-          <div class="info-item">
-            <span class="info-label">Зал:</span>
-            <span class="info-value">{{ session.hallName }}</span>
-          </div>
-          <div class="info-item" *ngIf="session.filmData?.duration">
-            <span class="info-label">Длительность:</span>
-            <span class="info-value">{{ session.filmData.duration }} мин.</span>
-          </div>
-          <div class="info-item" *ngIf="session.hallData?.hallType">
-            <span class="info-label">Тип зала:</span>
-            <span class="info-value">{{ session.hallData.hallType }}</span>
+
+          <div class="session-actions">
+            <button
+              class="btn btn-primary"
+              (click)="editSession(session.sessionId)"
+              [disabled]="!session.canEdit"
+              [title]="session.editTooltip"
+              [class.disabled]="!session.canEdit"
+            >
+              <span class="icon">✏️</span> Редактировать
+            </button>
+            <button
+              class="btn btn-danger"
+              (click)="deleteSession(session.sessionId)"
+              [disabled]="!session.canDelete"
+              [title]="session.deleteTooltip"
+              [class.disabled]="!session.canDelete"
+            >
+              <span class="icon">🗑️</span> Удалить
+            </button>
           </div>
         </div>
-      </div>
-      
-      <div class="session-actions">
-        <button 
-          class="btn btn-primary" 
-          (click)="editSession(session.sessionId)"
-        >
-          <span class="icon">✏️</span> Редактировать
-        </button>
-        <button 
-          class="btn btn-danger" 
-          (click)="deleteSession(session.sessionId)"
-        >
-          <span class="icon">🗑️</span> Удалить
-        </button>
-      </div>
-    </div>
-  </section>
+      }
+    </section>
+  }
 </main>

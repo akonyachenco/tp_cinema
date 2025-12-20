@@ -131,7 +131,7 @@ public class SessionService {
         Session session = sessionMapping.toEntity(sessionDto);
         session.setFilm(film);
         session.setHall(hall);
-        session.setStatus("Заплонирован");
+        session.setStatus("Запланирован");
 
         Session savedSession = sessionRepository.save(session);
         return sessionMapping.toDto(savedSession);

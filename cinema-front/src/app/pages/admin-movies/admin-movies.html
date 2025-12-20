@@ -1,7 +1,7 @@
 <main class="container">
   <div class="page-header">
     <h1>Управление фильмами</h1>
-    
+
     <div class="admin-actions">
       <a routerLink="/admin/movies/add" class="btn btn-outline">Добавить фильм</a>
       <button class="btn" (click)="refreshMovies()" [disabled]="isLoading">
@@ -24,15 +24,15 @@
   <!-- Список фильмов -->
   <section class="movies-list" *ngIf="!isLoading && !errorMessage && movies.length; else noMovies">
     <div class="movie-card" *ngFor="let movie of movies">
-      <img *ngIf="movie.posterUrl" 
-           [src]="movie.posterUrl" 
-           alt="{{movie.title}}" 
+      <img *ngIf="movie.posterUrl"
+           [src]="movie.posterUrl"
+           alt="{{movie.title}}"
            class="poster"
            onerror="this.style.display='none'">
       <div class="movie-info">
         <h3>{{ movie.title }}</h3>
         <p class="description" *ngIf="movie.description">{{ movie.description | slice:0:150 }}{{ movie.description.length > 150 ? '...' : '' }}</p>
-        
+
         <div class="movie-details">
           <p><strong>Длительность:</strong> {{ movie.duration }} мин.</p>
           <p><strong>Дата релиза:</strong> {{ movie.releaseDate | date: 'dd.MM.yyyy' }}</p>
@@ -41,14 +41,13 @@
             <strong>Жанры:</strong> {{ movie.genres.join(', ') }}
           </p>
         </div>
-        
+
         <div class="movie-actions">
-          <a [routerLink]="['/admin/sessions']" 
-             [queryParams]="{ filmId: movie.filmId }" 
+          <a [routerLink]="['/admin/sessions', movie.filmId]"
              class="btn btn-outline">
             Управление сеансами
           </a>
-          <button class="btn" 
+          <button class="btn"
                   (click)="deleteMovie(movie.filmId)"
                   [disabled]="isLoading">
             Удалить
