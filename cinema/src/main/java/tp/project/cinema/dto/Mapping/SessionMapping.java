@@ -1,9 +1,13 @@
 package tp.project.cinema.dto.Mapping;
 
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import tp.project.cinema.dto.SessionDto;
 import tp.project.cinema.model.Session;
+
+import java.time.LocalDateTime;
 
 @Mapper(componentModel = "spring", uses = {BookingMapping.class})
 public interface SessionMapping {
@@ -24,4 +28,23 @@ public interface SessionMapping {
     @Mapping(target = "hall", ignore = true)
     @Mapping(source = "dateTime", target = "dateTime")
     Session toEntity(SessionDto dto);
+
+
+    @AfterMapping
+    default void checkStatus(@MappingTarget SessionDto dto, Session session) {
+        if(!session.getStatus().equals("Завершен")) {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime sessionDateTime = session.getDateTime();
+            LocalDateTime sessionEndTime = sessionDateTime.plusMinutes(session.getFilm().getDuration());
+
+            if(sessionEndTime.isBefore(now)) {
+                session.setStatus("Завершен");
+                dto.setStatus("Завершен");
+            }
+            else if(sessionDateTime.isBefore(now) && sessionEndTime.isAfter(now)) {
+                session.setStatus("Активен");
+                dto.setStatus("Активен");
+            }
+        }
+    }
 }

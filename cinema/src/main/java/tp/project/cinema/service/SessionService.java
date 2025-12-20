@@ -131,7 +131,7 @@ public class SessionService {
         Session session = sessionMapping.toEntity(sessionDto);
         session.setFilm(film);
         session.setHall(hall);
-        session.setStatus("SCHEDULED");
+        session.setStatus("Заплонирован");
 
         Session savedSession = sessionRepository.save(session);
         return sessionMapping.toDto(savedSession);
@@ -172,7 +172,7 @@ public class SessionService {
         Session session = sessionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Сеанс с ID " + id + " не найден"));
 
-        session.setStatus("CANCELLED");
+        session.setStatus("Отменен");
         Session cancelledSession = sessionRepository.save(session);
         return sessionMapping.toDto(cancelledSession);
     }
@@ -181,7 +181,7 @@ public class SessionService {
 
     public List<SessionDto> getAvailableSessions() {
         return sessionRepository.findByDateTimeAfter(LocalDateTime.now()).stream()
-                .filter(session -> !"CANCELLED".equals(session.getStatus()))
+                .filter(session -> !"Отменен".equals(session.getStatus()))
                 .map(sessionMapping::toDto)
                 .collect(Collectors.toList());
     }
@@ -194,7 +194,7 @@ public class SessionService {
                 .filter(session ->
                         session.getDateTime().isAfter(startOfDay) &&
                                 session.getDateTime().isBefore(endOfDay) &&
-                                !"CANCELLED".equals(session.getStatus())
+                                !"Отменен".equals(session.getStatus())
                 )
                 .map(sessionMapping::toDto)
                 .collect(Collectors.toList());
