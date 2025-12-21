@@ -48,31 +48,25 @@
                       class="filter-btn"
                       [class.active]="isFilterActive('all')"
                       (click)="applyStatusFilter('all')">
-                      {{ getFilterText('all') }}
+                      Все
                     </button>
                     <button
                       class="filter-btn"
                       [class.active]="isFilterActive('active')"
                       (click)="applyStatusFilter('active')">
-                      {{ getFilterText('active') }}
+                      Активные
                     </button>
                     <button
                       class="filter-btn"
                       [class.active]="isFilterActive('completed')"
                       (click)="applyStatusFilter('completed')">
-                      {{ getFilterText('completed') }}
+                      Завершенные
                     </button>
                     <button
                       class="filter-btn"
                       [class.active]="isFilterActive('cancelled')"
                       (click)="applyStatusFilter('cancelled')">
-                      {{ getFilterText('cancelled') }}
-                    </button>
-                    <button
-                      class="filter-btn"
-                      [class.active]="isFilterActive('inactive')"
-                      (click)="applyStatusFilter('inactive')">
-                      {{ getFilterText('inactive') }}
+                      Отмененные
                     </button>
                   </div>
                 }
@@ -106,24 +100,19 @@
                         @for (booking of activeBookings; track booking.bookingId) {
                           <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
                             <div class="booking-header">
-
                               <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
                                 {{ getBookingStatusText(booking.status) }}
                               </span>
                             </div>
 
                             <div class="booking-info">
-                              <p class="booking-time">
-                                <strong>Дата бронирования:</strong>
-                                {{ formatDate(booking.bookingTime) }}
-                              </p>
 
                               @if (booking.filmTitle) {
                                 <p class="session-info">
+                                  <strong>Начало сеанса:</strong> {{ formatSessionTime(booking.sessionTime) }}
+                                </p>
+                                <p class="session-info">
                                   <strong>Фильм:</strong> {{ booking.filmTitle }}
-                                  @if (booking.sessionTime) {
-                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
-                                  }
                                 </p>
                               }
 
@@ -145,6 +134,10 @@
                                 </div>
                               }
                             </div>
+                            <p class="booking-time">
+                              <strong>Дата бронирования:</strong>
+                              {{ formatDate(booking.bookingTime) }}
+                            </p>
 
                             <div class="booking-actions">
                               <a class="btn btn-sm" [routerLink]="['/booking', booking.bookingId, 'ticket']">
@@ -173,24 +166,19 @@
                         @for (booking of completedBookings; track booking.bookingId) {
                           <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
                             <div class="booking-header">
-
                               <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
                                 {{ getBookingStatusText(booking.status) }}
                               </span>
                             </div>
 
                             <div class="booking-info">
-                              <p class="booking-time">
-                                <strong>Дата бронирования:</strong>
-                                {{ formatDate(booking.bookingTime) }}
-                              </p>
 
                               @if (booking.filmTitle) {
                                 <p class="session-info">
+                                  <strong>Начало сеанса:</strong> {{ formatSessionTime(booking.sessionTime) }}
+                                </p>
+                                <p class="session-info">
                                   <strong>Фильм:</strong> {{ booking.filmTitle }}
-                                  @if (booking.sessionTime) {
-                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
-                                  }
                                 </p>
                               }
 
@@ -212,56 +200,10 @@
                                 </div>
                               }
                             </div>
-                          </div>
-                        }
-                      </div>
-                    }
-
-                    @if (inactiveBookings.length > 0) {
-                      <div class="bookings-group">
-                        <h3 class="group-title">⚫ Неактивные бронирования</h3>
-                        @for (booking of inactiveBookings; track booking.bookingId) {
-                          <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
-                            <div class="booking-header">
-
-                              <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
-                                {{ getBookingStatusText(booking.status) }}
-                              </span>
-                            </div>
-
-                            <div class="booking-info">
-                              <p class="booking-time">
-                                <strong>Дата бронирования:</strong>
-                                {{ formatDate(booking.bookingTime) }}
-                              </p>
-
-                              @if (booking.filmTitle) {
-                                <p class="session-info">
-                                  <strong>Фильм:</strong> {{ booking.filmTitle }}
-                                  @if (booking.sessionTime) {
-                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
-                                  }
-                                </p>
-                              }
-
-                              <p class="booking-cost">
-                                <strong>Стоимость:</strong> {{ booking.totalCost }} ₽
-                              </p>
-                              <p class="booking-seats">
-                                <strong>Места:</strong> {{ getSeatNumbers(booking.ticketList || []) }}
-                              </p>
-
-                              @if (booking.ticketList && booking.ticketList.length > 0) {
-                                <div class="tickets-list">
-                                  <strong>Билеты:</strong>
-                                  @for (ticket of booking.ticketList; track ticket.ticketId) {
-                                    <div class="ticket-item">
-                                      Билет {{ ticket.ticketCode }} - {{ ticket.price }} ₽
-                                    </div>
-                                  }
-                                </div>
-                              }
-                            </div>
+                            <p class="booking-time">
+                              <strong>Дата бронирования:</strong>
+                              {{ formatDate(booking.bookingTime) }}
+                            </p>
                           </div>
                         }
                       </div>
@@ -273,24 +215,19 @@
                         @for (booking of cancelledBookings; track booking.bookingId) {
                           <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
                             <div class="booking-header">
-
                               <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
                                 {{ getBookingStatusText(booking.status) }}
                               </span>
                             </div>
 
                             <div class="booking-info">
-                              <p class="booking-time">
-                                <strong>Дата бронирования:</strong>
-                                {{ formatDate(booking.bookingTime) }}
-                              </p>
 
                               @if (booking.filmTitle) {
                                 <p class="session-info">
+                                  <strong>Начало сеанса:</strong> {{ formatSessionTime(booking.sessionTime) }}
+                                </p>
+                                <p class="session-info">
                                   <strong>Фильм:</strong> {{ booking.filmTitle }}
-                                  @if (booking.sessionTime) {
-                                    <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
-                                  }
                                 </p>
                               }
 
@@ -312,6 +249,10 @@
                                 </div>
                               }
                             </div>
+                            <p class="booking-time">
+                              <strong>Дата бронирования:</strong>
+                              {{ formatDate(booking.bookingTime) }}
+                            </p>
                           </div>
                         }
                       </div>
@@ -320,24 +261,19 @@
                     @for (booking of filteredBookings; track booking.bookingId) {
                       <div class="booking-card" [class]="getBookingStatusClass(booking.status)">
                         <div class="booking-header">
-
                           <span class="booking-status" [class]="getBookingStatusClass(booking.status)">
                             {{ getBookingStatusText(booking.status) }}
                           </span>
                         </div>
 
                         <div class="booking-info">
-                          <p class="booking-time">
-                            <strong>Дата бронирования:</strong>
-                            {{ formatDate(booking.bookingTime) }}
-                          </p>
 
                           @if (booking.filmTitle) {
                             <p class="session-info">
+                              <strong>Начало сеанса:</strong> {{ formatSessionTime(booking.sessionTime) }}
+                            </p>
+                            <p class="session-info">
                               <strong>Фильм:</strong> {{ booking.filmTitle }}
-                              @if (booking.sessionTime) {
-                                <br><small>Начало сеанса: {{ formatSessionTime(booking.sessionTime) }}</small>
-                              }
                             </p>
                           }
 
@@ -358,6 +294,10 @@
                               }
                             </div>
                           }
+                          <p class="booking-time">
+                            <strong>Дата бронирования:</strong>
+                            {{ formatDate(booking.bookingTime) }}
+                          </p>
                         </div>
 
                         <div class="booking-actions">

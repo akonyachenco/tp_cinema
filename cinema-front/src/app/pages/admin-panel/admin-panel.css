@@ -1,19 +1,33 @@
-/* admin-panel.css */
+/* admin-panel.css - Модернизированная версия */
 .admin-panel {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 2rem 1rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 h1 {
-  margin-bottom: 2.5rem;
-  color: #2c3e50;
+  margin-bottom: 3rem;
+  color: #1a365d;
   text-align: center;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
+  font-weight: 800;
   position: relative;
-  padding-bottom: 15px;
+  padding-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  animation: fadeIn 0.6s ease 0.1s both;
 }
 
 h1::after {
@@ -22,48 +36,105 @@ h1::after {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, #3498db, #2ecc71);
-  border-radius: 2px;
+  width: 200px;
+  height: 6px;
+  background: linear-gradient(to right, #3498db, #2ecc71, #9b59b6);
+  border-radius: 3px;
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.admin-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2.5rem;
+  animation: fadeIn 0.6s ease 0.2s both;
 }
 
 section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border-left: 5px solid #3498db;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease;
+}
+
+section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #3498db, #2ecc71, #9b59b6);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+  border-radius: 20px 20px 0 0;
 }
 
 section:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
 }
 
-section:nth-child(3) {
-  border-left-color: #2ecc71;
+section:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+section:nth-child(2) {
+  animation-delay: 0.3s;
 }
 
 h2 {
   color: #2c3e50;
-  margin-bottom: 1.2rem;
-  font-size: 1.5rem;
+  margin-bottom: 1.75rem;
+  font-size: 1.8rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  letter-spacing: -0.3px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #3498db, #2ecc71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 h2::before {
-  content: '▸';
-  color: #3498db;
-  font-size: 1.2rem;
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #3498db, #2ecc71);
+  border-radius: 50%;
+  display: inline-block;
+  animation: pulse 2s ease infinite;
 }
 
-section:nth-child(3) h2::before {
-  color: #2ecc71;
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+section:nth-child(2) h2 {
+  background: linear-gradient(135deg, #2ecc71, #9b59b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+section:nth-child(2) h2::before {
+  background: linear-gradient(135deg, #2ecc71, #9b59b6);
 }
 
 ul {
@@ -71,80 +142,247 @@ ul {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 10px;
+  gap: 1rem;
 }
 
 li {
   margin-bottom: 0;
+  animation: slideIn 0.4s ease;
 }
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+li:nth-child(1) { animation-delay: 0.1s; }
+li:nth-child(2) { animation-delay: 0.2s; }
+li:nth-child(3) { animation-delay: 0.3s; }
 
 a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  color: #2c3e50;
+  gap: 14px;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 15px;
+  color: #2d3748;
   text-decoration: none;
-  font-weight: 500;
-  border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  border: 2px solid #e2e8f0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.3px;
 }
 
 a::before {
   content: '';
   position: absolute;
-  left: 0;
   top: 0;
+  left: -100%;
+  width: 100%;
   height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, rgba(52, 152, 219, 0.1), transparent);
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+  transition: left 0.6s ease;
 }
 
 a:hover {
-  background: #e3f2fd;
+  background: linear-gradient(135deg, #ffffff 0%, #e6f7ff 100%);
   border-color: #3498db;
-  transform: translateX(5px);
+  color: #1a365d;
+  transform: translateX(8px) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
 }
 
 a:hover::before {
-  width: 100%;
+  left: 100%;
 }
 
-/* Иконки для ссылок (можно заменить на реальные иконки) */
+/* Иконки для ссылок */
 a::after {
   content: '→';
   margin-left: auto;
+  font-weight: 800;
   color: #3498db;
-  font-weight: bold;
-  transition: transform 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 1.2rem;
+  opacity: 0.8;
 }
 
 a:hover::after {
-  transform: translateX(5px);
+  transform: translateX(8px);
+  color: #2ecc71;
+  opacity: 1;
+}
+
+/* Декоративные иконки перед текстом */
+a[routerLink*="halls"]::before,
+a[routerLink*="hall-constructor"]::before,
+a[routerLink*="movies"]::before,
+a[routerLink*="sessions"]::before,
+a[routerLink*="add"]::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.8;
+  transition: transform 0.3s ease;
+}
+
+a:hover::before {
+  transform: scale(1.2);
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+  .admin-panel {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+
+  h1 {
+    color: #f1f5f9;
+  }
+
+  h1::after {
+    background: linear-gradient(to right, #4299e1, #48bb78, #9f7aea);
+  }
+
+  section {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border-color: #4a5568;
+  }
+
+  section::before {
+    background: linear-gradient(90deg, #4299e1, #48bb78, #9f7aea);
+  }
+
+  h2 {
+    color: #e2e8f0;
+    background: linear-gradient(135deg, #4299e1, #48bb78);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h2::before {
+    background: linear-gradient(135deg, #4299e1, #48bb78);
+  }
+
+  section:nth-child(2) h2 {
+    background: linear-gradient(135deg, #48bb78, #9f7aea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  section:nth-child(2) h2::before {
+    background: linear-gradient(135deg, #48bb78, #9f7aea);
+  }
+
+  a {
+    background: linear-gradient(135deg, #374151 0%, #4a5568 100%);
+    border-color: #4b5563;
+    color: #e2e8f0;
+  }
+
+  a:hover {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border-color: #4299e1;
+    color: #f7fafc;
+    box-shadow: 0 8px 25px rgba(66, 153, 225, 0.2);
+  }
+
+  a::before {
+    background: linear-gradient(90deg, transparent, rgba(66, 153, 225, 0.15), transparent);
+  }
+
+  a::after {
+    color: #90cdf4;
+  }
+
+  a:hover::after {
+    color: #68d391;
+  }
 }
 
 /* Адаптивность */
 @media (max-width: 768px) {
   .admin-panel {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
   }
-  
+
   h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
   }
-  
+
+  h1::after {
+    width: 150px;
+    height: 5px;
+  }
+
+  .admin-content {
+    gap: 1.75rem;
+  }
+
   section {
-    padding: 1rem;
+    padding: 1.75rem 1.5rem;
+    border-radius: 18px;
   }
-  
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
   a {
-    padding: 10px 12px;
-    font-size: 0.9rem;
+    padding: 1.1rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h1 {
+    font-size: 1.8rem;
+    padding-bottom: 1rem;
+  }
+
+  h1::after {
+    width: 120px;
+    height: 4px;
+  }
+
+  section {
+    padding: 1.5rem 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    gap: 8px;
+  }
+
+  h2::before {
+    width: 6px;
+    height: 6px;
+  }
+
+  a {
+    padding: 1rem 1.25rem;
+    gap: 12px;
+  }
+
+  a::after {
+    font-size: 1rem;
   }
 }
 
@@ -154,18 +392,20 @@ a:hover::after {
   pointer-events: none;
 }
 
-/* Статусные цвета для будущих расширений */
-.status-active {
-  color: #2ecc71;
-  background: rgba(46, 204, 113, 0.1);
+.admin-panel.loading * {
+  animation-play-state: paused !important;
 }
 
-.status-pending {
-  color: #f39c12;
-  background: rgba(243, 156, 18, 0.1);
-}
-
-.status-error {
-  color: #e74c3c;
-  background: rgba(231, 76, 60, 0.1);
+/* Дополнительные декоративные элементы */
+.admin-panel::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(52, 152, 219, 0.05) 0%, transparent 50%),
+  radial-gradient(circle at 80% 20%, rgba(46, 204, 113, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }

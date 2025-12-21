@@ -2,16 +2,16 @@
   <section class="container auth-container">
     <form class="auth-form" (ngSubmit)="onSubmit()" [formGroup]="registerForm">
       <h2>Создание новой учетной записи</h2>
-      
+
       <!-- Имя -->
       <div class="form-group">
-        <label>Имя *</label>
-        <input 
-          type="text" 
+        <label>Имя</label>
+        <input
+          type="text"
           formControlName="name"
           placeholder="Ваше имя"
           [class.error]="name?.invalid && name?.touched">
-        
+
         @if (name?.invalid && name?.touched) {
           <div class="error-message">
             @if (name?.errors?.['required']) {
@@ -26,16 +26,16 @@
           </div>
         }
       </div>
-      
+
       <!-- Фамилия -->
       <div class="form-group">
-        <label>Фамилия *</label>
-        <input 
-          type="text" 
+        <label>Фамилия</label>
+        <input
+          type="text"
           formControlName="surname"
           placeholder="Ваша фамилия"
           [class.error]="surname?.invalid && surname?.touched">
-        
+
         @if (surname?.invalid && surname?.touched) {
           <div class="error-message">
             @if (surname?.errors?.['required']) {
@@ -50,16 +50,16 @@
           </div>
         }
       </div>
-      
+
       <!-- Email -->
       <div class="form-group">
-        <label>Email *</label>
-        <input 
-          type="email" 
+        <label>Email</label>
+        <input
+          type="email"
           formControlName="email"
           placeholder="user@example.com"
           [class.error]="email?.invalid && email?.touched">
-        
+
         @if (email?.invalid && email?.touched) {
           <div class="error-message">
             @if (email?.errors?.['required']) {
@@ -74,16 +74,16 @@
           </div>
         }
       </div>
-      
+
       <!-- Дата рождения -->
       <div class="form-group">
-        <label>Дата рождения *</label>
-        <input 
-          type="date" 
+        <label>Дата рождения</label>
+        <input
+          type="date"
           formControlName="birthDate"
           [max]="maxBirthDate"
           [class.error]="birthDate?.invalid && birthDate?.touched">
-        
+
         @if (birthDate?.invalid && birthDate?.touched) {
           <div class="error-message">
             @if (birthDate?.errors?.['required']) {
@@ -98,16 +98,16 @@
           </div>
         }
       </div>
-      
+
       <!-- Пароль -->
       <div class="form-group">
-        <label>Пароль *</label>
-        <input 
-          type="password" 
+        <label>Пароль</label>
+        <input
+          type="password"
           formControlName="password"
           placeholder="Не менее 6 символов"
           [class.error]="password?.invalid && password?.touched">
-        
+
         @if (password?.invalid && password?.touched) {
           <div class="error-message">
             @if (password?.errors?.['required']) {
@@ -122,16 +122,16 @@
           </div>
         }
       </div>
-      
+
       <!-- Подтверждение пароля -->
       <div class="form-group">
-        <label>Подтверждение пароля *</label>
-        <input 
-          type="password" 
+        <label>Подтверждение пароля</label>
+        <input
+          type="password"
           formControlName="confirmPassword"
           placeholder="Повторите пароль"
           [class.error]="confirmPassword?.invalid && confirmPassword?.touched">
-        
+
         @if (confirmPassword?.invalid && confirmPassword?.touched) {
           <div class="error-message">
             @if (confirmPassword?.errors?.['required']) {
@@ -139,32 +139,32 @@
             }
           </div>
         }
-        
+
         @if (registerForm.errors?.['passwordMismatch'] && password?.touched && confirmPassword?.touched) {
           <div class="error-message">
             Пароли не совпадают
           </div>
         }
       </div>
-      
+
       <!-- Сообщения об ошибках/успехе -->
       @if (errorMessage) {
         <div class="alert alert-error">
           {{ errorMessage }}
         </div>
       }
-      
+
       @if (successMessage) {
         <div class="alert alert-success">
           {{ successMessage }}
         </div>
       }
-      
+
       <!-- Кнопки -->
       <div class="form-actions">
-        <button 
-          type="submit" 
-          class="btn" 
+        <button
+          type="submit"
+          class="btn"
           [disabled]="registerForm.invalid || isLoading">
           @if (isLoading) {
             Регистрация...

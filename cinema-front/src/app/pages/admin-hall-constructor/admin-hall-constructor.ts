@@ -82,7 +82,7 @@
 //         this.hallName = hall.hallName || '';
 //         this.hallType = hall.hallType || '2D';
 //         this.basePrice = hall.basePrice || 300;
-        
+
 //         // Если у зала есть информация о местах, используем её
 //         if (hall.seatList && hall.seatList.length > 0) {
 //           this.transformSeatsToLayout(hall.seatList);
@@ -108,18 +108,18 @@
 //     // Находим максимальные значения рядов и мест
 //     let maxRow = 0;
 //     let maxSeat = 0;
-    
+
 //     seats.forEach(seat => {
 //       if (seat.rowNumber > maxRow) maxRow = seat.rowNumber;
 //       if (seat.seatNumber > maxSeat) maxSeat = seat.seatNumber;
 //     });
-    
+
 //     // Создаем двумерный массив
 //     this.layout = [];
 //     for (let r = 1; r <= maxRow; r++) {
 //       const rowSeats = seats.filter(s => s.rowNumber === r);
 //       const row: SeatDto[] = [];
-      
+
 //       // Создаем места для каждого номера в ряду
 //       for (let s = 1; s <= maxSeat; s++) {
 //         const seat = rowSeats.find(rs => rs.seatNumber === s);
@@ -142,7 +142,7 @@
 //           });
 //         }
 //       }
-      
+
 //       this.layout.push(row);
 //     }
 //   }
@@ -251,7 +251,7 @@
 //   }
 
 //     this.isLoading = true;
-    
+
 //     // Собираем все места в плоский массив
 //     const allSeats: SeatDto[] = [];
 //     this.layout.forEach(row => {
@@ -341,10 +341,10 @@ export class AdminHallConstructor implements OnInit {
   basePrice = 300;
   activeTool: 'select' | 'vip' | 'block' = 'select';
   isLoading = false;
-  
+
   // Поля для размеров зала
-  rowsCount = 5;
-  seatsPerRowCount = 8;
+  rowsCount = 0;
+  seatsPerRowCount = 0;
 
   // layout: двумерный массив мест
   layout: SeatDto[][] = [];
@@ -429,7 +429,7 @@ export class AdminHallConstructor implements OnInit {
         this.basePrice = hall.basePrice || 300;
         this.rowsCount = hall.rowsCount || 5;
         this.seatsPerRowCount = hall.seatsPerRow || 8;
-        
+
         // Если у зала есть информация о местах, используем её
         if (hall.seatList && hall.seatList.length > 0) {
           this.transformSeatsToLayout(hall.seatList);
@@ -455,22 +455,22 @@ transformSeatsToLayout(seats: SeatDto[]): void {
   // Находим максимальные значения рядов и мест
   let maxRow = 0;
   let maxSeat = 0;
-  
+
   seats.forEach(seat => {
     if (seat.rowNumber > maxRow) maxRow = seat.rowNumber;
     if (seat.seatNumber > maxSeat) maxSeat = seat.seatNumber;
   });
-  
+
   // Обновляем счетчики
   this.rowsCount = maxRow;
   this.seatsPerRowCount = maxSeat;
-  
+
   // Создаем двумерный массив
   this.layout = [];
   for (let r = 1; r <= maxRow; r++) {
     const rowSeats = seats.filter(s => s.rowNumber === r);
     const row: SeatDto[] = [];
-    
+
     // Создаем места для каждого номера в ряду
     for (let s = 1; s <= maxSeat; s++) {
       const seat = rowSeats.find(rs => rs.seatNumber === s);
@@ -498,7 +498,7 @@ transformSeatsToLayout(seats: SeatDto[]): void {
         });
       }
     }
-    
+
     this.layout.push(row);
   }
 }
@@ -526,18 +526,18 @@ transformSeatsToLayout(seats: SeatDto[]): void {
   updateLayoutDimensions() {
     const currentRows = this.layout.length;
     const currentSeatsPerRow = this.layout[0]?.length || 0;
-    
+
     // Если размеры не изменились, ничего не делаем
     if (currentRows === this.rowsCount && currentSeatsPerRow === this.seatsPerRowCount) {
       return;
     }
-    
+
     // Сохраняем текущие места для копирования данных
     const oldLayout = [...this.layout];
-    
+
     // Создаем новую схему
     this.generateLayout(this.rowsCount, this.seatsPerRowCount);
-    
+
     // Копируем типы мест из старой схемы
     for (let r = 0; r < Math.min(oldLayout.length, this.layout.length); r++) {
       for (let s = 0; s < Math.min(oldLayout[r].length, this.layout[r].length); s++) {
@@ -550,9 +550,9 @@ transformSeatsToLayout(seats: SeatDto[]): void {
   // Метод для получения CSS класса места
   getSeatClass(seat: SeatDto): string {
     if (!seat) return 'seat';
-    
+
     let classes = 'seat';
-    
+
     switch(seat.seatType) {
       case 'vip':
         classes += ' vip';
@@ -563,7 +563,7 @@ transformSeatsToLayout(seats: SeatDto[]): void {
       default:
         classes += ' standard';
     }
-    
+
     return classes;
   }
 
@@ -614,7 +614,7 @@ transformSeatsToLayout(seats: SeatDto[]): void {
     this.updateLayoutDimensions();
 
     this.isLoading = true;
-    
+
     // Собираем все места в плоский массив
     const allSeats: SeatDto[] = [];
     this.layout.forEach(row => {

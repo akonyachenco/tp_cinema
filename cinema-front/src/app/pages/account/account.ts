@@ -35,7 +35,7 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   activeStatusFilter: string = 'all';
   isLoading = true;
-  activeTab: 'profile' | 'bookings' | 'settings' = 'bookings';
+  activeTab: 'profile' | 'bookings' = 'bookings';
 
   private destroy$ = new Subject<void>();
 
@@ -58,35 +58,20 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   get activeBookings() {
     return this.filteredBookings.filter(b =>
-      b.status.toLowerCase() === 'active' ||
-      b.status.toLowerCase() === 'активно'
+      this.isStatusActive(b.status)
     );
   }
 
   get completedBookings() {
     return this.filteredBookings.filter(b =>
-      b.status.toLowerCase() === 'completed' ||
-      b.status.toLowerCase() === 'завершено'
+      this.isStatusCompleted(b.status)
     );
   }
 
-  get inactiveBookings() {
-    return this.filteredBookings.filter(b => {
-      const statusLower = b.status.toLowerCase();
-      return statusLower === 'inactive' ||
-        statusLower === 'неактивно' ||
-        statusLower === 'expired' ||
-        statusLower === 'просрочено';
-    });
-  }
-
   get cancelledBookings() {
-    return this.filteredBookings.filter(b => {
-      const statusLower = b.status.toLowerCase();
-      return statusLower === 'cancelled' ||
-        statusLower === 'отменено' ||
-        statusLower === 'отмена';
-    });
+    return this.filteredBookings.filter(b =>
+      this.isStatusCancelled(b.status)
+    );
   }
 
   applyStatusFilter(status: string): void {
@@ -99,22 +84,13 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     if (this.activeStatusFilter !== 'all') {
       filtered = filtered.filter(booking => {
-        const statusLower = booking.status.toLowerCase();
         switch (this.activeStatusFilter) {
           case 'active':
-            return statusLower === 'active' || statusLower === 'активно';
+            return this.isStatusActive(booking.status);
           case 'cancelled':
-            return statusLower === 'cancelled' ||
-              statusLower === 'отменено' ||
-              statusLower === 'отмена';
-          case 'inactive':
-            return statusLower === 'inactive' ||
-              statusLower === 'неактивно' ||
-              statusLower === 'expired' ||
-              statusLower === 'просрочено';
+            return this.isStatusCancelled(booking.status);
           case 'completed':
-            return statusLower === 'completed' ||
-              statusLower === 'завершено';
+            return this.isStatusCompleted(booking.status);
           default:
             return true;
         }
@@ -140,21 +116,37 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   private getStatusPriority(status: string): number {
-    const statusLower = status.toLowerCase();
-
-    if (statusLower === 'active' || statusLower === 'активно') {
-      return 3;
-    } else if (statusLower === 'completed' || statusLower === 'завершено') {
-      return 2;
-    } else if (statusLower === 'inactive' || statusLower === 'неактивно') {
-      return 1;
-    } else if (statusLower === 'cancelled' || statusLower === 'отменено' || statusLower === 'отмена') {
-      return 0;
-    } else if (statusLower === 'expired' || statusLower === 'просрочено') {
-      return 0;
+    if (this.isStatusActive(status)) {
+      return 3; // Высший приоритет - активные
+    } else if (this.isStatusCompleted(status)) {
+      return 2; // Средний приоритет - завершённые
+    } else if (this.isStatusCancelled(status)) {
+      return 1; // Низший приоритет - отменённые
     }
 
     return 0;
+  }
+
+  private isStatusActive(status: string): boolean {
+    const statusLower = status.toLowerCase();
+    return statusLower === 'active' || statusLower === 'активно';
+  }
+
+  private isStatusCompleted(status: string): boolean {
+    const statusLower = status.toLowerCase();
+    return statusLower === 'completed' ||
+      statusLower === 'завершено' ||
+      statusLower === 'inactive' ||
+      statusLower === 'неактивно' ||
+      statusLower === 'expired' ||
+      statusLower === 'просрочено';
+  }
+
+  private isStatusCancelled(status: string): boolean {
+    const statusLower = status.toLowerCase();
+    return statusLower === 'cancelled' ||
+      statusLower === 'отменено' ||
+      statusLower === 'отмена';
   }
 
   loadUserData(): void {
@@ -240,8 +232,12 @@ export class AccountComponent implements OnInit, OnDestroy {
                 const filmTitle = film?.title || `Фильм #${session?.filmId}`;
                 const canCancel = this.canCancelBooking(booking, sessionTime);
 
+                // Приводим все статусы к трём основным
+                const normalizedStatus = this.normalizeBookingStatus(booking.status);
+
                 return {
                   ...booking,
+                  status: normalizedStatus, // Заменяем статус на нормализованный
                   session: session,
                   sessionTime: sessionTime,
                   filmTitle: filmTitle,
@@ -267,6 +263,19 @@ export class AccountComponent implements OnInit, OnDestroy {
       });
   }
 
+  private normalizeBookingStatus(status: string): string {
+    if (this.isStatusActive(status)) {
+      return 'active';
+    } else if (this.isStatusCompleted(status)) {
+      return 'completed';
+    } else if (this.isStatusCancelled(status)) {
+      return 'cancelled';
+    } else {
+      // По умолчанию считаем завершённым
+      return 'completed';
+    }
+  }
+
   processBookingsWithoutFilms(bookings: BookingDto[], results: any[]): void {
     const enrichedBookings = bookings.map(booking => {
       const result = results.find(r => r.bookingId === booking.bookingId);
@@ -275,8 +284,12 @@ export class AccountComponent implements OnInit, OnDestroy {
       const filmTitle = session ? `Фильм #${session.filmId}` : 'Фильм';
       const canCancel = this.canCancelBooking(booking, sessionTime);
 
+      // Нормализуем статус
+      const normalizedStatus = this.normalizeBookingStatus(booking.status);
+
       return {
         ...booking,
+        status: normalizedStatus,
         session: session,
         sessionTime: sessionTime,
         filmTitle: filmTitle,
@@ -290,7 +303,8 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   canCancelBooking(booking: BookingDto, sessionTime?: Date): boolean {
-    if (booking.status !== 'active' && booking.status !== 'Активно') return false;
+    // Можно отменять только активные бронирования
+    if (!this.isStatusActive(booking.status)) return false;
 
     const targetTime = sessionTime || new Date(booking.bookingTime);
     const now = new Date();
@@ -299,53 +313,32 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   getBookingStatusText(status: string): string {
-    switch(status.toLowerCase()) {
-      case 'active':
-      case 'активно':
-        return 'Активно';
-      case 'cancelled':
-      case 'отмена':
-      case 'отменено':
-        return 'Отменено';
-      case 'completed':
-      case 'завершено':
-        return 'Завершено';
-      case 'expired':
-      case 'просрочено':
-        return 'Просрочено';
-      case 'inactive':
-      case 'неактивно':
-        return 'Неактивно';
-      default:
-        return status;
+    if (this.isStatusActive(status)) {
+      return 'Активно';
+    } else if (this.isStatusCompleted(status)) {
+      return 'Завершено';
+    } else if (this.isStatusCancelled(status)) {
+      return 'Отменено';
     }
+
+    // По умолчанию считаем завершённым
+    return 'Завершено';
   }
 
   getBookingStatusClass(status: string): string {
-    const statusLower = status.toLowerCase();
-    switch(statusLower) {
-      case 'active':
-      case 'активно':
-        return 'status-active';
-      case 'cancelled':
-      case 'отмена':
-      case 'отменено':
-        return 'status-cancelled';
-      case 'completed':
-      case 'завершено':
-        return 'status-completed';
-      case 'expired':
-      case 'просрочено':
-        return 'status-expired';
-      case 'inactive':
-      case 'неактивно':
-        return 'status-inactive';
-      default:
-        return '';
+    if (this.isStatusActive(status)) {
+      return 'status-active';
+    } else if (this.isStatusCompleted(status)) {
+      return 'status-completed';
+    } else if (this.isStatusCancelled(status)) {
+      return 'status-cancelled';
     }
+
+    // По умолчанию считаем завершённым
+    return 'status-completed';
   }
 
-  setActiveTab(tab: 'profile' | 'bookings' | 'settings'): void {
+  setActiveTab(tab: 'profile' | 'bookings'): void {
     this.activeTab = tab;
   }
 
@@ -423,20 +416,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     });
   }
 
-  getFilterText(filter: string): string {
-    switch(filter) {
-      case 'all': return 'Все';
-      case 'active': return 'Активные';
-      case 'cancelled': return 'Отмененные';
-      case 'inactive': return 'Неактивные';
-      case 'completed': return 'Завершенные';
-      default: return filter;
-    }
-  }
-
   isFilterActive(filter: string): boolean {
     return this.activeStatusFilter === filter;
   }
-
-
 }

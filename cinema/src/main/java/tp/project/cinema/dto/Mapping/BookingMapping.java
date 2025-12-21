@@ -48,14 +48,14 @@ public interface BookingMapping {
 
     @AfterMapping
     default void checkSessionStatus(@MappingTarget BookingDto bookingDto, Booking entity) {
-        if (!bookingDto.getStatus().equals("Отмена") && !bookingDto.getStatus().equals("Неактивно")) {
+        if (!bookingDto.getStatus().equals("Отмена") && !bookingDto.getStatus().equals("Завершено")) {
             String status = entity.getSession().getStatus();
             switch (status) {
                 case "Отменен":
                     bookingDto.setStatus("Отмена");
                     break;
                 case "Завершен":
-                    bookingDto.setStatus("Неактивно");
+                    bookingDto.setStatus("Завершено");
                     break;
             }
         }

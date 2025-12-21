@@ -30,15 +30,13 @@
         <div class="ticket-main">
           <div class="ticket-header">
             <div class="cinema-info">
-              <h2>Кинотеатр "Премиум"</h2>
-              <p class="cinema-address">г. Москва, ул. Кинотеатральная, 1</p>
-              <p class="cinema-phone">+7 (495) 123-45-67</p>
+              <h2>Кинотеатр</h2>
             </div>
 
             <div class="ticket-status">
-              <div class="status-badge" [class.active]="booking.status === 'active'"
-                                     [class.cancelled]="booking.status === 'cancelled'">
-                {{ booking.status === 'active' ? 'ПОДТВЕРЖДЕН' : 'ОТМЕНЕН' }}
+              <div class="status-badge" [class.active]="booking.status === 'Активно'"
+                                     [class.cancelled]="booking.status === 'Отмена'">
+                {{ booking.status === 'Активно' ? 'ПОДТВЕРЖДЕН' : 'ОТМЕНЕН' }}
               </div>
             </div>
           </div>
@@ -112,10 +110,6 @@
                   <span class="value price">{{ currentTicket.price }} ₽</span>
                 </div>
 
-                <div class="booking-info">
-                  <span class="label">Бронирование №:</span>
-                  <span class="value">{{ booking.bookingId }}</span>
-                </div>
               </div>
             </div>
           </div>
