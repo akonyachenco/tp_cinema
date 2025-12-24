@@ -8,6 +8,7 @@ import { MovieCardComponent } from './shared/components/movie-card/movie-card';
 import { MovieDetailComponent } from './pages/movie-detail/movie-detail';
 import { SessionComponent } from './pages/session/session';
 import { ConfirmComponent } from './pages/confirm/confirm';
+import { InfoComponent } from './pages/info/info';
 
 import { AdminPanel } from './pages/admin-panel/admin-panel';
 import { AdminHalls } from './pages/admin-halls/admin-halls';
@@ -16,6 +17,7 @@ import { AdminMovies } from './pages/admin-movies/admin-movies';
 import { AdminMoviesAdd } from './pages/admin-movies-add/admin-movies-add';
 import { AdminSessions } from './pages/admin-sessions/admin-sessions';
 import { AdminSessionAdd } from './pages/admin-session-add/admin-session-add';
+import { AdminDirectors } from './pages/admin-directors/admin-directors';
 
 export const routes: Routes = [  { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
@@ -25,6 +27,7 @@ export const routes: Routes = [  { path: '', component: HomeComponent },
   { path: 'movie/:id', component: MovieDetailComponent },
   { path: 'ticket/:id', component: TicketComponent }, // по ID билета
   { path: 'booking/:bookingId/ticket', component: TicketComponent },
+  { path: 'info', component: InfoComponent },
   { path: 'session/:id', component: SessionComponent },
   { path: 'confirm', component: ConfirmComponent },
   { path: 'admin',component: AdminPanel},
@@ -36,6 +39,7 @@ export const routes: Routes = [  { path: '', component: HomeComponent },
   { path: 'admin/sessions', component: AdminSessions },
   { path: 'admin/sessions/add', component: AdminSessionAdd },
   { path: 'admin/sessions/:filmId', component: AdminSessions },
+  { path: 'admin/directors', component: AdminDirectors },
 
   { path: '**', redirectTo: '' }
 ];

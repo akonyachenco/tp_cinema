@@ -20,20 +20,24 @@
             </p>
           </div>
 
-          <nav class="sidebar-nav">
-            <button
-              class="nav-btn"
-              [class.active]="activeTab === 'bookings'"
-              (click)="setActiveTab('bookings')">
-              📅 Мои бронирования
-            </button>
-            <button
-              class="nav-btn"
-              [class.active]="activeTab === 'profile'"
-              (click)="setActiveTab('profile')">
-              👤 Профиль
-            </button>
-          </nav>
+<nav class="sidebar-nav">
+  <!-- Показывать "Мои бронирования" только НЕ администраторам -->
+  @if (!isAdmin) {
+    <button
+      class="nav-btn"
+      [class.active]="activeTab === 'bookings'"
+      (click)="setActiveTab('bookings')">
+      📅 Мои бронирования
+    </button>
+  }
+  
+  <button
+    class="nav-btn"
+    [class.active]="activeTab === 'profile'"
+    (click)="setActiveTab('profile')">
+    👤 Профиль
+  </button>
+</nav>
         </aside>
 
         <main class="content">

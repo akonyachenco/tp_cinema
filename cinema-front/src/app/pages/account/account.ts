@@ -17,6 +17,9 @@ import { MovieService } from '../../core/services/movie.service';
 })
 export class AccountComponent implements OnInit, OnDestroy {
   user: UserDto | null = null;
+ get isAdmin(): boolean {
+    return this.user?.role === 'ADMIN' || this.user?.role === 'admin';
+  }
   bookings: (BookingDto & {
     canCancel?: boolean;
     session?: SessionDto;
@@ -149,16 +152,26 @@ export class AccountComponent implements OnInit, OnDestroy {
       statusLower === 'отмена';
   }
 
-  loadUserData(): void {
-    this.user = this.auth.getCurrentUser();
+loadUserData(): void {
+  this.user = this.auth.getCurrentUser();
 
-    if (!this.user) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    this.loadBookings();
+  if (!this.user) {
+    this.router.navigate(['/login']);
+    return;
   }
+
+  // Если пользователь - администратор, по умолчанию показываем вкладку профиля
+  if (this.isAdmin) {
+    this.activeTab = 'profile';
+  }
+
+  // Загружаем бронирования только для обычных пользователей
+  if (!this.isAdmin) {
+    this.loadBookings();
+  } else {
+    this.isLoading = false; // Завершаем загрузку для админов
+  }
+}
 
   loadBookings(): void {
     this.isLoading = true;

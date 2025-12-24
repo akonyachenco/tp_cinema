@@ -1,0 +1,230 @@
+<!-- admin-directors.html -->
+<main class="container">
+  <div class="page-header">
+    <h1>Управление режиссерами</h1>
+    <div class="header-actions">
+      <a routerLink="/admin/movies" class="btn btn-outline">← К управлению фильмами</a>
+      <button 
+        class="btn btn-primary"
+        (click)="toggleCreateDirectorForm()"
+        [disabled]="isCreatingDirector || isLoading">
+        <span *ngIf="!showCreateForm">➕ Добавить режиссера</span>
+        <span *ngIf="showCreateForm">✖ Отменить добавление</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Сообщения -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span class="icon">✓</span>
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span class="icon">✗</span>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Форма создания нового режиссера -->
+  <div *ngIf="showCreateForm" class="form-container new-director-container">
+    <h2>Добавить нового режиссера</h2>
+    
+    <div class="new-director-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="newDirectorName">Имя <span class="required">*</span></label>
+          <input
+            type="text"
+            id="newDirectorName"
+            [(ngModel)]="newDirectorName"
+            name="newDirectorName"
+            placeholder="Введите имя"
+            [disabled]="isCreatingDirector || isLoading">
+        </div>
+
+        <div class="form-group">
+          <label for="newDirectorSurname">Фамилия <span class="required">*</span></label>
+          <input
+            type="text"
+            id="newDirectorSurname"
+            [(ngModel)]="newDirectorSurname"
+            name="newDirectorSurname"
+            placeholder="Введите фамилию"
+            [disabled]="isCreatingDirector || isLoading">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="newDirectorBirthDate">Дата рождения</label>
+          <input
+            type="date"
+            id="newDirectorBirthDate"
+            [(ngModel)]="newDirectorBirthDate"
+            name="newDirectorBirthDate"
+            [disabled]="isCreatingDirector || isLoading">
+        </div>
+      </div>
+
+      <!-- Выбор страны для нового режиссера -->
+      <div class="form-section">
+        <h4>Страна режиссера <span class="required">*</span></h4>
+
+        <div class="search-box">
+          <input
+            type="text"
+            [(ngModel)]="directorCountrySearchTerm"
+            placeholder="Поиск страны..."
+            [disabled]="isCreatingDirector || isLoading"
+            name="directorCountrySearch">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-indicator">
+          <span class="spinner-small"></span>
+          <span>Загрузка списка стран...</span>
+        </div>
+
+        <div *ngIf="!isLoading && filteredDirectorCountries.length === 0" class="empty-list">
+          <p>Страны не найдены</p>
+        </div>
+
+        <div class="country-list" *ngIf="!isLoading && filteredDirectorCountries.length > 0">
+          <div
+            *ngFor="let country of filteredDirectorCountries"
+            class="country-item"
+            [class.selected]="selectedDirectorCountry?.countryId === country.countryId"
+            (click)="!isCreatingDirector && selectDirectorCountry(country)"
+            [class.disabled]="isCreatingDirector">
+            <div class="country-info">
+              <span class="country-name">{{ country.countryName }}</span>
+              <span class="country-details">
+                {{ country.directorList?.length || 0 }} режиссеров
+              </span>
+            </div>
+            <div class="country-id">ID: {{ country.countryId }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedDirectorCountry" class="selected-info">
+          <span>Выбрана страна: <strong>{{ selectedDirectorCountry.countryName }}</strong></span>
+        </div>
+      </div>
+
+      <!-- Кнопка создания режиссера -->
+      <div class="form-actions director-actions">
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="createNewDirector()"
+          [disabled]="isCreatingDirector || !newDirectorName.trim() || !newDirectorSurname.trim() || !selectedDirectorCountry">
+          <span *ngIf="!isCreatingDirector">Создать режиссера</span>
+          <span *ngIf="isCreatingDirector" class="loading-text">
+            <span class="spinner-small"></span> Создание...
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="resetNewDirectorForm()"
+          [disabled]="isCreatingDirector">
+          Очистить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Список существующих режиссеров -->
+  <div class="form-container">
+    <div class="list-header">
+      <h2>Список режиссеров</h2>
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="directorSearchTerm"
+          placeholder="Поиск режиссера..."
+          [disabled]="isLoading"
+          (input)="onSearchChange()">
+        <span class="search-icon">🔍</span>
+      </div>
+    </div>
+
+    <!-- Индикатор загрузки -->
+    <div *ngIf="isLoading" class="loading-indicator">
+      <span class="spinner-small"></span>
+      <span>Загрузка списка режиссеров...</span>
+    </div>
+
+    <!-- Пустой список -->
+    <div *ngIf="!isLoading && directors.length === 0" class="empty-list">
+      <p>Режиссеры не найдены</p>
+      <p class="hint">Начните с добавления первого режиссера</p>
+    </div>
+
+    <!-- Список режиссеров -->
+    <div *ngIf="!isLoading && directors.length > 0" class="directors-list">
+      <div class="list-stats">
+        <span>Всего режиссеров: {{ directors.length }}</span>
+        <span *ngIf="directorSearchTerm.trim()">Найдено: {{ filteredDirectors.length }}</span>
+      </div>
+
+      <div class="director-list">
+        <div
+          *ngFor="let director of filteredDirectors"
+          class="director-item"
+          [class.selected]="selectedDirectorId === director.directorId"
+          (click)="selectDirector(director)">
+          <div class="director-info">
+            <span class="director-name">{{ director.directorNameAndSurname }}</span>
+            <div class="director-details">
+              <span class="detail-item">
+                <strong>ID:</strong> {{ director.directorId }}
+              </span>
+              <span *ngIf="director.birthDate" class="detail-item">
+                <strong>Дата рождения:</strong> {{ formatDate(director.birthDate) }}
+              </span>
+              <span class="detail-item">
+                <strong>Страна:</strong> {{ getCountryName(director.countryId) }}
+              </span>
+              <span class="detail-item">
+                <strong>Фильмов:</strong> {{ director.filmList?.length || 0 }}
+              </span>
+            </div>
+          </div>
+          <div class="director-actions">
+            <button
+              class="btn btn-outline btn-small"
+              (click)="editDirector(director); $event.stopPropagation()">
+              ✏️ Редактировать
+            </button>
+              <button
+                class="btn btn-secondary btn-small"
+                (click)="deleteDirector(director.directorId); $event.stopPropagation()"
+                [disabled]="hasFilms(director)">
+                🗑️ Удалить
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Статистика -->
+    <div *ngIf="!isLoading && directors.length > 0" class="list-footer">
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-label">Всего режиссеров:</span>
+          <span class="stat-value">{{ directors.length }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">С фильмами:</span>
+          <span class="stat-value">{{ directorsWithMoviesCount }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Без фильмов:</span>
+          <span class="stat-value">{{ directorsWithoutMoviesCount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

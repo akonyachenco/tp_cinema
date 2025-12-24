@@ -51,12 +51,17 @@
       </div>
     }
 
-
     <!-- Сеансы -->
     @if (showSessions) {
       <div class="sessions-section">
         <div class="sessions-header">
-          <h4 class="sessions-title">Доступные сеансы</h4>
+          <h4 class="sessions-title">
+            @if (isAdmin) {
+              📋 Доступные сеансы (только просмотр)
+            } @else {
+              🎫 Доступные сеансы
+            }
+          </h4>
         </div>
 
         @if (hasSessions && sessionDates && sessionDates.length > 0) {
@@ -72,13 +77,27 @@
 
                 <div class="session-times">
                   @for (session of sessionGroup.sessions; track session.sessionId) {
-                    <a
-                      [routerLink]="['/session', session.sessionId]"
-                      class="session-time-btn"
-                      [title]="'Билеты на ' + formatSessionTime(session.dateTime)"
-                    >
-                      {{ formatSessionTime(session.dateTime) }}
-                    </a>
+                    <!-- Кнопка сеанса с проверкой администратора -->
+                    @if (isAdmin) {
+                      <!-- Для администратора - кнопка неактивная -->
+                      <button
+                        class="session-time-btn admin-disabled"
+                        [title]="'Администраторы не могут бронировать билеты'"
+                        disabled
+                      >
+                        {{ formatSessionTime(session.dateTime) }}
+                      </button>
+                    } @else {
+                      <!-- Для обычных пользователей - ссылка для перехода -->
+                      <a
+                        [routerLink]="['/session', session.sessionId]"
+                        class="session-time-btn"
+                        [title]="'Билеты на ' + formatSessionTime(session.dateTime)"
+                        (click)="onSessionClick($event, session)"
+                      >
+                        {{ formatSessionTime(session.dateTime) }}
+                      </a>
+                    }
                   }
                 </div>
               </div>
@@ -94,12 +113,24 @@
 
     <!-- Кнопка подробнее -->
     <div class="movie-actions">
-      <a
-        [routerLink]="['/movie', movie.filmId]"
-        class="details-btn"
-      >
-        Подробнее о фильме
-      </a>
+      @if (isAdmin) {
+        <!-- Для администратора - неактивная кнопка -->
+        <button
+          class="details-btn admin-disabled"
+          disabled
+          title="Администраторы не могут просматривать детали фильмов"
+        >
+          Подробнее о фильме
+        </button>
+      } @else {
+        <!-- Для обычных пользователей - ссылка -->
+        <a
+          [routerLink]="['/movie', movie.filmId]"
+          class="details-btn"
+        >
+          Подробнее о фильме
+        </a>
+      }
     </div>
   </div>
 </div>
